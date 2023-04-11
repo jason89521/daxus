@@ -1,0 +1,7 @@
+{
+  "posts": [
+    { "id": 1, "title": "post1", "layout": "classic" },
+    { "id": 2, "title": "post2", "layout": "classic" },
+    { "id": 3, "title": "post3", "layout": "image" }
+  ]
+}
