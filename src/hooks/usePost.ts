@@ -1,29 +1,16 @@
-import { useEffect, useState } from 'react';
-import type { Post } from '../types';
+import { useEffect } from 'react';
+import { postModel } from '../model';
+import { useFetch } from './useFetch';
 
 interface Props {
   id: number;
 }
 
-const map = new Map<number, { isFetching: boolean }>();
-
 export function usePost({ id }: Props) {
-  const [post, setPost] = useState<Post | null>(null);
-
+  const { data } = useFetch(postModel.actions.getPostById(id), model => model.index[id]);
   useEffect(() => {
-    const cachedValue = map.get(id);
-    if (cachedValue) {
-      if (cachedValue.isFetching) return;
-    }
+    console.log('data: ', data);
+  }, [data]);
 
-    map.set(id, { isFetching: true });
-    fetch(`http://localhost:3000/posts/${id}`)
-      .then(res => res.json())
-      .then(data => {
-        map.set(id, { isFetching: false });
-        setPost(data);
-      });
-  }, [id]);
-
-  return { post };
+  return { post: data };
 }
