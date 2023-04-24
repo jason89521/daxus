@@ -3,17 +3,37 @@ import type { FetchObject, CacheData } from '../model';
 
 export function useFetch<M, FO extends FetchObject<M>, D = any>(
   cacheData: CacheData<M, FO>,
-  getSnapshot: (model: M) => D
+  getSnapshot: (model: M) => D,
+  options: {
+    validateOnFocus?: boolean;
+  } = {}
 ) {
-  const { hasFetched } = useSyncExternalStore(cacheData.subscribe, cacheData.getInfoSnapshot);
+  const { validateOnFocus = true } = options;
+  const { hasFetched, isFetching } = useSyncExternalStore(
+    cacheData.subscribe,
+    cacheData.getStatusSnapshot
+  );
   const data = useSyncExternalStore(cacheData.subscribe, () => {
     return getSnapshot(cacheData.getLatestModel());
   });
 
   useEffect(() => {
-    if (hasFetched) return;
     cacheData.fetchData();
-  }, [cacheData, hasFetched]);
+  }, [cacheData]);
 
-  return { data };
+  useEffect(() => {
+    if (!validateOnFocus) return;
+    const handleFocus = (e: FocusEvent) => {
+      console.log('DEBUG onFocus');
+      cacheData.validate();
+    };
+
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [validateOnFocus, cacheData]);
+
+  return { data, hasFetched, isFetching };
 }

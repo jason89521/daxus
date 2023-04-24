@@ -5,11 +5,17 @@ import { getPostById as getPostByIdRequest } from '../request';
 
 type PostModel = { index: Record<number, Post | undefined> };
 
-const getPostById: FetchObject<PostModel, number> = {
-  fetchData: async (model, id) => {
+const getPostById: FetchObject<PostModel, number, Post> = {
+  fetchData: async id => {
     const data = await getPostByIdRequest(id);
 
-    model.index[id] = data;
+    return data;
+  },
+  syncModel: (draft, { remoteData, arg }) => {
+    draft.index[arg] = remoteData;
+  },
+  validateModel: (draft, { remoteData, arg }) => {
+    draft.index[arg] = remoteData;
   },
 };
 

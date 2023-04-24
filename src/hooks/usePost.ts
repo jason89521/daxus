@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { postModel } from '../model';
 import { useFetch } from './useFetch';
 
@@ -7,10 +6,9 @@ interface Props {
 }
 
 export function usePost({ id }: Props) {
-  const { data } = useFetch(postModel.actions.getPostById(id), model => model.index[id]);
-  useEffect(() => {
-    console.log('data: ', data);
-  }, [data]);
+  const { data } = useFetch(postModel.actions.getPostById(id), model => {
+    return model.index[id];
+  });
 
   return { post: data };
 }

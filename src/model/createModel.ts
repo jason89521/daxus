@@ -1,19 +1,21 @@
 import { createDraft, finishDraft } from 'immer';
 import type { Draft } from 'immer';
 
-export type FetchObject<Model, Arg = any> = {
-  fetchData: (state: Draft<Model>, arg: Arg) => Promise<unknown>;
+export type FetchObject<Model, Arg = any, Data = any> = {
+  fetchData: (arg: Arg) => Promise<Data>;
+  syncModel: (model: Draft<Model>, payload: { remoteData: Data; arg: Arg }) => void;
+  validateModel?: (model: Draft<Model>, payload: { remoteData: Data; arg: Arg }) => void;
 };
 
 type GetCacheDataFromFetchObjects<M extends object, Fs extends Record<string, FetchObject<M>>> = {
-  [Key in keyof Fs]: (arg: Parameters<Fs[Key]['fetchData']>[1]) => CacheData<M, Fs[Key]>;
+  [Key in keyof Fs]: (arg: Parameters<Fs[Key]['fetchData']>[0]) => CacheData<M, Fs[Key]>;
 };
 
 type ArgFromFetchObject<FO extends FetchObject<any>> = Parameters<FO['fetchData']>[1];
 
 export class CacheData<M, FO extends FetchObject<M>> {
   private listeners: (() => void)[] = [];
-  private info: { isFetching: boolean; hasFetched: boolean };
+  private status: { isFetching: boolean; hasFetched: boolean; isValidating: boolean };
   private fetchObject: FO;
   private arg: ArgFromFetchObject<FO>;
   private updateModel: (cb: (model: Draft<M>) => Promise<void>) => Promise<void>;
@@ -29,14 +31,15 @@ export class CacheData<M, FO extends FetchObject<M>> {
     this.arg = arg;
     this.updateModel = updateModel;
     this.getLatestModel = getLatestModel;
-    this.info = {
+    this.status = {
       isFetching: false,
       hasFetched: false,
+      isValidating: false,
     };
   }
 
-  private mutateInfo = (newInfo: Partial<typeof this.info>) => {
-    this.info = { ...this.info, ...newInfo };
+  private mutateStatus = (newInfo: Partial<typeof this.status>) => {
+    this.status = { ...this.status, ...newInfo };
     this.notifyListeners();
   };
 
@@ -51,17 +54,18 @@ export class CacheData<M, FO extends FetchObject<M>> {
     };
   };
 
-  getInfoSnapshot = () => {
-    return this.info;
+  getStatusSnapshot = () => {
+    return this.status;
   };
 
   fetchData = async () => {
-    if (this.info.isFetching) return;
-    this.mutateInfo({ isFetching: true });
-    await this.updateModel(async draft => {
-      await this.fetchObject.fetchData(draft, this.arg);
+    if (this.status.isFetching) return;
+    this.mutateStatus({ isFetching: true });
+    const data = await this.fetchObject.fetchData(this.arg);
+    this.updateModel(async draft => {
+      this.fetchObject.syncModel(draft, { remoteData: data, arg: this.arg });
     });
-    this.mutateInfo({
+    this.mutateStatus({
       isFetching: false,
       hasFetched: true,
     });
@@ -72,6 +76,17 @@ export class CacheData<M, FO extends FetchObject<M>> {
       await mutateFn(draft);
     });
     this.notifyListeners();
+  };
+
+  validate = async () => {
+    if (typeof this.fetchObject.validateModel === 'undefined') return;
+    if (this.status.isFetching || this.status.isValidating) return;
+    this.mutateStatus({ isValidating: true });
+    const data = await this.fetchObject.fetchData(this.arg);
+    this.updateModel(async draft => {
+      this.fetchObject.validateModel?.(draft, { remoteData: data, arg: this.arg });
+    });
+    this.mutateStatus({ isValidating: false });
   };
 }
 
@@ -85,7 +100,7 @@ export class Model<S extends object, Fs extends Record<string, FetchObject<S>>> 
     this.model = initialModel;
 
     Object.entries(fetchObjects).forEach(([actionName, fetchObject]) => {
-      const getCacheData = (arg: Parameters<typeof fetchObject['fetchData']>[1]) => {
+      const getCacheData = (arg: Parameters<typeof fetchObject['fetchData']>[0]) => {
         const serializedArg = typeof arg === 'undefined' ? '' : JSON.stringify(arg);
         const key = `${actionName}/${serializedArg}`;
         const cacheData = this.cache[key];
