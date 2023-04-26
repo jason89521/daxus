@@ -1,31 +1,29 @@
 import { useEffect, useSyncExternalStore } from 'react';
-import type { FetchObject, CacheData } from '../model';
+import type { FetchObject } from '../model/types';
+import type { ModelAccessor } from '../model/ModelAccessor';
 
 export function useFetch<M, FO extends FetchObject<M>, D = any>(
-  cacheData: CacheData<M, FO>,
+  accessor: ModelAccessor<M, FO>,
   getSnapshot: (model: M) => D,
   options: {
     revalidateOnFocus?: boolean;
   } = {}
 ) {
   const { revalidateOnFocus = true } = options;
-  const { hasFetched, isFetching } = useSyncExternalStore(
-    cacheData.subscribe,
-    cacheData.getStatusSnapshot
-  );
-  const data = useSyncExternalStore(cacheData.subscribe, () => {
-    return getSnapshot(cacheData.getLatestModel());
+  const status = useSyncExternalStore(accessor.subscribe, accessor.getStatusSnapshot);
+  const data = useSyncExternalStore(accessor.subscribe, () => {
+    return getSnapshot(accessor.getLatestModel());
   });
 
   useEffect(() => {
-    cacheData.fetchData();
-  }, [cacheData]);
+    accessor.fetchData();
+  }, [accessor]);
 
   useEffect(() => {
     if (revalidateOnFocus) {
-      return cacheData.registerRevalidateOnFocus();
+      return accessor.registerRevalidateOnFocus();
     }
-  }, [revalidateOnFocus, cacheData]);
+  }, [revalidateOnFocus, accessor]);
 
-  return { data, hasFetched, isFetching };
+  return { data };
 }

@@ -1,6 +1,6 @@
 import type { Post } from '../types';
-import { Model } from './createModel';
-import type { FetchObject } from './createModel';
+import { Model } from './Model';
+import type { FetchObject } from './types';
 import { getPostById as getPostByIdRequest } from '../request';
 
 type PostModel = { index: Record<number, Post | undefined> };
