@@ -4,7 +4,6 @@ import type { Draft } from 'immer';
 export type FetchObject<Model, Arg = any, Data = any> = {
   fetchData: (arg: Arg) => Promise<Data>;
   syncModel: (model: Draft<Model>, payload: { remoteData: Data; arg: Arg }) => void;
-  validateModel?: (model: Draft<Model>, payload: { remoteData: Data; arg: Arg }) => void;
 };
 
 type GetCacheDataFromFetchObjects<M extends object, Fs extends Record<string, FetchObject<M>>> = {
@@ -19,6 +18,8 @@ export class CacheData<M, FO extends FetchObject<M>> {
   private fetchObject: FO;
   private arg: ArgFromFetchObject<FO>;
   private updateModel: (cb: (model: Draft<M>) => Promise<void>) => Promise<void>;
+  private revalidateOnFocusCount = 0;
+
   getLatestModel: () => M;
 
   constructor(
@@ -47,6 +48,10 @@ export class CacheData<M, FO extends FetchObject<M>> {
     this.listeners.forEach(l => l());
   };
 
+  private handleWindowFocus = () => {
+    this.fetchData();
+  };
+
   subscribe = (listener: () => void) => {
     this.listeners.push(listener);
     return () => {
@@ -71,22 +76,25 @@ export class CacheData<M, FO extends FetchObject<M>> {
     });
   };
 
+  registerRevalidateOnFocus = () => {
+    this.revalidateOnFocusCount += 1;
+    if (this.revalidateOnFocusCount === 1) {
+      window.addEventListener('focus', this.handleWindowFocus);
+    }
+
+    return () => {
+      this.revalidateOnFocusCount -= 1;
+      if (this.revalidateOnFocusCount === 0) {
+        window.removeEventListener('focus', this.handleWindowFocus);
+      }
+    };
+  };
+
   mutate = async (mutateFn: (state: Draft<M>) => Promise<void>) => {
     await this.updateModel(async draft => {
       await mutateFn(draft);
     });
     this.notifyListeners();
-  };
-
-  validate = async () => {
-    if (typeof this.fetchObject.validateModel === 'undefined') return;
-    if (this.status.isFetching || this.status.isValidating) return;
-    this.mutateStatus({ isValidating: true });
-    const data = await this.fetchObject.fetchData(this.arg);
-    this.updateModel(async draft => {
-      this.fetchObject.validateModel?.(draft, { remoteData: data, arg: this.arg });
-    });
-    this.mutateStatus({ isValidating: false });
   };
 }
 

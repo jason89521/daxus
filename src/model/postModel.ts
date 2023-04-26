@@ -14,9 +14,6 @@ const getPostById: FetchObject<PostModel, number, Post> = {
   syncModel: (draft, { remoteData, arg }) => {
     draft.index[arg] = remoteData;
   },
-  validateModel: (draft, { remoteData, arg }) => {
-    draft.index[arg] = remoteData;
-  },
 };
 
 const initialModel: PostModel = { index: {} };
