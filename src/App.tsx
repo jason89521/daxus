@@ -4,7 +4,7 @@ import { Post } from './components';
 import { postModel } from './model';
 import { updatePostLayoutById } from './request';
 
-const { getPostById } = postModel.actions;
+const { getPostById } = postModel.accessorGetters;
 
 function UpdateButton({ id }: { id: number }) {
   const handleClick = () => {

@@ -1,11 +1,11 @@
 import type { Post } from '../types';
 import { Model } from './Model';
-import type { FetchObject } from './types';
+import type { Action } from './types';
 import { getPostById as getPostByIdRequest } from '../request';
 
 type PostModel = { index: Record<number, Post | undefined> };
 
-const getPostById: FetchObject<PostModel, number, Post> = {
+const getPostById: Action<PostModel, number, Post> = {
   fetchData: async id => {
     const data = await getPostByIdRequest(id);
 

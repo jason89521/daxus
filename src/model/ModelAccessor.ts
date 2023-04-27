@@ -1,7 +1,7 @@
-import type { ArgFromFetchObject, FetchObject } from './types';
+import type { Action } from './types';
 import type { Draft } from 'immer';
 
-export class ModelAccessor<M, FO extends FetchObject<M>> {
+export class ModelAccessor<M, Arg, RD> {
   private listeners: (() => void)[] = [];
   private status = {
     isLoading: false,
@@ -10,20 +10,20 @@ export class ModelAccessor<M, FO extends FetchObject<M>> {
     hasFetched: false,
     isValidating: false,
   };
-  private fetchObject: FO;
-  private arg: ArgFromFetchObject<FO>;
+  private action: Action<M, Arg, RD>;
+  private arg: Arg;
   private updateModel: (cb: (model: Draft<M>) => Promise<void>) => Promise<void>;
   private revalidateOnFocusCount = 0;
 
   getLatestModel: () => M;
 
   constructor(
-    arg: ArgFromFetchObject<FO>,
-    fetchObject: FO,
+    arg: Arg,
+    action: Action<M, Arg, RD>,
     updateModel: (cb: (model: Draft<M>) => Promise<void>) => Promise<void>,
     getLatestModel: () => M
   ) {
-    this.fetchObject = fetchObject;
+    this.action = action;
     this.arg = arg;
     this.updateModel = updateModel;
     this.getLatestModel = getLatestModel;
@@ -60,9 +60,9 @@ export class ModelAccessor<M, FO extends FetchObject<M>> {
     } else {
       this.mutateStatus({ isLoading: true, isFetching: true });
     }
-    const data = await this.fetchObject.fetchData(this.arg);
+    const data = await this.action.fetchData(this.arg);
     this.updateModel(async draft => {
-      this.fetchObject.syncModel(draft, { remoteData: data, arg: this.arg });
+      this.action.syncModel(draft, { remoteData: data, arg: this.arg });
     });
     this.mutateStatus({
       isFetching: false,

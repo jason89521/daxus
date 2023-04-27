@@ -7,7 +7,7 @@ interface Props {
 
 export function usePost({ id }: Props) {
   const { data } = useFetch(
-    postModel.actions.getPostById(id),
+    postModel.accessorGetters.getPostById(id),
     model => {
       return model.index[id];
     },

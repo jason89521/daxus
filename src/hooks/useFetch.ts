@@ -1,9 +1,9 @@
 import { useEffect, useSyncExternalStore } from 'react';
-import type { FetchObject } from '../model/types';
+import type { Action } from '../model/types';
 import type { ModelAccessor } from '../model/ModelAccessor';
 
-export function useFetch<M, FO extends FetchObject<M>, D = any>(
-  accessor: ModelAccessor<M, FO>,
+export function useFetch<M, Arg, Data, D = any>(
+  accessor: ModelAccessor<M, Arg, Data>,
   getSnapshot: (model: M) => D,
   options: {
     revalidateOnFocus?: boolean;

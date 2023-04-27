@@ -1,8 +1,10 @@
 import type { Draft } from 'immer';
 
-export type FetchObject<Model, Arg = any, Data = any> = {
+export type Action<Model, Arg = any, Data = any> = {
   fetchData: (arg: Arg) => Promise<Data>;
   syncModel: (model: Draft<Model>, payload: { remoteData: Data; arg: Arg }) => void;
 };
 
-export type ArgFromFetchObject<FO extends FetchObject<any>> = Parameters<FO['fetchData']>[1];
+export type ArgFromAction<A extends Action<any>> = Parameters<A['fetchData']>[0];
+
+export type RemoteDataFromAction<A extends Action<any>> = Awaited<ReturnType<A['fetchData']>>;
