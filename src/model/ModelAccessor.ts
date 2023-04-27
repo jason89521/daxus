@@ -39,7 +39,22 @@ export class ModelAccessor<M, Arg, RD> {
   };
 
   private handleWindowFocus = () => {
-    this.fetchData();
+    this.fetch();
+  };
+
+  private internalFetch = async (retryCount: number) => {
+    const result: { remoteData: RD | null; error: unknown } = { remoteData: null, error: null };
+    for (let i = 0; i < retryCount; i++) {
+      try {
+        const remoteData = await this.action.fetchData(this.arg);
+        result.remoteData = remoteData;
+        return result;
+      } catch (error) {
+        result.error = error;
+      }
+    }
+
+    return result;
   };
 
   subscribe = (listener: () => void) => {
@@ -53,23 +68,28 @@ export class ModelAccessor<M, Arg, RD> {
     return this.status;
   };
 
-  fetchData = async () => {
+  fetch = async ({ retryCount = 3 }: { retryCount?: number } = {}) => {
     if (this.status.isFetching) return;
     if (this.status.hasFetched) {
       this.mutateStatus({ isValidating: true, isFetching: true });
     } else {
       this.mutateStatus({ isLoading: true, isFetching: true });
     }
-    const data = await this.action.fetchData(this.arg);
-    this.updateModel(async draft => {
-      this.action.syncModel(draft, { remoteData: data, arg: this.arg });
-    });
-    this.mutateStatus({
-      isFetching: false,
-      isLoading: false,
-      isValidating: false,
-      hasFetched: true,
-    });
+
+    const { remoteData, error } = await this.internalFetch(retryCount);
+    if (remoteData) {
+      this.updateModel(async draft => {
+        this.action.syncModel(draft, { remoteData, arg: this.arg });
+      });
+      this.mutateStatus({
+        isFetching: false,
+        isLoading: false,
+        isValidating: false,
+        hasFetched: true,
+      });
+    } else {
+      this.action.onError?.({ error, arg: this.arg });
+    }
   };
 
   registerRevalidateOnFocus = () => {

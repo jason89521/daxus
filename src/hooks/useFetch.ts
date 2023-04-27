@@ -16,7 +16,7 @@ export function useFetch<M, Arg, Data, D = any>(
   });
 
   useEffect(() => {
-    accessor.fetchData();
+    accessor.fetch();
   }, [accessor]);
 
   useEffect(() => {
