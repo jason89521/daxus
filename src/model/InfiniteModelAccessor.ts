@@ -10,7 +10,6 @@ export class InfiniteModelAccessor<M, Arg, RD> {
   private arg: Arg;
   private updateModel: (cb: (draft: Draft<M>) => Promise<void>) => Promise<void>;
 
-  private pageSize = 0;
   private cachedData: RD[] = [];
 
   getLatestModel: () => M;
@@ -36,9 +35,18 @@ export class InfiniteModelAccessor<M, Arg, RD> {
     this.listeners.forEach(l => l());
   };
 
-  private internalFetch = async ({
+  private pageSize = () => {
+    return this.cachedData.length;
+  };
+
+  /**
+   * Update `this.cachedData` and `this.pageSize`.
+   * - `pageSize` should be larger than `this.pageSize`, otherwise `this.cachedData` will not update.
+   * - `pageIndex` default is `this.pageIndex`.
+   */
+  private updateCachedData = async ({
     pageSize,
-    pageIndex = this.pageSize,
+    pageIndex = this.pageSize(),
   }: {
     pageSize: number;
     pageIndex?: number;
@@ -46,29 +54,45 @@ export class InfiniteModelAccessor<M, Arg, RD> {
     let previousData: RD | null = this.cachedData[pageIndex - 1] ?? null;
     for (; pageIndex < pageSize; pageIndex++) {
       const remoteData = await this.action.fetchData(this.arg, previousData);
+      previousData = remoteData;
+      this.cachedData[pageIndex] = previousData;
+    }
+  };
+
+  /**
+   * Sync the data in `this.cachedData` to the model.
+   */
+  private flush = () => {
+    const pageSize = this.cachedData.length;
+    let pageIndex = 0;
+    for (const remoteData of this.cachedData) {
       this.updateModel(async draft => {
         this.action.syncModel(draft, {
           remoteData,
           arg: this.arg,
-          pageSize,
           pageIndex,
+          pageSize,
         });
       });
-      previousData = remoteData;
-      this.cachedData[pageIndex] = previousData;
-    }
 
-    this.pageSize = pageSize;
+      pageIndex += 1;
+    }
+  };
+
+  validate = async () => {
+    await this.updateCachedData({ pageSize: this.pageSize(), pageIndex: 0 });
+    this.flush();
   };
 
   fetch = async ({ pageSize }: { pageSize: number }) => {
     if (this.status.isFetching) return;
     if (pageSize < 1) throw new Error(`Page size cannot be less than 1: ${pageSize}`);
-    if (pageSize <= this.pageSize) return;
+    if (pageSize <= this.pageSize()) return;
 
     this.updateStatus({ isFetching: true });
 
-    await this.internalFetch({ pageSize });
+    await this.updateCachedData({ pageSize });
+    this.flush();
 
     this.updateStatus({ isFetching: false });
   };
