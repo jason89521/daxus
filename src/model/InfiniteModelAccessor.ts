@@ -36,14 +36,13 @@ export class InfiniteModelAccessor<M, Arg, RD> {
     this.listeners.forEach(l => l());
   };
 
-  fetch = async ({ pageSize }: { pageSize: number }) => {
-    if (this.status.isFetching) return;
-    if (pageSize < 1) throw new Error(`Page size cannot be less than 1: ${pageSize}`);
-    if (pageSize <= this.pageSize) return;
-
-    this.updateStatus({ isFetching: true });
-
-    let pageIndex = this.pageSize;
+  private internalFetch = async ({
+    pageSize,
+    pageIndex = this.pageSize,
+  }: {
+    pageSize: number;
+    pageIndex?: number;
+  }) => {
     let previousData: RD | null = this.cachedData[pageIndex - 1] ?? null;
     for (; pageIndex < pageSize; pageIndex++) {
       const remoteData = await this.action.fetchData(this.arg, previousData);
@@ -60,6 +59,17 @@ export class InfiniteModelAccessor<M, Arg, RD> {
     }
 
     this.pageSize = pageSize;
+  };
+
+  fetch = async ({ pageSize }: { pageSize: number }) => {
+    if (this.status.isFetching) return;
+    if (pageSize < 1) throw new Error(`Page size cannot be less than 1: ${pageSize}`);
+    if (pageSize <= this.pageSize) return;
+
+    this.updateStatus({ isFetching: true });
+
+    await this.internalFetch({ pageSize });
+
     this.updateStatus({ isFetching: false });
   };
 }
