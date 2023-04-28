@@ -62,26 +62,23 @@ export class InfiniteModelAccessor<M, Arg, RD> {
   /**
    * Sync the data in `this.cachedData` to the model.
    */
-  private flush = () => {
-    const pageSize = this.cachedData.length;
-    let pageIndex = 0;
-    for (const remoteData of this.cachedData) {
+  private flush = ({ start }: { start: number }) => {
+    this.cachedData.forEach((remoteData, pageIndex) => {
+      if (pageIndex < start) return;
       this.updateModel(async draft => {
         this.action.syncModel(draft, {
           remoteData,
           arg: this.arg,
           pageIndex,
-          pageSize,
+          pageSize: this.pageSize(),
         });
       });
-
-      pageIndex += 1;
-    }
+    });
   };
 
   validate = async () => {
     await this.updateCachedData({ pageSize: this.pageSize(), pageIndex: 0 });
-    this.flush();
+    this.flush({ start: 0 });
   };
 
   fetch = async ({ pageSize }: { pageSize: number }) => {
@@ -91,8 +88,9 @@ export class InfiniteModelAccessor<M, Arg, RD> {
 
     this.updateStatus({ isFetching: true });
 
+    const start = this.pageSize();
     await this.updateCachedData({ pageSize });
-    this.flush();
+    this.flush({ start });
 
     this.updateStatus({ isFetching: false });
   };
