@@ -1,5 +1,5 @@
 import { postModel } from '../model';
-import { useFetch } from './useFetch';
+import { useFetch } from '../lib';
 
 interface Props {
   id: number;

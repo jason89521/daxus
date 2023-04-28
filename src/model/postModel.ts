@@ -1,6 +1,6 @@
 import type { Post } from '../types';
-import { Model } from './Model';
-import type { Action } from './types';
+import { Model } from '../lib';
+import type { Action } from '../lib';
 import { getPostById as getPostByIdRequest } from '../request';
 
 type PostModel = { index: Record<number, Post | undefined> };

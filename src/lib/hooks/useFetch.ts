@@ -1,5 +1,5 @@
 import { useEffect, useSyncExternalStore } from 'react';
-import type { ModelAccessor } from '../model/ModelAccessor';
+import type { ModelAccessor } from '../model';
 
 export function useFetch<M, Arg, RD, D = any>(
   accessor: ModelAccessor<M, Arg, RD>,
