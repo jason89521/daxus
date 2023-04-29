@@ -1,4 +1,4 @@
-import type { Action } from './types';
+import type { NormalAction } from './types';
 import type { Draft } from 'immer';
 
 export class ModelAccessor<M, Arg, RD> {
@@ -9,18 +9,19 @@ export class ModelAccessor<M, Arg, RD> {
     isFetching: false,
     hasFetched: false,
     isValidating: false,
+    isError: false,
   };
-  private action: Action<M, Arg, RD>;
+  private action: NormalAction<M, Arg, RD>;
   private arg: Arg;
-  private updateModel: (cb: (model: Draft<M>) => Promise<void>) => Promise<void>;
+  private updateModel: (cb: (model: Draft<M>) => void) => void;
   private revalidateOnFocusCount = 0;
 
   getLatestModel: () => M;
 
   constructor(
     arg: Arg,
-    action: Action<M, Arg, RD>,
-    updateModel: (cb: (model: Draft<M>) => Promise<void>) => Promise<void>,
+    action: NormalAction<M, Arg, RD>,
+    updateModel: (cb: (model: Draft<M>) => void) => void,
     getLatestModel: () => M
   ) {
     this.action = action;
@@ -29,8 +30,8 @@ export class ModelAccessor<M, Arg, RD> {
     this.getLatestModel = getLatestModel;
   }
 
-  private mutateStatus = (newInfo: Partial<typeof this.status>) => {
-    this.status = { ...this.status, ...newInfo };
+  private updateStatus = (newStatus: Partial<typeof this.status>) => {
+    this.status = { ...this.status, ...newStatus };
     this.notifyListeners();
   };
 
@@ -71,9 +72,9 @@ export class ModelAccessor<M, Arg, RD> {
   fetch = async ({ retryCount = 3 }: { retryCount?: number } = {}) => {
     if (this.status.isFetching) return;
     if (this.status.hasFetched) {
-      this.mutateStatus({ isValidating: true, isFetching: true });
+      this.updateStatus({ isValidating: true, isFetching: true });
     } else {
-      this.mutateStatus({ isLoading: true, isFetching: true });
+      this.updateStatus({ isLoading: true, isFetching: true });
     }
 
     const { remoteData, error } = await this.internalFetch(retryCount);
@@ -81,14 +82,21 @@ export class ModelAccessor<M, Arg, RD> {
       this.updateModel(async draft => {
         this.action.syncModel(draft, { remoteData, arg: this.arg });
       });
-      this.mutateStatus({
+      this.updateStatus({
         isFetching: false,
         isLoading: false,
         isValidating: false,
         hasFetched: true,
+        isError: false,
       });
     } else {
       this.action.onError?.({ error, arg: this.arg });
+      this.updateStatus({
+        isFetching: false,
+        isLoading: false,
+        isValidating: false,
+        isError: true,
+      });
     }
   };
 

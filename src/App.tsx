@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Post } from './components';
+import { Post, PostList } from './components';
 
 import { postModel } from './model';
 import { updatePostLayoutById } from './request';
@@ -34,6 +34,7 @@ function App() {
       <UpdateButton id={postId} />
       <Post id={postId} />
       <Post id={postId} />
+      <PostList />
     </div>
   );
 }
