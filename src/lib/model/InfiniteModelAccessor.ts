@@ -8,7 +8,7 @@ export class InfiniteModelAccessor<M, Arg, RD> {
   };
   private action: InfiniteAction<M, Arg, RD>;
   private arg: Arg;
-  private updateModel: (cb: (draft: Draft<M>) => Promise<void>) => Promise<void>;
+  private updateModel: (cb: (draft: Draft<M>) => void) => void;
 
   private cachedData: RD[] = [];
 
@@ -17,7 +17,7 @@ export class InfiniteModelAccessor<M, Arg, RD> {
   constructor(
     arg: Arg,
     action: InfiniteAction<M, Arg, RD>,
-    updateModel: (cb: (draft: Draft<M>) => Promise<void>) => Promise<void>,
+    updateModel: (cb: (draft: Draft<M>) => void) => void,
     getLatestModel: () => M
   ) {
     this.arg = arg;
@@ -49,7 +49,7 @@ export class InfiniteModelAccessor<M, Arg, RD> {
   }) => {
     let previousData: RD | null = this.cachedData[pageIndex - 1] ?? null;
     for (; pageIndex < pageSize; pageIndex++) {
-      const remoteData = await this.action.fetchData(this.arg, previousData);
+      const remoteData = await this.action.fetchData(this.arg, { previousData, pageIndex });
       previousData = remoteData;
       this.cachedData[pageIndex] = previousData;
     }
@@ -62,7 +62,7 @@ export class InfiniteModelAccessor<M, Arg, RD> {
   private flush = ({ start }: { start: number }) => {
     this.cachedData.forEach((remoteData, pageIndex) => {
       if (pageIndex < start) return;
-      this.updateModel(async draft => {
+      this.updateModel(draft => {
         this.action.syncModel(draft, {
           remoteData,
           arg: this.arg,

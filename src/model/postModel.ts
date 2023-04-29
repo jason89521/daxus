@@ -1,11 +1,13 @@
 import type { Post } from '../types';
-import { Model } from '../lib';
-import type { Action } from '../lib';
-import { getPostById as getPostByIdRequest } from '../request';
+import { Model, createInfiniteActionIdentifier, createNormalActionIdentifier } from '../lib';
+import { getPostById as getPostByIdRequest, getPostList as getPostListRequest } from '../request';
 
-type PostModel = { index: Record<number, Post | undefined> };
+type PostModel = {
+  index: Record<number, Post | undefined>;
+  pagination: Record<string, Post[] | undefined>;
+};
 
-const getPostById: Action<PostModel, number, Post> = {
+const getPostById = createNormalActionIdentifier<PostModel, number, Post>({
   fetchData: async id => {
     const data = await getPostByIdRequest(id);
 
@@ -14,8 +16,28 @@ const getPostById: Action<PostModel, number, Post> = {
   syncModel: (draft, { remoteData, arg }) => {
     draft.index[arg] = remoteData;
   },
-};
+});
 
-const initialModel: PostModel = { index: {} };
+const getPostList = createInfiniteActionIdentifier<
+  PostModel,
+  { layout: 'classic' | 'image' },
+  Post[]
+>({
+  fetchData: async ({ layout }, { pageIndex }) => {
+    const data = await getPostListRequest({ layout, page: pageIndex });
 
-export const postModel = new Model(initialModel, { getPostById });
+    return data;
+  },
+  syncModel: (draft, { remoteData, arg, pageIndex }) => {
+    const paginationKey = JSON.stringify(arg);
+    if (pageIndex === 0) {
+      draft.pagination[paginationKey] = remoteData;
+      return;
+    }
+    draft.pagination[paginationKey]?.push(...remoteData);
+  },
+});
+
+const initialModel: PostModel = { index: {}, pagination: {} };
+
+export const postModel = new Model(initialModel, { getPostById, getPostList });

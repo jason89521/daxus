@@ -1,4 +1,4 @@
-import type { Action } from './types';
+import type { NormalAction } from './types';
 import type { Draft } from 'immer';
 
 export class ModelAccessor<M, Arg, RD> {
@@ -11,17 +11,17 @@ export class ModelAccessor<M, Arg, RD> {
     isValidating: false,
     isError: false,
   };
-  private action: Action<M, Arg, RD>;
+  private action: NormalAction<M, Arg, RD>;
   private arg: Arg;
-  private updateModel: (cb: (model: Draft<M>) => Promise<void>) => Promise<void>;
+  private updateModel: (cb: (model: Draft<M>) => void) => void;
   private revalidateOnFocusCount = 0;
 
   getLatestModel: () => M;
 
   constructor(
     arg: Arg,
-    action: Action<M, Arg, RD>,
-    updateModel: (cb: (model: Draft<M>) => Promise<void>) => Promise<void>,
+    action: NormalAction<M, Arg, RD>,
+    updateModel: (cb: (model: Draft<M>) => void) => void,
     getLatestModel: () => M
   ) {
     this.action = action;

@@ -1,42 +1,64 @@
 import { createDraft, finishDraft } from 'immer';
 import type { Draft } from 'immer';
-import type { Action, ArgFromAction, RemoteDataFromAction } from './types';
+import type { ArgFromAction, RemoteDataFromAction } from './types';
 import { ModelAccessor } from './ModelAccessor';
+import type { ActionIdentifier } from './actionIdentifier';
+import { InfiniteModelAccessor } from './InfiniteModelAccessor';
 
-type GetAccessorGettersFromActions<M extends object, As extends Record<string, Action<M>>> = {
-  [Key in keyof As]: (
-    arg: ArgFromAction<As[Key]>
-  ) => ModelAccessor<M, ArgFromAction<As[Key]>, RemoteDataFromAction<As[Key]>>;
+type AccessorGettersFromActionIdentifier<M, AIs extends Record<string, ActionIdentifier<M>>> = {
+  [Key in keyof AIs]: (
+    arg: ArgFromAction<AIs[Key]['action']>
+  ) => AIs[Key]['type'] extends 'infinite'
+    ? InfiniteModelAccessor<
+        M,
+        ArgFromAction<AIs[Key]['action']>,
+        RemoteDataFromAction<AIs[Key]['action']>
+      >
+    : ModelAccessor<M, ArgFromAction<AIs[Key]['action']>, RemoteDataFromAction<AIs[Key]['action']>>;
 };
 
-export class Model<M extends object, Fs extends Record<string, Action<M>>> {
+export class Model<M extends object, AIs extends Record<string, ActionIdentifier<M>>> {
   private model: M;
-  private accessors = {} as Record<string, ModelAccessor<M, unknown, unknown> | undefined>;
+  private accessors = {} as Record<
+    string,
+    ModelAccessor<M, unknown, unknown> | InfiniteModelAccessor<M, unknown, unknown> | undefined
+  >;
 
-  accessorGetters = {} as GetAccessorGettersFromActions<M, Fs>;
+  accessorGetters = {} as AccessorGettersFromActionIdentifier<M, AIs>;
 
-  constructor(initialModel: M, actions: Fs) {
+  constructor(initialModel: M, identifiers: AIs) {
     this.model = initialModel;
 
-    Object.entries(actions).forEach(([actionName, action]) => {
-      const getModelAccessor = (arg: ArgFromAction<typeof action>) => {
+    Object.entries(identifiers).forEach(([actionName, identifier]) => {
+      const getModelAccessor = (arg: ArgFromAction<typeof identifier.action>) => {
         const serializedArg = typeof arg === 'undefined' ? '' : JSON.stringify(arg);
         const key = `${actionName}/${serializedArg}`;
         const accessor = this.accessors[key];
         if (accessor) return accessor;
-        const newAccessor = new ModelAccessor(arg, action, this.updateModel, this.getModel);
+        const newAccessor = (() => {
+          if (identifier.type === 'infinite') {
+            return new InfiniteModelAccessor(
+              arg,
+              identifier.action,
+              this.updateModel,
+              this.getModel
+            );
+          }
+
+          return new ModelAccessor(arg, identifier.action, this.updateModel, this.getModel);
+        })();
         this.accessors[key] = newAccessor;
 
         return newAccessor;
       };
 
-      this.accessorGetters[actionName as keyof Fs] = getModelAccessor as any;
+      this.accessorGetters[actionName as keyof AIs] = getModelAccessor as any;
     });
   }
 
-  private updateModel = async (fn: (modelDraft: Draft<M>) => Promise<unknown>) => {
+  private updateModel = (fn: (modelDraft: Draft<M>) => void) => {
     const draft = createDraft(this.model);
-    await fn(draft);
+    fn(draft);
     this.model = finishDraft(draft) as M;
   };
 
