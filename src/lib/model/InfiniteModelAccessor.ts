@@ -35,14 +35,10 @@ export class InfiniteModelAccessor<M, Arg, RD> {
     this.listeners.forEach(l => l());
   };
 
-  private pageSize = () => {
-    return this.cachedData.length;
-  };
-
   /**
-   * Update `this.cachedData` and `this.pageSize`.
-   * - `pageSize` should be larger than `this.pageSize`, otherwise `this.cachedData` will not update.
-   * - `pageIndex` default is `this.pageIndex`.
+   * Update `this.cachedData`.
+   * - `pageSize` should be larger than `this.pageSize()`, otherwise `this.cachedData` will not update.
+   * - `pageIndex` default is `this.pageSize()`.
    */
   private updateCachedData = async ({
     pageSize,
@@ -60,7 +56,8 @@ export class InfiniteModelAccessor<M, Arg, RD> {
   };
 
   /**
-   * Sync the data in `this.cachedData` to the model.
+   * Sync the data in `this.cachedData` from the `start` index to the model,
+   * and notify the listeners which are listening this accessor.
    */
   private flush = ({ start }: { start: number }) => {
     this.cachedData.forEach((remoteData, pageIndex) => {
@@ -74,11 +71,27 @@ export class InfiniteModelAccessor<M, Arg, RD> {
         });
       });
     });
+    this.notifyListeners();
+  };
+
+  pageSize = () => {
+    return this.cachedData.length;
+  };
+
+  subscribe = (listener: Listener) => {
+    this.listeners.push(listener);
+    return () => {
+      this.listeners.splice(this.listeners.indexOf(listener), 1);
+    };
   };
 
   validate = async () => {
+    if (this.status.isFetching) return;
+
+    this.updateStatus({ isFetching: true });
     await this.updateCachedData({ pageSize: this.pageSize(), pageIndex: 0 });
     this.flush({ start: 0 });
+    this.updateStatus({ isFetching: false });
   };
 
   fetch = async ({ pageSize }: { pageSize: number }) => {
