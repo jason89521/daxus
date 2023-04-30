@@ -1,4 +1,4 @@
-import type { Post } from './types';
+import type { Post, PostLayout } from './types';
 
 export async function getPostById(id: number): Promise<Post> {
   const res = await fetch(`http://localhost:3000/posts/${id}`);
@@ -10,7 +10,7 @@ export async function getPostList({
   layout,
   page,
 }: {
-  layout: 'classic' | 'image';
+  layout: PostLayout;
   page: number;
 }): Promise<Post[]> {
   const res = await fetch(
@@ -21,7 +21,7 @@ export async function getPostList({
   return data;
 }
 
-export async function updatePostLayoutById(id: number, layout: 'classic' | 'image'): Promise<Post> {
+export async function updatePostLayoutById(id: number, layout: PostLayout): Promise<Post> {
   const res = await fetch(`http://localhost:3000/posts/${id}`, {
     method: 'PATCH',
     headers: {

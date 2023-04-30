@@ -1,4 +1,4 @@
-import type { Post } from '../types';
+import type { Post, PostLayout } from '../types';
 import type { Action } from '../lib';
 import { Model } from '../lib';
 import { getPostById as getPostByIdRequest, getPostList as getPostListRequest } from '../request';
@@ -20,7 +20,7 @@ const getPostById: Action<PostModel, number, Post> = {
   },
 };
 
-const getPostList: Action<PostModel, { layout: 'classic' | 'image' }, Post[]> = {
+const getPostList: Action<PostModel, { layout: PostLayout }, Post[]> = {
   type: 'infinite',
   fetchData: async ({ layout }, { pageIndex }) => {
     const data = await getPostListRequest({ layout, page: pageIndex });

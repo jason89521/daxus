@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useInfiniteFetch } from '../lib';
 import { postModel } from '../model';
+import type { PostLayout } from '../types';
 
 export function PostList() {
-  const [layout, setLayout] = useState<'classic' | 'image'>('classic');
+  const [layout, setLayout] = useState<PostLayout>('classic');
   const { data, fetchNextPage } = useInfiniteFetch(
     postModel.accessorGetters.getPostList({ layout }),
     model => {
