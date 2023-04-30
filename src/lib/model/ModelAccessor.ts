@@ -114,9 +114,9 @@ export class ModelAccessor<M, Arg, RD> {
     };
   };
 
-  mutate = async (mutateFn: (state: Draft<M>) => Promise<void>) => {
-    await this.updateModel(async draft => {
-      await mutateFn(draft);
+  mutate = (mutateFn: (state: Draft<M>) => void) => {
+    this.updateModel(draft => {
+      mutateFn(draft);
     });
     this.notifyListeners();
   };
