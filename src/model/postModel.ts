@@ -1,5 +1,6 @@
 import type { Post } from '../types';
-import { Model, createInfiniteActionIdentifier, createNormalActionIdentifier } from '../lib';
+import type { Action } from '../lib';
+import { Model } from '../lib';
 import { getPostById as getPostByIdRequest, getPostList as getPostListRequest } from '../request';
 
 type PostModel = {
@@ -7,7 +8,8 @@ type PostModel = {
   pagination: Record<string, Post[] | undefined>;
 };
 
-const getPostById = createNormalActionIdentifier<PostModel, number, Post>({
+const getPostById: Action<PostModel, number, Post> = {
+  type: 'normal',
   fetchData: async id => {
     const data = await getPostByIdRequest(id);
 
@@ -16,13 +18,10 @@ const getPostById = createNormalActionIdentifier<PostModel, number, Post>({
   syncModel: (draft, { remoteData, arg }) => {
     draft.index[arg] = remoteData;
   },
-});
+};
 
-const getPostList = createInfiniteActionIdentifier<
-  PostModel,
-  { layout: 'classic' | 'image' },
-  Post[]
->({
+const getPostList: Action<PostModel, { layout: 'classic' | 'image' }, Post[]> = {
+  type: 'infinite',
   fetchData: async ({ layout }, { pageIndex }) => {
     const data = await getPostListRequest({ layout, page: pageIndex });
 
@@ -36,7 +35,7 @@ const getPostList = createInfiniteActionIdentifier<
     }
     draft.pagination[paginationKey]?.push(...remoteData);
   },
-});
+};
 
 const initialModel: PostModel = { index: {}, pagination: {} };
 
