@@ -3,7 +3,8 @@ import { isNumber, isString } from '../utils';
 type Id = string | number;
 
 interface PaginationMeta {
-  ids: Id[];
+  /** Store the ids for each page index. */
+  idsPerPage: Id[][];
   noMore: boolean;
   sizePerPage: number;
 }
@@ -53,11 +54,15 @@ export function createPaginationAdapter<Data>({
 
     const ids = dataArray.map(getId);
     if (pageIndex === 0) {
-      model.paginationMetaRecord[paginationKey] = { ids, noMore: false, sizePerPage: ids.length };
+      model.paginationMetaRecord[paginationKey] = {
+        idsPerPage: [ids],
+        noMore: false,
+        sizePerPage: ids.length,
+      };
     } else {
       const pagination = model.paginationMetaRecord[paginationKey];
       if (!pagination) throw new Error(`Pagination is undefined on pageIndex: ${pageIndex}`);
-      pagination.ids.push(...ids);
+      pagination.idsPerPage[pageIndex] = ids;
       if (ids.length < pagination.sizePerPage) pagination.noMore = true;
     }
   }
@@ -73,7 +78,7 @@ export function createPaginationAdapter<Data>({
       return oldPagination;
     }
 
-    const newPagination = paginationMeta.ids.map(id => {
+    const newPagination = paginationMeta.idsPerPage.flat().map(id => {
       const entity = model.data[id];
       if (!entity) throw new Error(`There is no entity with the id: ${id}`);
       return entity;
