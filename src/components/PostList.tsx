@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useInfiniteFetch } from '../lib';
-import { postModel } from '../model';
+import { postAdapter, postModel } from '../model';
 import type { PostLayout } from '../types';
 
 export function PostList() {
@@ -9,7 +9,7 @@ export function PostList() {
     postModel.accessorGetters.getPostList({ layout }),
     model => {
       const key = JSON.stringify({ layout });
-      return model.pagination[key];
+      return postAdapter.getPagination(model, key);
     }
   );
 
@@ -25,7 +25,7 @@ export function PostList() {
         toggle layout
       </button>
       <button onClick={() => fetchNextPage()}>fetch next page</button>
-      {data?.map(post => {
+      {data.map(post => {
         return (
           <div key={post.id}>
             <div>title: {post.title}</div>

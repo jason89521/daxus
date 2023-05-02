@@ -9,7 +9,7 @@ export function usePost({ id }: Props) {
   const { data } = useFetch(
     postModel.accessorGetters.getPostById(id),
     model => {
-      return model.index[id];
+      return model.data[id];
     },
     { revalidateOnFocus: false }
   );
