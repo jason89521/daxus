@@ -1,4 +1,4 @@
-# React Fetch (WIP)
+# React Server Model (WIP)
 
 Manage the server state and let user define the shape of the data from the server.
 
