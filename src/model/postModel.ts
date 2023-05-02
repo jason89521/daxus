@@ -1,22 +1,21 @@
 import type { Post, PostLayout } from '../types';
 import type { Action } from '../lib';
-import { Model } from '../lib';
+import { Model, createPaginationAdapter } from '../lib';
 import { getPostById as getPostByIdRequest, getPostList as getPostListRequest } from '../request';
 
-type PostModel = {
-  index: Record<number, Post | undefined>;
-  pagination: Record<string, Post[] | undefined>;
-};
+export const postAdapter = createPaginationAdapter<Post>({});
+const initialModel = postAdapter.initialModel;
+
+type PostModel = typeof initialModel;
 
 const getPostById: Action<PostModel, number, Post> = {
   type: 'normal',
   fetchData: async id => {
     const data = await getPostByIdRequest(id);
-
     return data;
   },
-  syncModel: (draft, { remoteData, arg }) => {
-    draft.index[arg] = remoteData;
+  syncModel: (draft, { remoteData }) => {
+    postAdapter.upsertOne(draft, remoteData);
   },
 };
 
@@ -24,19 +23,12 @@ const getPostList: Action<PostModel, { layout: PostLayout }, Post[]> = {
   type: 'infinite',
   fetchData: async ({ layout }, { pageIndex }) => {
     const data = await getPostListRequest({ layout, page: pageIndex });
-
     return data;
   },
   syncModel: (draft, { remoteData, arg, pageIndex }) => {
     const paginationKey = JSON.stringify(arg);
-    if (pageIndex === 0) {
-      draft.pagination[paginationKey] = remoteData;
-      return;
-    }
-    draft.pagination[paginationKey]?.push(...remoteData);
+    postAdapter.updatePagination(draft, { dataArray: remoteData, paginationKey, pageIndex });
   },
 };
-
-const initialModel: PostModel = { index: {}, pagination: {} };
 
 export const postModel = new Model(initialModel, { getPostById, getPostList });
