@@ -14,6 +14,7 @@ export class ModelAccessor<M, Arg, RD> {
   private action: NormalAction<M, Arg, RD>;
   private arg: Arg;
   private updateModel: (cb: (model: Draft<M>) => void) => void;
+  private cachedData?: RD;
   private revalidateOnFocusCount = 0;
   private revalidateOnReconnectCount = 0;
 
@@ -66,6 +67,24 @@ export class ModelAccessor<M, Arg, RD> {
       this.listeners.splice(this.listeners.indexOf(listener), 1);
     };
   };
+  /** --- */
+  dataListeners: ((current: RD, prev?: RD) => void)[] = [];
+
+  subscribeData = (listener: (current: RD, prev?: RD) => void) => {
+    this.dataListeners.push(listener);
+    return () => {
+      this.dataListeners.splice(this.dataListeners.indexOf(listener), 1);
+    };
+  };
+
+  private notifyDataListeners = (data: RD) => {
+    this.dataListeners.forEach(l => {
+      l(data, this.cachedData);
+    });
+    this.cachedData = data;
+  };
+
+  /** --- */
 
   getStatusSnapshot = () => {
     return this.status;
@@ -85,6 +104,7 @@ export class ModelAccessor<M, Arg, RD> {
         this.action.syncModel(draft, { data, arg: this.arg });
       });
       this.action.onSuccess?.({ data, arg: this.arg });
+      this.notifyDataListeners(data);
       this.updateStatus({
         isFetching: false,
         isLoading: false,

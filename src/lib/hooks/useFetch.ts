@@ -1,5 +1,6 @@
-import { useEffect, useSyncExternalStore } from 'react';
+import { useCallback, useEffect, useSyncExternalStore } from 'react';
 import type { ModelAccessor } from '../model';
+import { stableHash } from '../utils';
 
 export function useFetch<M, Arg, RD, D = any>(
   accessor: ModelAccessor<M, Arg, RD>,
@@ -10,10 +11,21 @@ export function useFetch<M, Arg, RD, D = any>(
   } = {}
 ) {
   const { revalidateOnFocus = true, revalidateOnReconnect = true } = options;
-  const status = useSyncExternalStore(accessor.subscribe, accessor.getStatusSnapshot);
-  const data = useSyncExternalStore(accessor.subscribe, () => {
-    return getSnapshot(accessor.getModel());
-  });
+  // const { isFetching } = useSyncExternalStore(accessor.subscribe, accessor.getStatusSnapshot);
+
+  const data = useSyncExternalStore(
+    useCallback(
+      storeListener => {
+        return accessor.subscribeData((current, prev) => {
+          if (stableHash(current) !== stableHash(prev)) storeListener();
+        });
+      },
+      [accessor]
+    ),
+    () => {
+      return getSnapshot(accessor.getModel());
+    }
+  );
 
   useEffect(() => {
     accessor.fetch();
@@ -31,5 +43,7 @@ export function useFetch<M, Arg, RD, D = any>(
     }
   }, [revalidateOnReconnect, accessor]);
 
-  return { data };
+  return {
+    data,
+  };
 }

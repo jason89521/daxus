@@ -16,6 +16,7 @@ Manage the server state and let user define the shape of the data from the serve
 - [x] Success callback
 - [ ] Mutation
 - [ ] Testing
+- [ ] Only rerender when used field change
 
 ### `useInfiniteFetch`
 
@@ -29,6 +30,7 @@ Manage the server state and let user define the shape of the data from the serve
 - [ ] Success callback
 - [ ] Mutation
 - [ ] Testing
+- [ ] Only rerender when used field change
 
 ### `Model`
 
