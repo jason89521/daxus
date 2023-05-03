@@ -15,19 +15,20 @@ export class ModelAccessor<M, Arg, RD> {
   private arg: Arg;
   private updateModel: (cb: (model: Draft<M>) => void) => void;
   private revalidateOnFocusCount = 0;
+  private revalidateOnReconnectCount = 0;
 
-  getLatestModel: () => M;
+  getModel: () => M;
 
   constructor(
     arg: Arg,
     action: NormalAction<M, Arg, RD>,
     updateModel: (cb: (model: Draft<M>) => void) => void,
-    getLatestModel: () => M
+    getModel: () => M
   ) {
     this.action = action;
     this.arg = arg;
     this.updateModel = updateModel;
-    this.getLatestModel = getLatestModel;
+    this.getModel = getModel;
   }
 
   private updateStatus = (newStatus: Partial<typeof this.status>) => {
@@ -37,10 +38,6 @@ export class ModelAccessor<M, Arg, RD> {
 
   private notifyListeners = () => {
     this.listeners.forEach(l => l());
-  };
-
-  private handleWindowFocus = () => {
-    this.fetch();
   };
 
   private internalFetch = async (retryCount: number) => {
@@ -56,6 +53,10 @@ export class ModelAccessor<M, Arg, RD> {
     }
 
     return result;
+  };
+
+  private revalidate = () => {
+    this.fetch();
   };
 
   subscribe = (listener: () => void) => {
@@ -103,13 +104,27 @@ export class ModelAccessor<M, Arg, RD> {
   registerRevalidateOnFocus = () => {
     this.revalidateOnFocusCount += 1;
     if (this.revalidateOnFocusCount === 1) {
-      window.addEventListener('focus', this.handleWindowFocus);
+      window.addEventListener('focus', this.revalidate);
     }
 
     return () => {
       this.revalidateOnFocusCount -= 1;
       if (this.revalidateOnFocusCount === 0) {
-        window.removeEventListener('focus', this.handleWindowFocus);
+        window.removeEventListener('focus', this.revalidate);
+      }
+    };
+  };
+
+  registerRevalidateOnReconnect = () => {
+    this.revalidateOnReconnectCount += 1;
+    if (this.revalidateOnFocusCount === 1) {
+      window.addEventListener('online', this.revalidate);
+    }
+
+    return () => {
+      this.revalidateOnReconnectCount -= 1;
+      if (this.revalidateOnReconnectCount === 0) {
+        window.removeEventListener('online', this.revalidate);
       }
     };
   };

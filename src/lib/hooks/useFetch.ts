@@ -6,12 +6,13 @@ export function useFetch<M, Arg, RD, D = any>(
   getSnapshot: (model: M) => D,
   options: {
     revalidateOnFocus?: boolean;
+    revalidateOnReconnect?: boolean;
   } = {}
 ) {
-  const { revalidateOnFocus = true } = options;
+  const { revalidateOnFocus = true, revalidateOnReconnect = true } = options;
   const status = useSyncExternalStore(accessor.subscribe, accessor.getStatusSnapshot);
   const data = useSyncExternalStore(accessor.subscribe, () => {
-    return getSnapshot(accessor.getLatestModel());
+    return getSnapshot(accessor.getModel());
   });
 
   useEffect(() => {
@@ -23,6 +24,12 @@ export function useFetch<M, Arg, RD, D = any>(
       return accessor.registerRevalidateOnFocus();
     }
   }, [revalidateOnFocus, accessor]);
+
+  useEffect(() => {
+    if (revalidateOnReconnect) {
+      return accessor.registerRevalidateOnReconnect();
+    }
+  }, [revalidateOnReconnect, accessor]);
 
   return { data };
 }

@@ -6,7 +6,7 @@ export function useInfiniteFetch<M, Arg, RD, D = any>(
   getSnapshot: (model: M) => D
 ) {
   const data = useSyncExternalStore(accessor.subscribe, () => {
-    return getSnapshot(accessor.getLatestModel());
+    return getSnapshot(accessor.getModel());
   });
 
   const fetchNextPage = useCallback(() => {

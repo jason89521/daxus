@@ -2,18 +2,32 @@
 
 Manage the server state and let user define the shape of the data from the server.
 
-- [x] Cache the data from the server
-- [x] Dedupe the request from the same action and argument
-- [x] Revalidate when it mount and there is stale data
+## Todo
+
+### `useFetch`
+
+- [x] Dedupe
+- [x] Cache
 - [x] Revalidate on focus
+- [x] Revalidate when reconnect
+- [ ] Refresh within an interval
+- [ ] Error retry
+- [ ] Error callback
+- [ ] Success callback
+- [ ] Mutation
+- [ ] Testing
+
+### `useInfiniteFetch`
+
+- [x] Dedupe
+- [x] Cache
+- [ ] Revalidate on focus
 - [ ] Revalidate when reconnect
 - [ ] Refresh within an interval
-- [ ] Error handling
+- [ ] Error retry
+- [ ] Error error callback
+- [ ] Success callback
 - [ ] Mutation
-- [ ] Infinite fetch
-  - [ ] Revalidation
-  - [ ] Error handling
-- [x] Pagination Adapter
 - [ ] Testing
 
 ## API
@@ -21,8 +35,8 @@ Manage the server state and let user define the shape of the data from the serve
 Create a model
 
 ```ts
-import type { Action } from 'tbd';
-import { Model, createPaginationAdapter } from 'tbd';
+import type { Action } from 'react-server-model';
+import { Model, createPaginationAdapter } from 'react-server-model';
 
 export const postAdapter = createPaginationAdapter<Post>({});
 const initialModel = postAdapter.initialModel;
@@ -58,6 +72,8 @@ export const postModel = new Model(initialModel, { getPostById, getPostList });
 Use the model with `useFetch` or `useInfiniteFetch`
 
 ```jsx
+import { useFetch, useInfiniteFetch } from 'react-server-model';
+
 export function PostList() {
   const { data, fetchNextPage } = useInfiniteFetch(
     postModel.accessorGetters.getPostList({ layout }),

@@ -12,18 +12,18 @@ export class InfiniteModelAccessor<M, Arg, RD> {
 
   private cachedData: RD[] = [];
 
-  getLatestModel: () => M;
+  getModel: () => M;
 
   constructor(
     arg: Arg,
     action: InfiniteAction<M, Arg, RD>,
     updateModel: (cb: (draft: Draft<M>) => void) => void,
-    getLatestModel: () => M
+    getModel: () => M
   ) {
     this.arg = arg;
     this.action = action;
     this.updateModel = updateModel;
-    this.getLatestModel = getLatestModel;
+    this.getModel = getModel;
   }
 
   private updateStatus = (newStatus: Partial<typeof this.status>) => {
