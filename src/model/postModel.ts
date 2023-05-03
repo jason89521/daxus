@@ -14,8 +14,16 @@ const getPostById: Action<PostModel, number, Post> = {
     const data = await getPostByIdRequest(id);
     return data;
   },
-  syncModel: (draft, { remoteData }) => {
-    postAdapter.upsertOne(draft, remoteData);
+  syncModel: (draft, { data }) => {
+    postAdapter.upsertOne(draft, data);
+  },
+  onError: ({ error, arg }) => {
+    console.log(`Error with arg: ${arg}`);
+    console.log(error);
+  },
+  onSuccess: ({ data, arg }) => {
+    console.log(`Success with arg: ${arg}`);
+    console.log(data);
   },
 };
 
@@ -25,9 +33,9 @@ const getPostList: Action<PostModel, { layout: PostLayout }, Post[]> = {
     const data = await getPostListRequest({ layout, page: pageIndex });
     return data;
   },
-  syncModel: (draft, { remoteData, arg, pageIndex }) => {
+  syncModel: (draft, { data, arg, pageIndex }) => {
     const paginationKey = JSON.stringify(arg);
-    postAdapter.updatePagination(draft, { dataArray: remoteData, paginationKey, pageIndex });
+    postAdapter.updatePagination(draft, { dataArray: data, paginationKey, pageIndex });
   },
 };
 
