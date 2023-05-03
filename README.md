@@ -12,8 +12,8 @@ Manage the server state and let user define the shape of the data from the serve
 - [x] Revalidate when reconnect
 - [ ] Refresh within an interval
 - [ ] Error retry
-- [ ] Error callback
-- [ ] Success callback
+- [x] Error callback
+- [x] Success callback
 - [ ] Mutation
 - [ ] Testing
 
@@ -29,6 +29,10 @@ Manage the server state and let user define the shape of the data from the serve
 - [ ] Success callback
 - [ ] Mutation
 - [ ] Testing
+
+### `Model`
+
+- [ ] Use the other method to serialize argument instead of using `JSON.stringify`.
 
 ## API
 

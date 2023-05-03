@@ -64,7 +64,7 @@ export class InfiniteModelAccessor<M, Arg, RD> {
       if (pageIndex < start) return;
       this.updateModel(draft => {
         this.action.syncModel(draft, {
-          remoteData,
+          data: remoteData,
           arg: this.arg,
           pageIndex,
           pageSize: this.pageSize(),

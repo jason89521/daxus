@@ -41,11 +41,12 @@ export class ModelAccessor<M, Arg, RD> {
   };
 
   private internalFetch = async (retryCount: number) => {
-    const result: { remoteData: RD | null; error: unknown } = { remoteData: null, error: null };
+    const result: { data: RD | null; error: unknown } = { data: null, error: null };
     for (let i = 0; i < retryCount; i++) {
       try {
-        const remoteData = await this.action.fetchData(this.arg);
-        result.remoteData = remoteData;
+        const data = await this.action.fetchData(this.arg);
+        console.log('data: ', data);
+        result.data = data;
         return result;
       } catch (error) {
         result.error = error;
@@ -78,11 +79,12 @@ export class ModelAccessor<M, Arg, RD> {
       this.updateStatus({ isLoading: true, isFetching: true });
     }
 
-    const { remoteData, error } = await this.internalFetch(retryCount);
-    if (remoteData) {
+    const { data, error } = await this.internalFetch(retryCount);
+    if (data) {
       this.updateModel(async draft => {
-        this.action.syncModel(draft, { remoteData, arg: this.arg });
+        this.action.syncModel(draft, { data, arg: this.arg });
       });
+      this.action.onSuccess?.({ data, arg: this.arg });
       this.updateStatus({
         isFetching: false,
         isLoading: false,
