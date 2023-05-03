@@ -6,13 +6,9 @@ interface Props {
 }
 
 export function usePost({ id }: Props) {
-  const { data } = useFetch(
-    postModel.accessorGetters.getPostById(id),
-    model => {
-      return model.data[id];
-    },
-    { revalidateOnFocus: false }
-  );
+  const { data } = useFetch(postModel.accessorGetters.getPostById(id), model => {
+    return model.data[id];
+  });
 
   return { post: data };
 }
