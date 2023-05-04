@@ -1,6 +1,8 @@
-import { useCallback, useEffect, useSyncExternalStore } from 'react';
-import type { ModelAccessor } from '../model';
-import { stableHash } from '../utils';
+import { useCallback, useEffect, useRef, useSyncExternalStore } from 'react';
+import type { Cache, ModelAccessor } from '../model';
+import { objectKeys, stableHash } from '../utils';
+
+type StateDeps<D> = Partial<Record<keyof Cache<D>, boolean>>;
 
 export function useFetch<M, Arg, RD, D = any>(
   accessor: ModelAccessor<M, Arg, RD>,
@@ -11,16 +13,35 @@ export function useFetch<M, Arg, RD, D = any>(
   } = {}
 ) {
   const { revalidateOnFocus = true, revalidateOnReconnect = true } = options;
-  // const { isFetching } = useSyncExternalStore(accessor.subscribe, accessor.getStatusSnapshot);
-
+  const stateDeps = useRef<StateDeps<RD>>({}).current;
+  const { isFetching } = useSyncExternalStore(
+    useCallback(
+      storeListener => {
+        return accessor.subscribe((prev, current) => {
+          for (const key of objectKeys(stateDeps)) {
+            if (key === 'data') continue;
+            if (prev[key] !== current[key]) {
+              storeListener();
+              return;
+            }
+          }
+        });
+      },
+      [accessor, stateDeps]
+    ),
+    () => accessor.getCache()
+  );
   const data = useSyncExternalStore(
     useCallback(
       storeListener => {
-        return accessor.subscribeData((current, prev) => {
-          if (stableHash(current) !== stableHash(prev)) storeListener();
+        return accessor.subscribe((prev, current) => {
+          if (!stateDeps.data) return;
+          if (stableHash(current.data) !== stableHash(prev.data)) {
+            storeListener();
+          }
         });
       },
-      [accessor]
+      [accessor, stateDeps]
     ),
     () => {
       return getSnapshot(accessor.getModel());
@@ -44,6 +65,13 @@ export function useFetch<M, Arg, RD, D = any>(
   }, [revalidateOnReconnect, accessor]);
 
   return {
-    data,
+    get data() {
+      stateDeps.data = true;
+      return data;
+    },
+    get isFetching() {
+      stateDeps.isFetching = true;
+      return isFetching;
+    },
   };
 }
