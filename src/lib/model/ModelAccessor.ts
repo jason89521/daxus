@@ -1,29 +1,27 @@
 import type { NormalAction } from './types';
 import type { Draft } from 'immer';
 
-export class ModelAccessor<M, Arg, RD> {
-  private listeners: (() => void)[] = [];
-  private status = {
-    isLoading: false,
-    /** Whether there is an ongoing request. */
-    isFetching: false,
-    hasFetched: false,
-    isValidating: false,
-    isError: false,
-  };
-  private action: NormalAction<M, Arg, RD>;
+export type Cache<Data> = {
+  data?: Data;
+  isFetching: boolean;
+};
+
+export class ModelAccessor<Model, Arg, Data> {
+  private cache: Cache<Data> = { isFetching: false };
+  private listeners: ((prev: Cache<Data>, current: Cache<Data>) => void)[] = [];
+  private action: NormalAction<Model, Arg, Data>;
   private arg: Arg;
-  private updateModel: (cb: (model: Draft<M>) => void) => void;
+  private updateModel: (cb: (model: Draft<Model>) => void) => void;
   private revalidateOnFocusCount = 0;
   private revalidateOnReconnectCount = 0;
 
-  getModel: () => M;
+  getModel: () => Model;
 
   constructor(
     arg: Arg,
-    action: NormalAction<M, Arg, RD>,
-    updateModel: (cb: (model: Draft<M>) => void) => void,
-    getModel: () => M
+    action: NormalAction<Model, Arg, Data>,
+    updateModel: (cb: (model: Draft<Model>) => void) => void,
+    getModel: () => Model
   ) {
     this.action = action;
     this.arg = arg;
@@ -31,21 +29,17 @@ export class ModelAccessor<M, Arg, RD> {
     this.getModel = getModel;
   }
 
-  private updateStatus = (newStatus: Partial<typeof this.status>) => {
-    this.status = { ...this.status, ...newStatus };
-    this.notifyListeners();
-  };
-
-  private notifyListeners = () => {
-    this.listeners.forEach(l => l());
+  private updateCache = (partialCache: Partial<typeof this.cache>) => {
+    const newCache = { ...this.cache, ...partialCache };
+    this.notifyListeners(newCache);
+    this.cache = newCache;
   };
 
   private internalFetch = async (retryCount: number) => {
-    const result: { data: RD | null; error: unknown } = { data: null, error: null };
+    const result: { data: Data | null; error: unknown } = { data: null, error: null };
     for (let i = 0; i < retryCount; i++) {
       try {
         const data = await this.action.fetchData(this.arg);
-        console.log('data: ', data);
         result.data = data;
         return result;
       } catch (error) {
@@ -60,24 +54,22 @@ export class ModelAccessor<M, Arg, RD> {
     this.fetch();
   };
 
-  subscribe = (listener: () => void) => {
+  private notifyListeners = (newCache: Cache<Data>) => {
+    this.listeners.forEach(l => {
+      l(this.cache, newCache);
+    });
+  };
+
+  subscribe = (listener: (prev: Cache<Data>, current: Cache<Data>) => void) => {
     this.listeners.push(listener);
     return () => {
       this.listeners.splice(this.listeners.indexOf(listener), 1);
     };
   };
 
-  getStatusSnapshot = () => {
-    return this.status;
-  };
-
   fetch = async ({ retryCount = 3 }: { retryCount?: number } = {}) => {
-    if (this.status.isFetching) return;
-    if (this.status.hasFetched) {
-      this.updateStatus({ isValidating: true, isFetching: true });
-    } else {
-      this.updateStatus({ isLoading: true, isFetching: true });
-    }
+    if (this.cache.isFetching) return;
+    this.updateCache({ isFetching: true });
 
     const { data, error } = await this.internalFetch(retryCount);
     if (data) {
@@ -85,21 +77,10 @@ export class ModelAccessor<M, Arg, RD> {
         this.action.syncModel(draft, { data, arg: this.arg });
       });
       this.action.onSuccess?.({ data, arg: this.arg });
-      this.updateStatus({
-        isFetching: false,
-        isLoading: false,
-        isValidating: false,
-        hasFetched: true,
-        isError: false,
-      });
+      this.updateCache({ data, isFetching: false });
     } else {
       this.action.onError?.({ error, arg: this.arg });
-      this.updateStatus({
-        isFetching: false,
-        isLoading: false,
-        isValidating: false,
-        isError: true,
-      });
+      this.updateCache({ isFetching: false });
     }
   };
 
@@ -131,10 +112,7 @@ export class ModelAccessor<M, Arg, RD> {
     };
   };
 
-  mutate = (mutateFn: (state: Draft<M>) => void) => {
-    this.updateModel(draft => {
-      mutateFn(draft);
-    });
-    this.notifyListeners();
+  getCache = () => {
+    return this.cache;
   };
 }

@@ -4,6 +4,7 @@ import type { ArgFromAction, RemoteDataFromAction } from './types';
 import { ModelAccessor } from './ModelAccessor';
 import type { Action } from './types';
 import { InfiniteModelAccessor } from './InfiniteModelAccessor';
+import { stableHash } from '../utils';
 
 type AccessorGettersFromActionIdentifier<M, As extends Record<string, Action<M>>> = {
   [Key in keyof As]: (
@@ -27,8 +28,8 @@ export class Model<M extends object, As extends Record<string, Action<M>>> {
 
     Object.entries(identifiers).forEach(([actionName, action]) => {
       const getModelAccessor = (arg: ArgFromAction<typeof action>) => {
-        const serializedArg = typeof arg === 'undefined' ? '' : JSON.stringify(arg);
-        const key = `${actionName}/${serializedArg}`;
+        const hashedArg = stableHash(arg);
+        const key = `${actionName}/${hashedArg}`;
         const accessor = this.accessors[key];
         if (accessor) return accessor;
         const newAccessor = (() => {
