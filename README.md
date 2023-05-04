@@ -36,6 +36,10 @@ Manage the server state and let user define the shape of the data from the serve
 
 - [ ] Use the other method to serialize argument instead of using `JSON.stringify`.
 
+### `Dev Tool`
+
+- [ ] Add dev tool like redux dev tool.
+
 ## API
 
 Create a model
