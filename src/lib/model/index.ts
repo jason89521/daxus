@@ -1,4 +1,4 @@
 export * from './InfiniteModelAccessor';
 export * from './Model';
-export * from './ModelAccessor';
+export * from './NormalModelAccessor';
 export * from './types';

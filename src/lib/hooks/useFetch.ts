@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useRef, useSyncExternalStore } from 'react';
-import type { Cache, ModelAccessor } from '../model';
+import type { Cache, NormalModelAccessor } from '../model';
 import { objectKeys, stableHash } from '../utils';
 
 type StateDeps<D> = Partial<Record<keyof Cache<D>, boolean>>;
 
 export function useFetch<M, Arg, RD, D = any>(
-  accessor: ModelAccessor<M, Arg, RD>,
+  accessor: NormalModelAccessor<M, Arg, RD>,
   getSnapshot: (model: M) => D,
   options: {
     revalidateOnFocus?: boolean;

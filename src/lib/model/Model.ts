@@ -1,7 +1,7 @@
 import { createDraft, finishDraft } from 'immer';
 import type { Draft } from 'immer';
 import type { ArgFromAction, RemoteDataFromAction } from './types';
-import { ModelAccessor } from './ModelAccessor';
+import { NormalModelAccessor } from './NormalModelAccessor';
 import type { Action } from './types';
 import { InfiniteModelAccessor } from './InfiniteModelAccessor';
 import { stableHash } from '../utils';
@@ -11,14 +11,16 @@ type AccessorGettersFromActionIdentifier<M, As extends Record<string, Action<M>>
     arg: ArgFromAction<As[Key]>
   ) => As[Key]['type'] extends 'infinite'
     ? InfiniteModelAccessor<M, ArgFromAction<As[Key]>, RemoteDataFromAction<As[Key]>>
-    : ModelAccessor<M, ArgFromAction<As[Key]>, RemoteDataFromAction<As[Key]>>;
+    : NormalModelAccessor<M, ArgFromAction<As[Key]>, RemoteDataFromAction<As[Key]>>;
 };
 
 export class Model<M extends object, As extends Record<string, Action<M>>> {
   private model: M;
   private accessors = {} as Record<
     string,
-    ModelAccessor<M, unknown, unknown> | InfiniteModelAccessor<M, unknown, unknown> | undefined
+    | NormalModelAccessor<M, unknown, unknown>
+    | InfiniteModelAccessor<M, unknown, unknown>
+    | undefined
   >;
 
   accessorGetters = {} as AccessorGettersFromActionIdentifier<M, As>;
@@ -37,7 +39,7 @@ export class Model<M extends object, As extends Record<string, Action<M>>> {
             return new InfiniteModelAccessor(arg, action, this.updateModel, this.getModel);
           }
 
-          return new ModelAccessor(arg, action, this.updateModel, this.getModel);
+          return new NormalModelAccessor(arg, action, this.updateModel, this.getModel);
         })();
         this.accessors[key] = newAccessor;
 
