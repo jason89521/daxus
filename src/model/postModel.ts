@@ -29,7 +29,8 @@ const getPostById: Action<PostModel, number, Post> = {
 
 const getPostList: Action<PostModel, { layout: PostLayout }, Post[]> = {
   type: 'infinite',
-  fetchData: async ({ layout }, { pageIndex }) => {
+  fetchData: async ({ layout }, { pageIndex, previousData }) => {
+    if (previousData?.length === 0) return null;
     const data = await getPostListRequest({ layout, page: pageIndex });
     return data;
   },

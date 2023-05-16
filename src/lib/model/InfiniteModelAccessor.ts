@@ -1,16 +1,21 @@
+import { stableHash } from '../utils';
 import type { InfiniteAction, Listener } from './types';
 import type { Draft } from 'immer';
 
+export type Cache<D> = {
+  isFetching: boolean;
+  data: D[];
+};
+
 export class InfiniteModelAccessor<M, Arg, RD> {
   private listeners: Listener[] = [];
-  private status = {
-    isFetching: false,
-  };
   private action: InfiniteAction<M, Arg, RD>;
   private arg: Arg;
   private updateModel: (cb: (draft: Draft<M>) => void) => void;
-
-  private cachedData: RD[] = [];
+  private cache: Cache<RD> = {
+    isFetching: false,
+    data: [],
+  };
 
   getModel: () => M;
 
@@ -26,8 +31,8 @@ export class InfiniteModelAccessor<M, Arg, RD> {
     this.getModel = getModel;
   }
 
-  private updateStatus = (newStatus: Partial<typeof this.status>) => {
-    this.status = { ...this.status, ...newStatus };
+  private updateCache = (newCache: Partial<Cache<RD>>) => {
+    this.cache = { ...this.cache, ...newCache };
     this.notifyListeners();
   };
 
@@ -47,11 +52,14 @@ export class InfiniteModelAccessor<M, Arg, RD> {
     pageSize: number;
     pageIndex?: number;
   }) => {
-    let previousData: RD | null = this.cachedData[pageIndex - 1] ?? null;
+    let previousData: RD | null = this.cache.data[pageIndex - 1] ?? null;
     for (; pageIndex < pageSize; pageIndex++) {
       const remoteData = await this.action.fetchData(this.arg, { previousData, pageIndex });
+      if (!remoteData) {
+        return;
+      }
       previousData = remoteData;
-      this.cachedData[pageIndex] = previousData;
+      this.cache.data[pageIndex] = previousData;
     }
   };
 
@@ -60,11 +68,11 @@ export class InfiniteModelAccessor<M, Arg, RD> {
    * and notify the listeners which are listening this accessor.
    */
   private flush = ({ start }: { start: number }) => {
-    this.cachedData.forEach((remoteData, pageIndex) => {
+    this.cache.data.forEach((data, pageIndex) => {
       if (pageIndex < start) return;
       this.updateModel(draft => {
         this.action.syncModel(draft, {
-          data: remoteData,
+          data,
           arg: this.arg,
           pageIndex,
           pageSize: this.pageSize(),
@@ -75,7 +83,7 @@ export class InfiniteModelAccessor<M, Arg, RD> {
   };
 
   pageSize = () => {
-    return this.cachedData.length;
+    return this.cache.data.length;
   };
 
   subscribe = (listener: Listener) => {
@@ -85,26 +93,27 @@ export class InfiniteModelAccessor<M, Arg, RD> {
     };
   };
 
-  validate = async () => {
-    if (this.status.isFetching) return;
+  revalidate = async () => {
+    if (this.cache.isFetching) return;
 
-    this.updateStatus({ isFetching: true });
-    await this.updateCachedData({ pageSize: this.pageSize(), pageIndex: 0 });
-    this.flush({ start: 0 });
-    this.updateStatus({ isFetching: false });
+    this.updateCache({ isFetching: true });
+    const pageSize = this.pageSize() || 1;
+    const oldCachedData = this.cache.data;
+    this.cache.data = [];
+    await this.updateCachedData({ pageSize, pageIndex: 0 });
+    if (stableHash(oldCachedData) !== stableHash(this.cache.data)) {
+      this.flush({ start: 0 });
+    }
+    this.updateCache({ isFetching: false });
   };
 
-  fetch = async ({ pageSize }: { pageSize: number }) => {
-    if (this.status.isFetching) return;
-    if (pageSize < 1) throw new Error(`Page size cannot be less than 1: ${pageSize}`);
-    if (pageSize <= this.pageSize()) return;
+  fetchNext = async () => {
+    if (this.cache.isFetching) return;
 
-    this.updateStatus({ isFetching: true });
-
+    this.updateCache({ isFetching: true });
     const start = this.pageSize();
-    await this.updateCachedData({ pageSize });
+    await this.updateCachedData({ pageSize: start + 1 });
     this.flush({ start });
-
-    this.updateStatus({ isFetching: false });
+    this.updateCache({ isFetching: false });
   };
 }

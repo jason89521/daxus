@@ -10,7 +10,10 @@ export type NormalAction<Model, Arg = any, Data = any> = {
 
 export type InfiniteAction<Model, Arg = any, Data = any> = {
   type: 'infinite';
-  fetchData: (arg: Arg, info: { previousData: Data | null; pageIndex: number }) => Promise<Data>;
+  fetchData: (
+    arg: Arg,
+    meta: { previousData: Data | null; pageIndex: number }
+  ) => Promise<Data | null>;
   syncModel: (
     model: Draft<Model>,
     payload: { data: Data; arg: Arg; pageSize: number; pageIndex: number }

@@ -10,13 +10,12 @@ export function useInfiniteFetch<M, Arg, RD, D = any>(
   });
 
   const fetchNextPage = useCallback(() => {
-    const currentPageSize = accessor.pageSize();
-    accessor.fetch({ pageSize: currentPageSize + 1 });
+    accessor.fetchNext();
   }, [accessor]);
 
   useEffect(() => {
     // Fetch the first page.
-    accessor.fetch({ pageSize: 1 });
+    accessor.revalidate();
   }, [accessor]);
 
   return { data, fetchNextPage };
