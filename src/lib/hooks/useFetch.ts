@@ -29,7 +29,7 @@ export function useFetch<M, Arg, RD, D = any>(
       },
       [accessor, stateDeps]
     ),
-    () => accessor.getCache()
+    accessor.getCache
   );
   const data = useSyncExternalStore(
     useCallback(
@@ -49,7 +49,7 @@ export function useFetch<M, Arg, RD, D = any>(
   );
 
   useEffect(() => {
-    accessor.fetch();
+    accessor.revalidate();
   }, [accessor]);
 
   useEffect(() => {

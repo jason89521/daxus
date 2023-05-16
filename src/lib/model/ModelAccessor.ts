@@ -28,4 +28,8 @@ export class ModelAccessor<Data> {
       this.listeners.splice(index, 1);
     };
   };
+
+  getCache = () => {
+    return this.cache;
+  };
 }

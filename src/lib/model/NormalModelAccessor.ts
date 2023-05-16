@@ -2,11 +2,6 @@ import { ModelAccessor } from './ModelAccessor';
 import type { NormalAction } from './types';
 import type { Draft } from 'immer';
 
-export type Cache<Data> = {
-  data?: Data;
-  isFetching: boolean;
-};
-
 export class NormalModelAccessor<Model, Arg, Data> extends ModelAccessor<Data | null> {
   private action: NormalAction<Model, Arg, Data>;
   private arg: Arg;
@@ -29,38 +24,20 @@ export class NormalModelAccessor<Model, Arg, Data> extends ModelAccessor<Data | 
     this.getModel = getModel;
   }
 
-  private internalFetch = async (retryCount: number) => {
-    const result: { data: Data | null; error: unknown } = { data: null, error: null };
-    for (let i = 0; i < retryCount; i++) {
-      try {
-        const data = await this.action.fetchData(this.arg);
-        result.data = data;
-        return result;
-      } catch (error) {
-        result.error = error;
-      }
-    }
-
-    return result;
-  };
-
-  private revalidate = () => {
-    this.fetch();
-  };
-
-  fetch = async ({ retryCount = 3 }: { retryCount?: number } = {}) => {
+  revalidate = async () => {
     if (this.cache.isFetching) return;
     this.updateCache({ isFetching: true });
-
-    const { data, error } = await this.internalFetch(retryCount);
-    if (data) {
-      this.updateModel(async draft => {
-        this.action.syncModel(draft, { data, arg: this.arg });
+    const arg = this.arg;
+    try {
+      const data = await this.action.fetchData(arg);
+      this.updateModel(draft => {
+        this.action.syncModel(draft, { data, arg });
       });
-      this.action.onSuccess?.({ data, arg: this.arg });
-      this.updateCache({ data, isFetching: false });
-    } else {
-      this.action.onError?.({ error, arg: this.arg });
+      this.action.onSuccess?.({ data, arg });
+      this.updateCache({ data });
+    } catch (error) {
+      this.action.onError?.({ error, arg });
+    } finally {
       this.updateCache({ isFetching: false });
     }
   };
@@ -91,9 +68,5 @@ export class NormalModelAccessor<Model, Arg, Data> extends ModelAccessor<Data | 
         window.removeEventListener('online', this.revalidate);
       }
     };
-  };
-
-  getCache = () => {
-    return this.cache;
   };
 }
