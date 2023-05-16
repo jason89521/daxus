@@ -26,7 +26,7 @@ Manage the server state and let user define the shape of the data from the serve
 - [ ] Revalidate when reconnect
 - [ ] Refresh within an interval
 - [ ] Error retry
-- [ ] Error error callback
+- [ ] Error callback
 - [ ] Success callback
 - [ ] Mutation
 - [ ] Testing
