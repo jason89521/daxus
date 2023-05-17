@@ -2,7 +2,7 @@ import { ModelAccessor } from './ModelAccessor';
 import type { NormalAction } from './types';
 import type { Draft } from 'immer';
 
-export class NormalModelAccessor<Model, Arg, Data> extends ModelAccessor<Data | null> {
+export class NormalModelAccessor<Model, Arg, Data> extends ModelAccessor {
   private action: NormalAction<Model, Arg, Data>;
   private arg: Arg;
   private updateModel: (cb: (model: Draft<Model>) => void) => void;
@@ -17,7 +17,7 @@ export class NormalModelAccessor<Model, Arg, Data> extends ModelAccessor<Data | 
     updateModel: (cb: (model: Draft<Model>) => void) => void,
     getModel: () => Model
   ) {
-    super({ isFetching: false, data: null });
+    super();
     this.action = action;
     this.arg = arg;
     this.updateModel = updateModel;
@@ -34,7 +34,7 @@ export class NormalModelAccessor<Model, Arg, Data> extends ModelAccessor<Data | 
         this.action.syncModel(draft, { data, arg });
       });
       this.action.onSuccess?.({ data, arg });
-      this.updateCache({ data });
+      this.notifyDataListeners();
     } catch (error) {
       this.action.onError?.({ error, arg });
     } finally {

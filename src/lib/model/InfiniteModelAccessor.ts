@@ -2,10 +2,11 @@ import { ModelAccessor } from './ModelAccessor';
 import type { InfiniteAction } from './types';
 import type { Draft } from 'immer';
 
-export class InfiniteModelAccessor<M, Arg, RD> extends ModelAccessor<RD[]> {
+export class InfiniteModelAccessor<M, Arg, RD> extends ModelAccessor {
   private action: InfiniteAction<M, Arg, RD>;
   private arg: Arg;
   private updateModel: (cb: (draft: Draft<M>) => void) => void;
+  private data: RD[] = [];
 
   getModel: () => M;
 
@@ -15,12 +16,17 @@ export class InfiniteModelAccessor<M, Arg, RD> extends ModelAccessor<RD[]> {
     updateModel: (cb: (draft: Draft<M>) => void) => void,
     getModel: () => M
   ) {
-    super({ isFetching: false, data: [] });
+    super();
     this.arg = arg;
     this.action = action;
     this.updateModel = updateModel;
     this.getModel = getModel;
   }
+
+  private updateData = (data: RD[]) => {
+    this.data = data;
+    this.notifyDataListeners();
+  };
 
   /**
    * Update `this.cache.data`.
@@ -34,7 +40,7 @@ export class InfiniteModelAccessor<M, Arg, RD> extends ModelAccessor<RD[]> {
     pageSize: number;
     pageIndex?: number;
   }) => {
-    const data = [...this.cache.data];
+    const data = [...this.data];
     let previousData: RD | null = data[pageIndex - 1] ?? null;
     for (; pageIndex < pageSize; pageIndex++) {
       const remoteData = await this.action.fetchData(this.arg, { previousData, pageIndex });
@@ -45,7 +51,7 @@ export class InfiniteModelAccessor<M, Arg, RD> extends ModelAccessor<RD[]> {
       data[pageIndex] = previousData;
     }
 
-    return data;
+    return data.slice(0, pageIndex);
   };
 
   /**
@@ -67,7 +73,7 @@ export class InfiniteModelAccessor<M, Arg, RD> extends ModelAccessor<RD[]> {
   };
 
   pageSize = () => {
-    return this.cache.data.length;
+    return this.data.length;
   };
 
   revalidate = async () => {
@@ -78,7 +84,7 @@ export class InfiniteModelAccessor<M, Arg, RD> extends ModelAccessor<RD[]> {
     try {
       const data = await this.fetchData({ pageSize, pageIndex: 0 });
       this.flush(data, { start: 0 });
-      this.updateCache({ data });
+      this.updateData(data);
     } catch (error) {
       //
     } finally {
@@ -94,7 +100,7 @@ export class InfiniteModelAccessor<M, Arg, RD> extends ModelAccessor<RD[]> {
     try {
       const data = await this.fetchData({ pageSize: start + 1 });
       this.flush(data, { start });
-      this.updateCache({ data });
+      this.updateData(data);
     } catch (error) {
       //
     } finally {

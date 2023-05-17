@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useRef, useSyncExternalStore } from 'react';
-import type { Cache, NormalModelAccessor } from '../model';
+import { useCallback, useEffect, useMemo, useRef, useSyncExternalStore } from 'react';
+import type { Status, NormalModelAccessor } from '../model';
 import { objectKeys, stableHash } from '../utils';
 
-type StateDeps<D> = Partial<Record<keyof Cache<D>, boolean>>;
+type StateDeps = Partial<Record<keyof Status, boolean>>;
 
 export function useFetch<M, Arg, RD, D = any>(
   accessor: NormalModelAccessor<M, Arg, RD>,
@@ -13,13 +13,14 @@ export function useFetch<M, Arg, RD, D = any>(
   } = {}
 ) {
   const { revalidateOnFocus = true, revalidateOnReconnect = true } = options;
-  const stateDeps = useRef<StateDeps<RD>>({}).current;
+  const stateDeps = useRef<StateDeps>({}).current;
+  const getSnapshotRef = useRef(getSnapshot);
+  getSnapshotRef.current = getSnapshot;
   const { isFetching } = useSyncExternalStore(
     useCallback(
       storeListener => {
         return accessor.subscribe((prev, current) => {
           for (const key of objectKeys(stateDeps)) {
-            if (key === 'data') continue;
             if (prev[key] !== current[key]) {
               storeListener();
               return;
@@ -31,22 +32,25 @@ export function useFetch<M, Arg, RD, D = any>(
     ),
     accessor.getCache
   );
-  const data = useSyncExternalStore(
-    useCallback(
-      storeListener => {
-        return accessor.subscribe((prev, current) => {
-          if (!stateDeps.data) return;
-          if (stableHash(current.data) !== stableHash(prev.data)) {
-            storeListener();
+
+  const [subscribeData, getData] = useMemo(() => {
+    let memoizedSnapshot = getSnapshotRef.current(accessor.getModel());
+
+    return [
+      (listener: () => void) => {
+        return accessor.subscribeData(() => {
+          const snapshot = getSnapshotRef.current(accessor.getModel());
+          if (stableHash(snapshot) !== stableHash(memoizedSnapshot)) {
+            memoizedSnapshot = snapshot;
+            listener();
           }
         });
       },
-      [accessor, stateDeps]
-    ),
-    () => {
-      return getSnapshot(accessor.getModel());
-    }
-  );
+      () => memoizedSnapshot,
+    ] as const;
+  }, [accessor]);
+
+  const data = useSyncExternalStore(subscribeData, getData);
 
   useEffect(() => {
     accessor.revalidate();
@@ -66,7 +70,6 @@ export function useFetch<M, Arg, RD, D = any>(
 
   return {
     get data() {
-      stateDeps.data = true;
       return data;
     },
     get isFetching() {

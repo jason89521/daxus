@@ -1,31 +1,40 @@
-export type Cache<Data> = {
-  data: Data;
+export type Status = {
   isFetching: boolean;
 };
 
-export class ModelAccessor<Data> {
-  protected cache: Cache<Data>;
-  protected listeners: ((prev: Cache<Data>, current: Cache<Data>) => void)[] = [];
+export class ModelAccessor {
+  protected cache: Status = { isFetching: false };
+  protected statusListeners: ((prev: Status, current: Status) => void)[] = [];
+  protected dataListeners: (() => void)[] = [];
 
-  constructor(initialCache: Cache<Data>) {
-    this.cache = initialCache;
-  }
-
-  protected updateCache = (partialCache: Partial<Cache<Data>>) => {
+  protected updateCache = (partialCache: Partial<Status>) => {
     const newCache = { ...this.cache, ...partialCache };
-    this.notifyListeners(newCache);
+    this.notifyStatusListeners(newCache);
     this.cache = newCache;
+    this.notifyDataListeners();
   };
 
-  protected notifyListeners = (newCache: Cache<Data>) => {
-    this.listeners.forEach(l => l(this.cache, newCache));
+  protected notifyStatusListeners = (newCache: Status) => {
+    this.statusListeners.forEach(l => l(this.cache, newCache));
   };
 
-  subscribe = (listener: (prev: Cache<Data>, current: Cache<Data>) => void) => {
-    this.listeners.push(listener);
+  notifyDataListeners = () => {
+    this.dataListeners.forEach(l => l());
+  };
+
+  subscribe = (listener: (prev: Status, current: Status) => void) => {
+    this.statusListeners.push(listener);
     return () => {
-      const index = this.listeners.indexOf(listener);
-      this.listeners.splice(index, 1);
+      const index = this.statusListeners.indexOf(listener);
+      this.statusListeners.splice(index, 1);
+    };
+  };
+
+  subscribeData = (listener: () => void) => {
+    this.dataListeners.push(listener);
+    return () => {
+      const index = this.dataListeners.indexOf(listener);
+      this.dataListeners.splice(index, 1);
     };
   };
 
