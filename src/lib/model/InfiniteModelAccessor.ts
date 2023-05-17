@@ -79,7 +79,7 @@ export class InfiniteModelAccessor<M, Arg, RD> extends ModelAccessor {
   };
 
   revalidate = async () => {
-    if (this.cache.isFetching) return;
+    if (this.status.isFetching) return;
 
     this.updateCache({ isFetching: true });
     const pageSize = this.pageSize() || 1;
@@ -95,7 +95,7 @@ export class InfiniteModelAccessor<M, Arg, RD> extends ModelAccessor {
   };
 
   fetchNext = async () => {
-    if (this.cache.isFetching) return;
+    if (this.status.isFetching) return;
 
     this.updateCache({ isFetching: true });
     const start = this.pageSize();

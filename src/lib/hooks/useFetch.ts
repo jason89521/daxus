@@ -19,7 +19,7 @@ export function useFetch<M, Arg, RD, D = any>(
   const { isFetching } = useSyncExternalStore(
     useCallback(
       storeListener => {
-        return accessor.subscribe((prev, current) => {
+        return accessor.subscribeStatus((prev, current) => {
           for (const key of objectKeys(stateDeps)) {
             if (prev[key] !== current[key]) {
               storeListener();

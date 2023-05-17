@@ -5,7 +5,7 @@ export type Status = {
 export type ModelSubscribe = (listener: () => void) => () => void;
 
 export class ModelAccessor {
-  protected cache: Status = { isFetching: false };
+  protected status: Status = { isFetching: false };
   protected statusListeners: ((prev: Status, current: Status) => void)[] = [];
   protected dataListeners: (() => void)[] = [];
   private modelSubscribe: ModelSubscribe;
@@ -15,21 +15,21 @@ export class ModelAccessor {
   }
 
   protected updateCache = (partialCache: Partial<Status>) => {
-    const newCache = { ...this.cache, ...partialCache };
+    const newCache = { ...this.status, ...partialCache };
     this.notifyStatusListeners(newCache);
-    this.cache = newCache;
+    this.status = newCache;
     this.notifyDataListeners();
   };
 
   protected notifyStatusListeners = (newCache: Status) => {
-    this.statusListeners.forEach(l => l(this.cache, newCache));
+    this.statusListeners.forEach(l => l(this.status, newCache));
   };
 
   notifyDataListeners = () => {
     this.dataListeners.forEach(l => l());
   };
 
-  subscribe = (listener: (prev: Status, current: Status) => void) => {
+  subscribeStatus = (listener: (prev: Status, current: Status) => void) => {
     this.statusListeners.push(listener);
     return () => {
       const index = this.statusListeners.indexOf(listener);
@@ -48,6 +48,6 @@ export class ModelAccessor {
   };
 
   getCache = () => {
-    return this.cache;
+    return this.status;
   };
 }
