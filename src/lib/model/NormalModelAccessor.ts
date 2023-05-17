@@ -10,8 +10,6 @@ export class NormalModelAccessor<Model, Arg, Data> extends ModelAccessor<Model> 
   private revalidateOnFocusCount = 0;
   private revalidateOnReconnectCount = 0;
 
-  getModel: () => Model;
-
   constructor(
     arg: Arg,
     action: NormalAction<Model, Arg, Data>,
@@ -23,7 +21,6 @@ export class NormalModelAccessor<Model, Arg, Data> extends ModelAccessor<Model> 
     this.action = action;
     this.arg = arg;
     this.updateModel = updateModel;
-    this.getModel = getModel;
   }
 
   revalidate = async () => {

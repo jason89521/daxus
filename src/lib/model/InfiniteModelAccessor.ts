@@ -20,7 +20,6 @@ export class InfiniteModelAccessor<M, Arg, RD> extends ModelAccessor<M> {
     this.arg = arg;
     this.action = action;
     this.updateModel = updateModel;
-    this.getModel = getModel;
   }
 
   private updateData = (data: RD[]) => {
