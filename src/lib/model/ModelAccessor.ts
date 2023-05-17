@@ -17,10 +17,10 @@ export class ModelAccessor<M> {
     this.modelSubscribe = modelSubscribe;
   }
 
-  protected updateCache = (partialCache: Partial<Status>) => {
-    const newCache = { ...this.status, ...partialCache };
-    this.notifyStatusListeners(newCache);
-    this.status = newCache;
+  protected updateStatus = (partialStatus: Partial<Status>) => {
+    const newStatus = { ...this.status, ...partialStatus };
+    this.notifyStatusListeners(newStatus);
+    this.status = newStatus;
     this.notifyDataListeners();
   };
 

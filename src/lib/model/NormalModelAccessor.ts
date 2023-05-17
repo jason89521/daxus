@@ -25,7 +25,7 @@ export class NormalModelAccessor<Model, Arg, Data> extends ModelAccessor<Model> 
 
   revalidate = async () => {
     if (this.status.isFetching) return;
-    this.updateCache({ isFetching: true });
+    this.updateStatus({ isFetching: true });
     const arg = this.arg;
     try {
       const data = await this.action.fetchData(arg);
@@ -37,7 +37,7 @@ export class NormalModelAccessor<Model, Arg, Data> extends ModelAccessor<Model> 
     } catch (error) {
       this.action.onError?.({ error, arg });
     } finally {
-      this.updateCache({ isFetching: false });
+      this.updateStatus({ isFetching: false });
     }
   };
 

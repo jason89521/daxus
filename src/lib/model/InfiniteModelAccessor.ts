@@ -78,7 +78,7 @@ export class InfiniteModelAccessor<M, Arg, RD> extends ModelAccessor<M> {
   revalidate = async () => {
     if (this.status.isFetching) return;
 
-    this.updateCache({ isFetching: true });
+    this.updateStatus({ isFetching: true });
     const pageSize = this.pageSize() || 1;
     try {
       const data = await this.fetchData({ pageSize, pageIndex: 0 });
@@ -87,14 +87,14 @@ export class InfiniteModelAccessor<M, Arg, RD> extends ModelAccessor<M> {
     } catch (error) {
       //
     } finally {
-      this.updateCache({ isFetching: false });
+      this.updateStatus({ isFetching: false });
     }
   };
 
   fetchNext = async () => {
     if (this.status.isFetching) return;
 
-    this.updateCache({ isFetching: true });
+    this.updateStatus({ isFetching: true });
     const start = this.pageSize();
     try {
       const data = await this.fetchData({ pageSize: start + 1 });
@@ -103,7 +103,7 @@ export class InfiniteModelAccessor<M, Arg, RD> extends ModelAccessor<M> {
     } catch (error) {
       //
     } finally {
-      this.updateCache({ isFetching: false });
+      this.updateStatus({ isFetching: false });
     }
   };
 }
