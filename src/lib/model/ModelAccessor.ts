@@ -4,13 +4,16 @@ export type Status = {
 
 export type ModelSubscribe = (listener: () => void) => () => void;
 
-export class ModelAccessor {
+export class ModelAccessor<M> {
   protected status: Status = { isFetching: false };
   protected statusListeners: ((prev: Status, current: Status) => void)[] = [];
   protected dataListeners: (() => void)[] = [];
   private modelSubscribe: ModelSubscribe;
 
-  constructor(modelSubscribe: ModelSubscribe) {
+  getModel: () => M;
+
+  constructor(getModel: () => M, modelSubscribe: ModelSubscribe) {
+    this.getModel = getModel;
     this.modelSubscribe = modelSubscribe;
   }
 

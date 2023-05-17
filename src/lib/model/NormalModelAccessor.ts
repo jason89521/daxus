@@ -3,7 +3,7 @@ import { ModelAccessor } from './ModelAccessor';
 import type { NormalAction } from './types';
 import type { Draft } from 'immer';
 
-export class NormalModelAccessor<Model, Arg, Data> extends ModelAccessor {
+export class NormalModelAccessor<Model, Arg, Data> extends ModelAccessor<Model> {
   private action: NormalAction<Model, Arg, Data>;
   private arg: Arg;
   private updateModel: (cb: (model: Draft<Model>) => void) => void;
@@ -19,7 +19,7 @@ export class NormalModelAccessor<Model, Arg, Data> extends ModelAccessor {
     getModel: () => Model,
     modelSubscribe: ModelSubscribe
   ) {
-    super(modelSubscribe);
+    super(getModel, modelSubscribe);
     this.action = action;
     this.arg = arg;
     this.updateModel = updateModel;

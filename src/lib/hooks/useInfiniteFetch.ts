@@ -1,51 +1,13 @@
-import { useCallback, useEffect, useMemo, useRef, useSyncExternalStore } from 'react';
-import type { InfiniteModelAccessor, Status } from '../model';
-import { objectKeys, stableHash } from '../utils';
-
-type StateDeps = Partial<Record<keyof Status, boolean>>;
+import { useCallback, useEffect } from 'react';
+import type { InfiniteModelAccessor } from '../model';
+import { useModelAccessor } from './useModelAccessor';
 
 export function useInfiniteFetch<M, Arg, RD, D = any>(
   accessor: InfiniteModelAccessor<M, Arg, RD>,
   getSnapshot: (model: M) => D
 ) {
-  const stateDeps = useRef<StateDeps>({}).current;
-  const getSnapshotRef = useRef(getSnapshot);
-  getSnapshotRef.current = getSnapshot;
-  const { isFetching } = useSyncExternalStore(
-    useCallback(
-      storeListener => {
-        return accessor.subscribeStatus((prev, current) => {
-          for (const key of objectKeys(stateDeps)) {
-            if (prev[key] !== current[key]) {
-              storeListener();
-              return;
-            }
-          }
-        });
-      },
-      [accessor, stateDeps]
-    ),
-    accessor.getStatus
-  );
-
-  const [subscribeData, getData] = useMemo(() => {
-    let memoizedSnapshot = getSnapshotRef.current(accessor.getModel());
-
-    return [
-      (listener: () => void) => {
-        return accessor.subscribeData(() => {
-          const snapshot = getSnapshotRef.current(accessor.getModel());
-          if (stableHash(snapshot) !== stableHash(memoizedSnapshot)) {
-            memoizedSnapshot = snapshot;
-            listener();
-          }
-        });
-      },
-      () => memoizedSnapshot,
-    ] as const;
-  }, [accessor]);
-
-  const data = useSyncExternalStore(subscribeData, getData);
+  const { stateDeps, status, data } = useModelAccessor(accessor, getSnapshot);
+  const { isFetching } = status;
 
   const fetchNextPage = useCallback(() => {
     accessor.fetchNext();

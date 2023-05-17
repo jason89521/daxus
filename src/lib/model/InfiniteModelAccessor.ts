@@ -3,13 +3,11 @@ import { ModelAccessor } from './ModelAccessor';
 import type { InfiniteAction } from './types';
 import type { Draft } from 'immer';
 
-export class InfiniteModelAccessor<M, Arg, RD> extends ModelAccessor {
+export class InfiniteModelAccessor<M, Arg, RD> extends ModelAccessor<M> {
   private action: InfiniteAction<M, Arg, RD>;
   private arg: Arg;
   private updateModel: (cb: (draft: Draft<M>) => void) => void;
   private data: RD[] = [];
-
-  getModel: () => M;
 
   constructor(
     arg: Arg,
@@ -18,7 +16,7 @@ export class InfiniteModelAccessor<M, Arg, RD> extends ModelAccessor {
     getModel: () => M,
     modelSubscribe: ModelSubscribe
   ) {
-    super(modelSubscribe);
+    super(getModel, modelSubscribe);
     this.arg = arg;
     this.action = action;
     this.updateModel = updateModel;
