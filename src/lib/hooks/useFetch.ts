@@ -30,7 +30,7 @@ export function useFetch<M, Arg, RD, D = any>(
       },
       [accessor, stateDeps]
     ),
-    accessor.getCache
+    accessor.getStatus
   );
 
   const [subscribeData, getData] = useMemo(() => {

@@ -47,7 +47,7 @@ export class ModelAccessor {
     };
   };
 
-  getCache = () => {
+  getStatus = () => {
     return this.status;
   };
 }

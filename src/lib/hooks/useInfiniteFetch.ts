@@ -25,7 +25,7 @@ export function useInfiniteFetch<M, Arg, RD, D = any>(
       },
       [accessor, stateDeps]
     ),
-    accessor.getCache
+    accessor.getStatus
   );
 
   const [subscribeData, getData] = useMemo(() => {
