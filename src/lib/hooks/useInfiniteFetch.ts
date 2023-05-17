@@ -10,6 +10,7 @@ export function useInfiniteFetch<M, Arg, RD, D = any>(
 ) {
   const stateDeps = useRef<StateDeps>({}).current;
   const getSnapshotRef = useRef(getSnapshot);
+  getSnapshotRef.current = getSnapshot;
   const { isFetching } = useSyncExternalStore(
     useCallback(
       storeListener => {
