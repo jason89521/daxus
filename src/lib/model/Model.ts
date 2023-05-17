@@ -22,6 +22,7 @@ export class Model<M extends object, As extends Record<string, Action<M>>> {
     | InfiniteModelAccessor<M, unknown, unknown>
     | undefined
   >;
+  private listeners: (() => void)[] = [];
 
   accessorGetters = {} as AccessorGettersFromActionIdentifier<M, As>;
 
@@ -36,10 +37,22 @@ export class Model<M extends object, As extends Record<string, Action<M>>> {
         if (accessor) return accessor;
         const newAccessor = (() => {
           if (action.type === 'infinite') {
-            return new InfiniteModelAccessor(arg, action, this.updateModel, this.getModel);
+            return new InfiniteModelAccessor(
+              arg,
+              action,
+              this.updateModel,
+              this.getModel,
+              this.subscribe
+            );
           }
 
-          return new NormalModelAccessor(arg, action, this.updateModel, this.getModel);
+          return new NormalModelAccessor(
+            arg,
+            action,
+            this.updateModel,
+            this.getModel,
+            this.subscribe
+          );
         })();
         this.accessors[key] = newAccessor;
 
@@ -58,5 +71,22 @@ export class Model<M extends object, As extends Record<string, Action<M>>> {
 
   private getModel = () => {
     return this.model;
+  };
+
+  private subscribe = (listener: () => void) => {
+    this.listeners.push(listener);
+    return () => {
+      const index = this.listeners.indexOf(listener);
+      this.listeners.splice(index, 1);
+    };
+  };
+
+  private notifyListeners = () => {
+    this.listeners.forEach(l => l());
+  };
+
+  mutate = (fn: (modelDraft: Draft<M>) => void) => {
+    this.updateModel(fn);
+    this.notifyListeners();
   };
 }

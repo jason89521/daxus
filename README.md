@@ -14,7 +14,7 @@ Manage the server state and let user define the shape of the data from the serve
 - [ ] Error retry
 - [x] Error callback
 - [x] Success callback
-- [ ] Mutation
+- [x] Mutation
 - [ ] Testing
 - [x] Only rerender when used field change
 
@@ -28,7 +28,7 @@ Manage the server state and let user define the shape of the data from the serve
 - [ ] Error retry
 - [ ] Error callback
 - [ ] Success callback
-- [ ] Mutation
+- [x] Mutation
 - [ ] Testing
 - [x] Only rerender when used field change
 

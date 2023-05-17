@@ -1,12 +1,28 @@
 import { useState } from 'react';
 import { Post, PostList } from './components';
 
+import { postAdapter, postModel } from './model';
+import { usePost } from './hooks';
+import { updatePostLayoutById } from './request';
+
 function UpdateButton({ id }: { id: number }) {
-  const handleClick = () => {
+  const { post } = usePost({ id });
+
+  const handleClick = async () => {
     // Todo
+    if (!post) return;
+    const newLayout = post.layout === 'image' ? 'classic' : 'image';
+    const data = await updatePostLayoutById(id, newLayout);
+    postModel.mutate(draft => {
+      postAdapter.upsertOne(draft, data);
+    });
   };
 
-  return <button onClick={handleClick}>Update post{id}</button>;
+  return (
+    <button onClick={handleClick}>
+      {post ? `Update post${id}` : `post ${1} haven't been fetch`}
+    </button>
+  );
 }
 
 function App() {

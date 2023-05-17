@@ -1,3 +1,4 @@
+import type { ModelSubscribe } from './ModelAccessor';
 import { ModelAccessor } from './ModelAccessor';
 import type { NormalAction } from './types';
 import type { Draft } from 'immer';
@@ -15,9 +16,10 @@ export class NormalModelAccessor<Model, Arg, Data> extends ModelAccessor {
     arg: Arg,
     action: NormalAction<Model, Arg, Data>,
     updateModel: (cb: (model: Draft<Model>) => void) => void,
-    getModel: () => Model
+    getModel: () => Model,
+    modelSubscribe: ModelSubscribe
   ) {
-    super();
+    super(modelSubscribe);
     this.action = action;
     this.arg = arg;
     this.updateModel = updateModel;

@@ -1,3 +1,4 @@
+import type { ModelSubscribe } from './ModelAccessor';
 import { ModelAccessor } from './ModelAccessor';
 import type { InfiniteAction } from './types';
 import type { Draft } from 'immer';
@@ -14,9 +15,10 @@ export class InfiniteModelAccessor<M, Arg, RD> extends ModelAccessor {
     arg: Arg,
     action: InfiniteAction<M, Arg, RD>,
     updateModel: (cb: (draft: Draft<M>) => void) => void,
-    getModel: () => M
+    getModel: () => M,
+    modelSubscribe: ModelSubscribe
   ) {
-    super();
+    super(modelSubscribe);
     this.arg = arg;
     this.action = action;
     this.updateModel = updateModel;
