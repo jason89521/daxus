@@ -10,6 +10,8 @@ export class ModelAccessor<M> {
   protected dataListeners: (() => void)[] = [];
   protected retryCount = 5;
   private modelSubscribe: ModelSubscribe;
+  private revalidateOnFocusCount = 0;
+  private revalidateOnReconnectCount = 0;
 
   getModel: () => M;
 
@@ -30,6 +32,32 @@ export class ModelAccessor<M> {
 
   protected notifyDataListeners = () => {
     this.dataListeners.forEach(l => l());
+  };
+
+  protected registerRevalidateOnFocus = (revalidate: () => void) => {
+    this.revalidateOnFocusCount += 1;
+    if (this.revalidateOnFocusCount === 1) {
+      window.addEventListener('focus', revalidate);
+    }
+    return () => {
+      this.revalidateOnFocusCount -= 1;
+      if (this.revalidateOnFocusCount === 0) {
+        window.removeEventListener('focus', revalidate);
+      }
+    };
+  };
+
+  protected registerRevalidateOnReconnect = (revalidate: () => void) => {
+    this.revalidateOnReconnectCount += 1;
+    if (this.revalidateOnReconnectCount === 1) {
+      window.addEventListener('online', revalidate);
+    }
+    return () => {
+      this.revalidateOnReconnectCount -= 1;
+      if (this.revalidateOnReconnectCount === 0) {
+        window.removeEventListener('online', revalidate);
+      }
+    };
   };
 
   /**

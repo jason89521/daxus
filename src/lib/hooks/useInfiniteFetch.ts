@@ -5,10 +5,14 @@ import { useModelAccessor } from './useModelAccessor';
 export function useInfiniteFetch<M, Arg, RD, D = any>(
   accessor: InfiniteModelAccessor<M, Arg, RD>,
   getSnapshot: (model: M) => D,
-  options: { retryCount?: number } = {}
+  options: {
+    revalidateOnFocus?: boolean;
+    revalidateOnReconnect?: boolean;
+    retryCount?: number;
+  } = {}
 ) {
   const { stateDeps, status, data } = useModelAccessor(accessor, getSnapshot);
-  const { retryCount = 5 } = options;
+  const { revalidateOnFocus = true, revalidateOnReconnect = true, retryCount = 5 } = options;
   const { isFetching } = status;
 
   const fetchNextPage = useCallback(() => {
@@ -23,6 +27,14 @@ export function useInfiniteFetch<M, Arg, RD, D = any>(
     // Fetch the first page.
     accessor.revalidate();
   }, [accessor]);
+
+  useEffect(() => {
+    return accessor.registerRevalidateOnFocus();
+  }, [revalidateOnFocus, accessor]);
+
+  useEffect(() => {
+    return accessor.registerRevalidateOnReconnect();
+  }, [revalidateOnReconnect, accessor]);
 
   return {
     fetchNextPage,

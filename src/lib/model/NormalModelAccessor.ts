@@ -7,8 +7,6 @@ export class NormalModelAccessor<Model, Arg, Data> extends ModelAccessor<Model> 
   private action: NormalAction<Model, Arg, Data>;
   private arg: Arg;
   private updateModel: (cb: (model: Draft<Model>) => void) => void;
-  private revalidateOnFocusCount = 0;
-  private revalidateOnReconnectCount = 0;
 
   constructor(
     arg: Arg,
@@ -62,17 +60,7 @@ export class NormalModelAccessor<Model, Arg, Data> extends ModelAccessor<Model> 
    * @returns
    */
   registerRevalidateOnFocus = () => {
-    this.revalidateOnFocusCount += 1;
-    if (this.revalidateOnFocusCount === 1) {
-      window.addEventListener('focus', this.fetch);
-    }
-
-    return () => {
-      this.revalidateOnFocusCount -= 1;
-      if (this.revalidateOnFocusCount === 0) {
-        window.removeEventListener('focus', this.fetch);
-      }
-    };
+    return super.registerRevalidateOnFocus(this.fetch);
   };
 
   /**
@@ -80,16 +68,6 @@ export class NormalModelAccessor<Model, Arg, Data> extends ModelAccessor<Model> 
    * @returns
    */
   registerRevalidateOnReconnect = () => {
-    this.revalidateOnReconnectCount += 1;
-    if (this.revalidateOnFocusCount === 1) {
-      window.addEventListener('online', this.fetch);
-    }
-
-    return () => {
-      this.revalidateOnReconnectCount -= 1;
-      if (this.revalidateOnReconnectCount === 0) {
-        window.removeEventListener('online', this.fetch);
-      }
-    };
+    return super.registerRevalidateOnReconnect(this.fetch);
   };
 }

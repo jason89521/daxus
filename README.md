@@ -21,8 +21,8 @@ Manage the server state and let user define the shape of the data from the serve
 
 - [x] Dedupe
 - [x] Cache
-- [ ] Revalidate on focus
-- [ ] Revalidate when reconnect
+- [x] Revalidate on focus
+- [x] Revalidate when reconnect
 - [x] Error retry
 - [x] Error callback
 - [x] Success callback

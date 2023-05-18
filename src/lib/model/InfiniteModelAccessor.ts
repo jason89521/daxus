@@ -145,4 +145,12 @@ export class InfiniteModelAccessor<M, Arg, RD> extends ModelAccessor<M> {
     const pageSize = pageIndex + 1;
     this.fetch({ pageSize, pageIndex });
   };
+
+  registerRevalidateOnFocus = () => {
+    return super.registerRevalidateOnFocus(this.revalidate);
+  };
+
+  registerRevalidateOnReconnect = () => {
+    return super.registerRevalidateOnReconnect(this.revalidate);
+  };
 }

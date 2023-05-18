@@ -17,6 +17,9 @@ export function useFetch<M, Arg, RD, D = any>(
 
   useEffect(() => {
     accessor.setRetryCount(retryCount);
+  }, [accessor, retryCount]);
+
+  useEffect(() => {
     accessor.fetch();
   }, [accessor, retryCount]);
 
