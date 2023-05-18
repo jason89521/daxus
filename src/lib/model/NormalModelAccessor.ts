@@ -36,11 +36,17 @@ export class NormalModelAccessor<Model, Arg, Data> extends ModelAccessor<Model> 
       this.notifyDataListeners();
     } catch (error) {
       this.action.onError?.({ error, arg });
+      // retry
+      this.revalidate();
     } finally {
       this.updateStatus({ isFetching: false });
     }
   };
 
+  /**
+   * @internal
+   * @returns
+   */
   registerRevalidateOnFocus = () => {
     this.revalidateOnFocusCount += 1;
     if (this.revalidateOnFocusCount === 1) {
@@ -55,6 +61,10 @@ export class NormalModelAccessor<Model, Arg, Data> extends ModelAccessor<Model> 
     };
   };
 
+  /**
+   * @internal
+   * @returns
+   */
   registerRevalidateOnReconnect = () => {
     this.revalidateOnReconnectCount += 1;
     if (this.revalidateOnFocusCount === 1) {

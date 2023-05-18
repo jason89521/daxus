@@ -8,9 +8,10 @@ export function useFetch<M, Arg, RD, D = any>(
   options: {
     revalidateOnFocus?: boolean;
     revalidateOnReconnect?: boolean;
+    retryCount?: number;
   } = {}
 ) {
-  const { revalidateOnFocus = true, revalidateOnReconnect = true } = options;
+  const { revalidateOnFocus = true, revalidateOnReconnect = true, retryCount = 5 } = options;
   const { stateDeps, status, data } = useModelAccessor(accessor, getSnapshot);
   const { isFetching } = status;
 
