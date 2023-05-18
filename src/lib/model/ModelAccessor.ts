@@ -34,7 +34,7 @@ export class ModelAccessor<M> {
     this.dataListeners.forEach(l => l());
   };
 
-  protected registerRevalidateOnFocus = (revalidate: () => void) => {
+  registerRevalidateOnFocus(revalidate: () => void) {
     this.revalidateOnFocusCount += 1;
     if (this.revalidateOnFocusCount === 1) {
       window.addEventListener('focus', revalidate);
@@ -45,9 +45,9 @@ export class ModelAccessor<M> {
         window.removeEventListener('focus', revalidate);
       }
     };
-  };
+  }
 
-  protected registerRevalidateOnReconnect = (revalidate: () => void) => {
+  registerRevalidateOnReconnect(revalidate: () => void) {
     this.revalidateOnReconnectCount += 1;
     if (this.revalidateOnReconnectCount === 1) {
       window.addEventListener('online', revalidate);
@@ -58,7 +58,7 @@ export class ModelAccessor<M> {
         window.removeEventListener('online', revalidate);
       }
     };
-  };
+  }
 
   /**
    * @internal
