@@ -8,6 +8,7 @@ export class ModelAccessor<M> {
   protected status: Status = { isFetching: false };
   protected statusListeners: ((prev: Status, current: Status) => void)[] = [];
   protected dataListeners: (() => void)[] = [];
+  protected retryCount = 5;
   private modelSubscribe: ModelSubscribe;
 
   getModel: () => M;
@@ -27,10 +28,15 @@ export class ModelAccessor<M> {
     this.statusListeners.forEach(l => l(this.status, newCache));
   };
 
-  notifyDataListeners = () => {
+  protected notifyDataListeners = () => {
     this.dataListeners.forEach(l => l());
   };
 
+  /**
+   * @internal
+   * @param listener
+   * @returns
+   */
   subscribeStatus = (listener: (prev: Status, current: Status) => void) => {
     this.statusListeners.push(listener);
     return () => {
@@ -39,6 +45,11 @@ export class ModelAccessor<M> {
     };
   };
 
+  /**
+   * @internal
+   * @param listener
+   * @returns
+   */
   subscribeData = (listener: () => void) => {
     this.dataListeners.push(listener);
     const modelUnsubscribe = this.modelSubscribe(listener);
@@ -47,6 +58,10 @@ export class ModelAccessor<M> {
       this.dataListeners.splice(index, 1);
       modelUnsubscribe();
     };
+  };
+
+  setRetryCount = (n: number) => {
+    this.retryCount = n;
   };
 
   getStatus = () => {

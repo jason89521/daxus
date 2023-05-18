@@ -16,8 +16,9 @@ export function useFetch<M, Arg, RD, D = any>(
   const { isFetching } = status;
 
   useEffect(() => {
-    accessor.revalidate();
-  }, [accessor]);
+    accessor.setRetryCount(retryCount);
+    accessor.fetch();
+  }, [accessor, retryCount]);
 
   useEffect(() => {
     if (revalidateOnFocus) {

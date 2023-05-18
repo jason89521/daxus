@@ -4,9 +4,11 @@ import { useModelAccessor } from './useModelAccessor';
 
 export function useInfiniteFetch<M, Arg, RD, D = any>(
   accessor: InfiniteModelAccessor<M, Arg, RD>,
-  getSnapshot: (model: M) => D
+  getSnapshot: (model: M) => D,
+  options: { retryCount?: number } = {}
 ) {
   const { stateDeps, status, data } = useModelAccessor(accessor, getSnapshot);
+  const { retryCount } = options;
   const { isFetching } = status;
 
   const fetchNextPage = useCallback(() => {

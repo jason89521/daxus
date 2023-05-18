@@ -23,24 +23,38 @@ export class NormalModelAccessor<Model, Arg, Data> extends ModelAccessor<Model> 
     this.updateModel = updateModel;
   }
 
-  revalidate = async () => {
-    if (this.status.isFetching) return;
-    this.updateStatus({ isFetching: true });
+  private internalFetch = async (remainRetryCount: number): Promise<[Data | null, unknown]> => {
+    const result: [Data | null, unknown] = [null, null];
     const arg = this.arg;
     try {
       const data = await this.action.fetchData(arg);
+      result[0] = data;
+    } catch (error) {
+      if (remainRetryCount > 0) {
+        const retryResult = await this.internalFetch(remainRetryCount - 1);
+        return retryResult;
+      }
+      result[1] = error;
+    }
+
+    return result;
+  };
+
+  fetch = async () => {
+    if (this.status.isFetching) return;
+    this.updateStatus({ isFetching: true });
+    const arg = this.arg;
+    const [data, error] = await this.internalFetch(this.retryCount);
+    if (data) {
       this.updateModel(draft => {
         this.action.syncModel(draft, { data, arg });
       });
       this.action.onSuccess?.({ data, arg });
-      this.notifyDataListeners();
-    } catch (error) {
+    } else {
       this.action.onError?.({ error, arg });
-      // retry
-      this.revalidate();
-    } finally {
-      this.updateStatus({ isFetching: false });
     }
+    this.notifyDataListeners();
+    this.updateStatus({ isFetching: false });
   };
 
   /**
@@ -50,13 +64,13 @@ export class NormalModelAccessor<Model, Arg, Data> extends ModelAccessor<Model> 
   registerRevalidateOnFocus = () => {
     this.revalidateOnFocusCount += 1;
     if (this.revalidateOnFocusCount === 1) {
-      window.addEventListener('focus', this.revalidate);
+      window.addEventListener('focus', this.fetch);
     }
 
     return () => {
       this.revalidateOnFocusCount -= 1;
       if (this.revalidateOnFocusCount === 0) {
-        window.removeEventListener('focus', this.revalidate);
+        window.removeEventListener('focus', this.fetch);
       }
     };
   };
@@ -68,13 +82,13 @@ export class NormalModelAccessor<Model, Arg, Data> extends ModelAccessor<Model> 
   registerRevalidateOnReconnect = () => {
     this.revalidateOnReconnectCount += 1;
     if (this.revalidateOnFocusCount === 1) {
-      window.addEventListener('online', this.revalidate);
+      window.addEventListener('online', this.fetch);
     }
 
     return () => {
       this.revalidateOnReconnectCount -= 1;
       if (this.revalidateOnReconnectCount === 0) {
-        window.removeEventListener('online', this.revalidate);
+        window.removeEventListener('online', this.fetch);
       }
     };
   };

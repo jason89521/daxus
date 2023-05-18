@@ -2,6 +2,10 @@ import type { Post, PostLayout } from './types';
 
 export async function getPostById(id: number): Promise<Post> {
   const res = await fetch(`http://localhost:3000/posts/${id}`);
+
+  if (Math.random() > 0) {
+    throw new Error(`get post error with id: ${id}`);
+  }
   const data = await res.json();
   return data;
 }
