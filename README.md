@@ -10,8 +10,7 @@ Manage the server state and let user define the shape of the data from the serve
 - [x] Cache
 - [x] Revalidate on focus
 - [x] Revalidate when reconnect
-- [ ] Refresh within an interval
-- [ ] Error retry
+- [x] Error retry
 - [x] Error callback
 - [x] Success callback
 - [x] Mutation
@@ -24,10 +23,9 @@ Manage the server state and let user define the shape of the data from the serve
 - [x] Cache
 - [ ] Revalidate on focus
 - [ ] Revalidate when reconnect
-- [ ] Refresh within an interval
-- [ ] Error retry
-- [ ] Error callback
-- [ ] Success callback
+- [x] Error retry
+- [x] Error callback
+- [x] Success callback
 - [x] Mutation
 - [ ] Testing
 - [x] Only rerender when used field change

@@ -18,11 +18,11 @@ const getPostById: Action<PostModel, number, Post> = {
     postAdapter.upsertOne(draft, data);
   },
   onError: ({ error, arg }) => {
-    console.log(`Error with arg: ${arg}`);
+    console.log(`Error on getPostById with arg: ${arg}`);
     console.log(error);
   },
   onSuccess: ({ data, arg }) => {
-    console.log(`Success with arg: ${arg}`);
+    console.log(`Success on getPostById with arg: ${arg}`);
     console.log(data);
   },
 };
@@ -37,6 +37,14 @@ const getPostList: Action<PostModel, { layout: PostLayout }, Post[]> = {
   syncModel: (draft, { data, arg, pageIndex }) => {
     const paginationKey = JSON.stringify(arg);
     postAdapter.updatePagination(draft, { dataArray: data, paginationKey, pageIndex });
+  },
+  onError: ({ error, arg }) => {
+    console.log(`Error on getPostList with arg: ${arg}`);
+    console.log(error);
+  },
+  onSuccess: ({ data, arg }) => {
+    console.log(`Success on getPostList with arg: ${arg}`);
+    console.log(data);
   },
 };
 

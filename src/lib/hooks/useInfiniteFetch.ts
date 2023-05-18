@@ -8,12 +8,16 @@ export function useInfiniteFetch<M, Arg, RD, D = any>(
   options: { retryCount?: number } = {}
 ) {
   const { stateDeps, status, data } = useModelAccessor(accessor, getSnapshot);
-  const { retryCount } = options;
+  const { retryCount = 5 } = options;
   const { isFetching } = status;
 
   const fetchNextPage = useCallback(() => {
     accessor.fetchNext();
   }, [accessor]);
+
+  useEffect(() => {
+    accessor.setRetryCount(retryCount);
+  }, [accessor, retryCount]);
 
   useEffect(() => {
     // Fetch the first page.

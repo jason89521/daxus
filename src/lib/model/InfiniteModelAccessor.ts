@@ -27,6 +27,34 @@ export class InfiniteModelAccessor<M, Arg, RD> extends ModelAccessor<M> {
     this.notifyDataListeners();
   };
 
+  private internalFetch = async ({
+    previousData,
+    pageIndex,
+    remainRetryCount,
+  }: {
+    previousData: RD | null;
+    pageIndex: number;
+    remainRetryCount: number;
+  }): Promise<[RD | null, unknown]> => {
+    const result: [RD | null, unknown] = [null, null];
+    const arg = this.arg;
+    try {
+      const data = await this.action.fetchData(arg, { previousData, pageIndex });
+      result[0] = data;
+    } catch (error) {
+      if (remainRetryCount > 0) {
+        return await this.internalFetch({
+          previousData,
+          pageIndex,
+          remainRetryCount: remainRetryCount - 1,
+        });
+      }
+      result[1] = error;
+    }
+
+    return result;
+  };
+
   /**
    * Update `this.cache.data`.
    * - `pageSize` should be larger than `this.pageSize()`, otherwise `this.cachedData` will not update.
@@ -39,18 +67,25 @@ export class InfiniteModelAccessor<M, Arg, RD> extends ModelAccessor<M> {
     pageSize: number;
     pageIndex?: number;
   }) => {
-    const data = [...this.data];
-    let previousData: RD | null = data[pageIndex - 1] ?? null;
+    const dataArray = [...this.data];
+    let previousData: RD | null = dataArray[pageIndex - 1] ?? null;
     for (; pageIndex < pageSize; pageIndex++) {
-      const remoteData = await this.action.fetchData(this.arg, { previousData, pageIndex });
-      if (!remoteData) {
+      const [data, error] = await this.internalFetch({
+        previousData,
+        pageIndex,
+        remainRetryCount: this.retryCount,
+      });
+      if (error) {
+        throw error;
+      }
+      if (!data) {
         break;
       }
-      previousData = remoteData;
-      data[pageIndex] = previousData;
+      previousData = data;
+      dataArray[pageIndex] = previousData;
     }
 
-    return data.slice(0, pageIndex);
+    return dataArray.slice(0, pageIndex);
   };
 
   /**
@@ -80,12 +115,14 @@ export class InfiniteModelAccessor<M, Arg, RD> extends ModelAccessor<M> {
 
     this.updateStatus({ isFetching: true });
     const pageSize = this.pageSize() || 1;
+    const arg = this.arg;
     try {
       const data = await this.fetchData({ pageSize, pageIndex: 0 });
       this.flush(data, { start: 0 });
       this.updateData(data);
+      this.action.onSuccess?.({ data, arg });
     } catch (error) {
-      //
+      this.action.onError?.({ error, arg });
     } finally {
       this.updateStatus({ isFetching: false });
     }
@@ -96,12 +133,13 @@ export class InfiniteModelAccessor<M, Arg, RD> extends ModelAccessor<M> {
 
     this.updateStatus({ isFetching: true });
     const start = this.pageSize();
+    const arg = this.arg;
     try {
       const data = await this.fetchData({ pageSize: start + 1 });
       this.flush(data, { start });
-      this.updateData(data);
+      this.action.onSuccess?.({ data, arg });
     } catch (error) {
-      //
+      this.action.onError?.({ error, arg });
     } finally {
       this.updateStatus({ isFetching: false });
     }

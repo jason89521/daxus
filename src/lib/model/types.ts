@@ -1,14 +1,17 @@
 import type { Draft } from 'immer';
 
-export type NormalAction<Model, Arg = any, Data = any> = {
+interface BaseAction<Arg, D> {
+  onError?: (info: { error: unknown; arg: Arg }) => void;
+  onSuccess?: (info: { data: D; arg: Arg }) => void;
+}
+
+export interface NormalAction<Model, Arg = any, Data = any> extends BaseAction<Arg, Data> {
   type: 'normal';
   fetchData: (arg: Arg) => Promise<Data>;
   syncModel: (model: Draft<Model>, payload: { data: Data; arg: Arg }) => void;
-  onError?: (info: { error: unknown; arg: Arg }) => void;
-  onSuccess?: (info: { data: Data; arg: Arg }) => void;
-};
+}
 
-export type InfiniteAction<Model, Arg = any, Data = any> = {
+export interface InfiniteAction<Model, Arg = any, Data = any> extends BaseAction<Arg, Data[]> {
   type: 'infinite';
   fetchData: (
     arg: Arg,
@@ -18,7 +21,7 @@ export type InfiniteAction<Model, Arg = any, Data = any> = {
     model: Draft<Model>,
     payload: { data: Data; arg: Arg; pageSize: number; pageIndex: number }
   ) => void;
-};
+}
 
 export type Action<Model, Arg = any, Data = any> =
   | NormalAction<Model, Arg, Data>

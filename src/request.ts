@@ -3,9 +3,6 @@ import type { Post, PostLayout } from './types';
 export async function getPostById(id: number): Promise<Post> {
   const res = await fetch(`http://localhost:3000/posts/${id}`);
 
-  if (Math.random() > 0) {
-    throw new Error(`get post error with id: ${id}`);
-  }
   const data = await res.json();
   return data;
 }
@@ -20,6 +17,9 @@ export async function getPostList({
   const res = await fetch(
     `http://localhost:3000/posts?_page=${page + 1}&layout=${layout}&_limit=5`
   );
+  if (Math.random() > 0) {
+    throw new Error('get post list with error');
+  }
   const data = await res.json();
 
   return data;
