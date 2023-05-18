@@ -27,7 +27,12 @@ export class InfiniteModelAccessor<M, Arg, RD> extends ModelAccessor<M> {
     this.notifyDataListeners();
   };
 
-  private internalFetch = async ({
+  /**
+   * Fetch a single page with error retry.
+   * @param param0
+   * @returns
+   */
+  private fetchPage = async ({
     previousData,
     pageIndex,
     remainRetryCount,
@@ -43,7 +48,7 @@ export class InfiniteModelAccessor<M, Arg, RD> extends ModelAccessor<M> {
       result[0] = data;
     } catch (error) {
       if (remainRetryCount > 0) {
-        return await this.internalFetch({
+        return await this.fetchPage({
           previousData,
           pageIndex,
           remainRetryCount: remainRetryCount - 1,
@@ -56,11 +61,9 @@ export class InfiniteModelAccessor<M, Arg, RD> extends ModelAccessor<M> {
   };
 
   /**
-   * Update `this.cache.data`.
-   * - `pageSize` should be larger than `this.pageSize()`, otherwise `this.cachedData` will not update.
-   * - `pageIndex` default is `this.pageSize()`.
+   * Fetch the pages from `pageIndex` to `pageSize` (exclusive).
    */
-  private fetchData = async ({
+  private fetchPages = async ({
     pageSize,
     pageIndex = this.pageSize(),
   }: {
@@ -70,7 +73,7 @@ export class InfiniteModelAccessor<M, Arg, RD> extends ModelAccessor<M> {
     const dataArray = [...this.data];
     let previousData: RD | null = dataArray[pageIndex - 1] ?? null;
     for (; pageIndex < pageSize; pageIndex++) {
-      const [data, error] = await this.internalFetch({
+      const [data, error] = await this.fetchPage({
         previousData,
         pageIndex,
         remainRetryCount: this.retryCount,
@@ -88,8 +91,30 @@ export class InfiniteModelAccessor<M, Arg, RD> extends ModelAccessor<M> {
     return dataArray.slice(0, pageIndex);
   };
 
+  private fetch = async ({
+    pageIndex = this.pageSize(),
+    pageSize,
+  }: {
+    pageIndex?: number;
+    pageSize: number;
+  }) => {
+    if (this.status.isFetching) return;
+    this.updateStatus({ isFetching: true });
+    const arg = this.arg;
+    try {
+      const data = await this.fetchPages({ pageSize, pageIndex });
+      this.flush(data, { start: pageIndex });
+      this.updateData(data);
+      this.action.onSuccess?.({ data, arg });
+    } catch (error) {
+      this.action.onError?.({ error, arg });
+    } finally {
+      this.updateStatus({ isFetching: false });
+    }
+  };
+
   /**
-   * Sync the data in `this.cachedData` from the `start` index to the model,
+   * Sync the data in `data` from the `start` index to the model,
    * and notify the listeners which are listening this accessor.
    */
   private flush = (data: RD[], { start }: { start: number }) => {
@@ -111,37 +136,13 @@ export class InfiniteModelAccessor<M, Arg, RD> extends ModelAccessor<M> {
   };
 
   revalidate = async () => {
-    if (this.status.isFetching) return;
-
-    this.updateStatus({ isFetching: true });
     const pageSize = this.pageSize() || 1;
-    const arg = this.arg;
-    try {
-      const data = await this.fetchData({ pageSize, pageIndex: 0 });
-      this.flush(data, { start: 0 });
-      this.updateData(data);
-      this.action.onSuccess?.({ data, arg });
-    } catch (error) {
-      this.action.onError?.({ error, arg });
-    } finally {
-      this.updateStatus({ isFetching: false });
-    }
+    this.fetch({ pageSize, pageIndex: 0 });
   };
 
   fetchNext = async () => {
-    if (this.status.isFetching) return;
-
-    this.updateStatus({ isFetching: true });
-    const start = this.pageSize();
-    const arg = this.arg;
-    try {
-      const data = await this.fetchData({ pageSize: start + 1 });
-      this.flush(data, { start });
-      this.action.onSuccess?.({ data, arg });
-    } catch (error) {
-      this.action.onError?.({ error, arg });
-    } finally {
-      this.updateStatus({ isFetching: false });
-    }
+    const pageIndex = this.pageSize();
+    const pageSize = pageIndex + 1;
+    this.fetch({ pageSize, pageIndex });
   };
 }

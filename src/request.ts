@@ -17,9 +17,9 @@ export async function getPostList({
   const res = await fetch(
     `http://localhost:3000/posts?_page=${page + 1}&layout=${layout}&_limit=5`
   );
-  if (Math.random() > 0) {
-    throw new Error('get post list with error');
-  }
+  // if (Math.random() > 0) {
+  //   throw new Error('get post list with error');
+  // }
   const data = await res.json();
 
   return data;
