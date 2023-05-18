@@ -1,15 +1,12 @@
 import { useEffect } from 'react';
 import type { NormalModelAccessor } from '../model';
 import { useModelAccessor } from './useModelAccessor';
+import type { FetchOption } from './types';
 
 export function useFetch<M, Arg, RD, D = any>(
   accessor: NormalModelAccessor<M, Arg, RD>,
   getSnapshot: (model: M) => D,
-  options: {
-    revalidateOnFocus?: boolean;
-    revalidateOnReconnect?: boolean;
-    retryCount?: number;
-  } = {}
+  options: FetchOption = {}
 ) {
   const { revalidateOnFocus = true, revalidateOnReconnect = true, retryCount = 5 } = options;
   const { stateDeps, status, data } = useModelAccessor(accessor, getSnapshot);
