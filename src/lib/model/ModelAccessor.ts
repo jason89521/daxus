@@ -21,7 +21,6 @@ export class ModelAccessor<M> {
     const newStatus = { ...this.status, ...partialStatus };
     this.notifyStatusListeners(newStatus);
     this.status = newStatus;
-    this.notifyDataListeners();
   };
 
   protected notifyStatusListeners = (newCache: Status) => {
