@@ -30,17 +30,13 @@ Manage the server state and let user define the shape of the data from the serve
 - [ ] Testing
 - [x] Only rerender when used field change
 
-### `Model`
-
-- [ ] Use the other method to serialize argument instead of using `JSON.stringify`.
-
 ### `Dev Tool`
 
 - [ ] Add dev tool like redux dev tool.
 
-## API
+## Example
 
-Create a model
+Create a pagination model
 
 ```ts
 import type { Action } from 'react-server-model';
@@ -57,20 +53,21 @@ const getPostById: Action<PostModel, number, Post> = {
     const data = await getPostByIdRequest(id);
     return data;
   },
-  syncModel: (draft, { remoteData }) => {
-    postAdapter.upsertOne(draft, remoteData);
+  syncModel: (draft, { data }) => {
+    postAdapter.upsertOne(draft, data);
   },
 };
 
 const getPostList: Action<PostModel, { layout: PostLayout }, Post[]> = {
   type: 'infinite',
-  fetchData: async ({ layout }, { pageIndex }) => {
+  fetchData: async ({ layout }, { pageIndex, previousData }) => {
+    if (previousData?.length === 0) return null;
     const data = await getPostListRequest({ layout, page: pageIndex });
     return data;
   },
-  syncModel: (draft, { remoteData, arg, pageIndex }) => {
+  syncModel: (draft, { data, arg, pageIndex }) => {
     const paginationKey = JSON.stringify(arg);
-    postAdapter.updatePagination(draft, { dataArray: remoteData, paginationKey, pageIndex });
+    postAdapter.updatePagination(draft, { dataArray: data, paginationKey, pageIndex });
   },
 };
 
