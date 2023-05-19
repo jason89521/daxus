@@ -3,7 +3,7 @@ import { ModelAccessor } from './ModelAccessor';
 import type { InfiniteAction } from './types';
 import type { Draft } from 'immer';
 
-export class InfiniteModelAccessor<M, Arg, RD> extends ModelAccessor<M> {
+export class InfiniteModelAccessor<M, Arg = any, RD = any> extends ModelAccessor<M> {
   private action: InfiniteAction<M, Arg, RD>;
   private arg: Arg;
   private updateModel: (cb: (draft: Draft<M>) => void) => void;

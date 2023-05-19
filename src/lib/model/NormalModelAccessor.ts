@@ -3,7 +3,7 @@ import { ModelAccessor } from './ModelAccessor';
 import type { NormalAction } from './types';
 import type { Draft } from 'immer';
 
-export class NormalModelAccessor<Model, Arg, Data> extends ModelAccessor<Model> {
+export class NormalModelAccessor<Model, Arg = any, Data = any> extends ModelAccessor<Model> {
   private action: NormalAction<Model, Arg, Data>;
   private arg: Arg;
   private updateModel: (cb: (model: Draft<Model>) => void) => void;
