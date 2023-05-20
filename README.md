@@ -39,27 +39,29 @@ Manage the server state and let user define the shape of the data from the serve
 Create a pagination model
 
 ```ts
+// in postModel.ts
 import type { Action } from 'react-server-model';
 import { Model, createPaginationAdapter } from 'react-server-model';
 
+// createPaginationAdapter is an util function that which helps you to manage the pagination.
 export const postAdapter = createPaginationAdapter<Post>({});
 const initialModel = postAdapter.initialModel;
 
-type PostModel = typeof initialModel;
+export const postModel = createModel(initialModel);
 
-const getPostById: Action<PostModel, number, Post> = {
-  type: 'normal',
-  fetchData: async id => {
+// Define a normal action.
+export const getPostById = postModel.defineNormalAction({
+  fetchData: async (id: number) => {
     const data = await getPostByIdRequest(id);
     return data;
   },
   syncModel: (draft, { data }) => {
     postAdapter.upsertOne(draft, data);
   },
-};
+});
 
-const getPostList: Action<PostModel, { layout: PostLayout }, Post[]> = {
-  type: 'infinite',
+// Define an infinite action. An infinite action means that it will fetch the list from the server.
+export const getPostList = postModel.defineInfiniteAction<{ layout: PostLayout }, Post[]>({
   fetchData: async ({ layout }, { pageIndex, previousData }) => {
     if (previousData?.length === 0) return null;
     const data = await getPostListRequest({ layout, page: pageIndex });
@@ -69,24 +71,20 @@ const getPostList: Action<PostModel, { layout: PostLayout }, Post[]> = {
     const paginationKey = JSON.stringify(arg);
     postAdapter.updatePagination(draft, { dataArray: data, paginationKey, pageIndex });
   },
-};
-
-export const postModel = new Model(initialModel, { getPostById, getPostList });
+});
 ```
 
 Use the model with `useFetch` or `useInfiniteFetch`
 
 ```jsx
 import { useFetch, useInfiniteFetch } from 'react-server-model';
+import { getPostList, getPostById } from './postModel';
 
 export function PostList() {
-  const { data, fetchNextPage } = useInfiniteFetch(
-    postModel.accessorGetters.getPostList({ layout }),
-    model => {
-      const key = JSON.stringify({ layout });
-      return postAdapter.getPagination(model, key);
-    }
-  );
+  const { data, fetchNextPage } = useInfiniteFetch(getPostList({ layout }), model => {
+    const key = JSON.stringify({ layout });
+    return postAdapter.getPagination(model, key);
+  });
 
   return (
     <div>
@@ -104,7 +102,7 @@ export function PostList() {
 
 export function Post({ id }) {
   const { data } = useFetch(
-    postModel.accessorGetters.getPostById(id),
+    getPostById(id),
     model => {
       return model.data[id];
     },

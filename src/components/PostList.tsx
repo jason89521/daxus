@@ -1,17 +1,14 @@
 import { useState } from 'react';
 import { useInfiniteFetch } from '../lib';
-import { postAdapter, postModel } from '../model';
+import { postAdapter, getPostList } from '../model';
 import type { PostLayout } from '../types';
 
 export function PostList() {
   const [layout, setLayout] = useState<PostLayout>('classic');
-  const { data, fetchNextPage } = useInfiniteFetch(
-    postModel.accessorGetters.getPostList({ layout }),
-    model => {
-      const key = JSON.stringify({ layout });
-      return postAdapter.getPagination(model, key);
-    }
-  );
+  const { data, fetchNextPage } = useInfiniteFetch(getPostList({ layout }), model => {
+    const key = JSON.stringify({ layout });
+    return postAdapter.getPagination(model, key);
+  });
 
   return (
     <div style={{ borderTop: '1px solid black', marginTop: '20px' }}>

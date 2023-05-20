@@ -1,92 +1,77 @@
 import { createDraft, finishDraft } from 'immer';
 import type { Draft } from 'immer';
-import type { ArgFromAction, RemoteDataFromAction } from './types';
+import type { InfiniteAction, NormalAction } from './types';
 import { NormalModelAccessor } from './NormalModelAccessor';
-import type { Action } from './types';
 import { InfiniteModelAccessor } from './InfiniteModelAccessor';
 import { stableHash } from '../utils';
+import type { ModelAccessor } from './ModelAccessor';
 
-type AccessorGettersFromActionIdentifier<M, As extends Record<string, Action<M>>> = {
-  [Key in keyof As]: (
-    arg: ArgFromAction<As[Key]>
-  ) => As[Key]['type'] extends 'infinite'
-    ? InfiniteModelAccessor<M, ArgFromAction<As[Key]>, RemoteDataFromAction<As[Key]>>
-    : NormalModelAccessor<M, ArgFromAction<As[Key]>, RemoteDataFromAction<As[Key]>>;
-};
+export function createModel<M extends object>(initialModel: M) {
+  let prefixCounter = 0;
+  let model = initialModel;
+  const listeners: (() => void)[] = [];
+  const accessors = {} as Record<string, ModelAccessor<M> | undefined>;
 
-export class Model<M extends object, As extends Record<string, Action<M>>> {
-  private model: M;
-  private accessors = {} as Record<
-    string,
-    | NormalModelAccessor<M, unknown, unknown>
-    | InfiniteModelAccessor<M, unknown, unknown>
-    | undefined
-  >;
-  private listeners: (() => void)[] = [];
-
-  accessorGetters = {} as AccessorGettersFromActionIdentifier<M, As>;
-
-  constructor(initialModel: M, identifiers: As) {
-    this.model = initialModel;
-
-    Object.entries(identifiers).forEach(([actionName, action]) => {
-      const getModelAccessor = (arg: ArgFromAction<typeof action>) => {
-        const hashedArg = stableHash(arg);
-        const key = `${actionName}/${hashedArg}`;
-        const accessor = this.accessors[key];
-        if (accessor) return accessor;
-        const newAccessor = (() => {
-          if (action.type === 'infinite') {
-            return new InfiniteModelAccessor(
-              arg,
-              action,
-              this.updateModel,
-              this.getModel,
-              this.subscribe
-            );
-          }
-
-          return new NormalModelAccessor(
-            arg,
-            action,
-            this.updateModel,
-            this.getModel,
-            this.subscribe
-          );
-        })();
-        this.accessors[key] = newAccessor;
-
-        return newAccessor;
-      };
-
-      this.accessorGetters[actionName as keyof As] = getModelAccessor as any;
-    });
+  function updateModel(fn: (draft: Draft<M>) => void) {
+    const draft = createDraft(model);
+    fn(draft);
+    model = finishDraft(draft) as M;
   }
 
-  private updateModel = (fn: (modelDraft: Draft<M>) => void) => {
-    const draft = createDraft(this.model);
-    fn(draft);
-    this.model = finishDraft(draft) as M;
-  };
+  function getModel() {
+    return model;
+  }
 
-  private getModel = () => {
-    return this.model;
-  };
-
-  private subscribe = (listener: () => void) => {
-    this.listeners.push(listener);
+  function subscribe(listener: () => void) {
+    listeners.push(listener);
     return () => {
-      const index = this.listeners.indexOf(listener);
-      this.listeners.splice(index, 1);
+      const index = listeners.indexOf(listener);
+      listeners.splice(index, 1);
     };
-  };
+  }
 
-  private notifyListeners = () => {
-    this.listeners.forEach(l => l());
-  };
+  function notifyListeners() {
+    listeners.forEach(l => l());
+  }
 
-  mutate = (fn: (modelDraft: Draft<M>) => void) => {
-    this.updateModel(fn);
-    this.notifyListeners();
-  };
+  function mutate(fn: (draft: Draft<M>) => void) {
+    updateModel(fn);
+    notifyListeners();
+  }
+
+  function defineNormalAction<Arg, Data>(
+    action: NormalAction<M, Arg, Data>
+  ): (arg: Arg) => NormalModelAccessor<M, Arg, Data> {
+    const prefix = prefixCounter++;
+
+    return (arg: Arg) => {
+      const hashArg = stableHash(arg);
+      const key = `${prefix}/${hashArg}`;
+      const accessor = accessors[key];
+      if (accessor) return accessor as any;
+      const newAccessor = new NormalModelAccessor(arg, action, updateModel, getModel, subscribe);
+      accessors[key] = newAccessor;
+
+      return newAccessor;
+    };
+  }
+
+  function defineInfiniteAction<Arg, Data>(
+    action: InfiniteAction<M, Arg, Data>
+  ): (arg: Arg) => InfiniteModelAccessor<M, Arg, Data> {
+    const prefix = prefixCounter++;
+
+    return arg => {
+      const hashArg = stableHash(arg);
+      const key = `${prefix}/${hashArg}`;
+      const accessor = accessors[key];
+      if (accessor) return accessor as any;
+      const newAccessor = new InfiniteModelAccessor(arg, action, updateModel, getModel, subscribe);
+      accessors[key] = newAccessor;
+
+      return newAccessor;
+    };
+  }
+
+  return { defineNormalAction, defineInfiniteAction, mutate };
 }

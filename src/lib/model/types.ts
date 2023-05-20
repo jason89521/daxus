@@ -6,13 +6,11 @@ interface BaseAction<Arg, D> {
 }
 
 export interface NormalAction<Model, Arg = any, Data = any> extends BaseAction<Arg, Data> {
-  type: 'normal';
   fetchData: (arg: Arg) => Promise<Data>;
   syncModel: (model: Draft<Model>, payload: { data: Data; arg: Arg }) => void;
 }
 
 export interface InfiniteAction<Model, Arg = any, Data = any> extends BaseAction<Arg, Data[]> {
-  type: 'infinite';
   fetchData: (
     arg: Arg,
     meta: { previousData: Data | null; pageIndex: number }
