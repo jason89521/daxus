@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useSyncExternalStore } from 'react';
 import type { InfiniteModelAccessor, NormalModelAccessor, Status } from '../model';
-import { objectKeys, stableHash } from '../utils';
+import { isUndefined, objectKeys, stableHash } from '../utils';
 import type { FetchOptions } from './types';
+import { useUpdatedRef } from './useUpdatedRef';
 
 type StateDeps = Partial<Record<keyof Status, boolean>>;
 type Accessor<M> = NormalModelAccessor<M> | InfiniteModelAccessor<M>;
@@ -9,12 +10,17 @@ type Accessor<M> = NormalModelAccessor<M> | InfiniteModelAccessor<M>;
 export function useModelAccessor<M, D>(
   accessor: Accessor<M>,
   getSnapshot: (model: M) => D,
-  options: FetchOptions = {}
+  options: FetchOptions<D> = {}
 ) {
-  const { revalidateOnFocus = true, revalidateOnReconnect = true, retryCount = 3 } = options;
+  const {
+    revalidateOnFocus = true,
+    revalidateOnReconnect = true,
+    retryCount = 3,
+    revalidateIfStale = true,
+    checkHasStaleDataFn = (value: unknown) => !isUndefined(value),
+  } = options;
   const stateDeps = useRef<StateDeps>({}).current;
-  const getSnapshotRef = useRef(getSnapshot);
-  getSnapshotRef.current = getSnapshot;
+  const getSnapshotRef = useUpdatedRef(getSnapshot);
   const status = useSyncExternalStore(
     useCallback(
       listener => {
@@ -48,9 +54,18 @@ export function useModelAccessor<M, D>(
       },
       () => memoizedSnapshot,
     ] as const;
-  }, [accessor]);
+  }, [accessor, getSnapshotRef]);
 
   const data = useSyncExternalStore(subscribeData, getData, getData);
+  const hasStaleData = checkHasStaleDataFn(data);
+  const shouldRevalidate = (() => {
+    // Always revalidate if `revalidateIfStale` is `true`.
+    if (revalidateIfStale) return true;
+    // If there is no stale data, we should fetch the data.
+    if (!hasStaleData) return true;
+
+    return false;
+  })();
 
   useEffect(() => {
     accessor.setRetryCount(retryCount);
@@ -68,5 +83,11 @@ export function useModelAccessor<M, D>(
     }
   }, [accessor, revalidateOnReconnect]);
 
-  return { stateDeps, status, data };
+  useEffect(() => {
+    if (shouldRevalidate) {
+      accessor.revalidate();
+    }
+  }, [accessor, shouldRevalidate]);
+
+  return { stateDeps, status, data, hasStaleData };
 }

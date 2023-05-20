@@ -4,13 +4,14 @@ import type { InfiniteAction, NormalAction } from './types';
 import { NormalModelAccessor } from './NormalModelAccessor';
 import { InfiniteModelAccessor } from './InfiniteModelAccessor';
 import { stableHash } from '../utils';
-import type { ModelAccessor } from './ModelAccessor';
+
+type Accessor<M> = NormalModelAccessor<M> | InfiniteModelAccessor<M>;
 
 export function createModel<M extends object>(initialModel: M) {
   let prefixCounter = 0;
   let model = initialModel;
   const listeners: (() => void)[] = [];
-  const accessors = {} as Record<string, ModelAccessor<M> | undefined>;
+  const accessors = {} as Record<string, Accessor<M> | undefined>;
 
   function updateModel(fn: (draft: Draft<M>) => void) {
     const draft = createDraft(model);

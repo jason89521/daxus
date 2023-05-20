@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import type { NormalModelAccessor } from '../model';
 import { useModelAccessor } from './useModelAccessor';
 import type { FetchOptions } from './types';
@@ -10,10 +9,6 @@ export function useFetch<M, Arg, RD, D = any>(
 ) {
   const { stateDeps, status, data } = useModelAccessor(accessor, getSnapshot, options);
   const { isFetching } = status;
-
-  useEffect(() => {
-    accessor.fetch();
-  }, [accessor]);
 
   return {
     get data() {

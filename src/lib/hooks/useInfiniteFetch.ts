@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 import type { InfiniteModelAccessor } from '../model';
 import { useModelAccessor } from './useModelAccessor';
 import type { FetchOptions } from './types';
@@ -13,11 +13,6 @@ export function useInfiniteFetch<M, Arg, RD, D = any>(
 
   const fetchNextPage = useCallback(() => {
     accessor.fetchNext();
-  }, [accessor]);
-
-  useEffect(() => {
-    // Fetch the first page.
-    accessor.revalidate();
   }, [accessor]);
 
   return {

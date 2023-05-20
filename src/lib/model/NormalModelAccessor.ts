@@ -38,7 +38,7 @@ export class NormalModelAccessor<Model, Arg = any, Data = any> extends ModelAcce
     return result;
   };
 
-  fetch = async () => {
+  revalidate = async () => {
     if (this.status.isFetching) return;
     this.updateStatus({ isFetching: true });
     const arg = this.arg;
@@ -60,7 +60,7 @@ export class NormalModelAccessor<Model, Arg = any, Data = any> extends ModelAcce
    * @returns
    */
   registerRevalidateOnFocus = () => {
-    return super.registerRevalidateOnFocus(this.fetch);
+    return super.registerRevalidateOnFocus(this.revalidate);
   };
 
   /**
@@ -68,6 +68,6 @@ export class NormalModelAccessor<Model, Arg = any, Data = any> extends ModelAcce
    * @returns
    */
   registerRevalidateOnReconnect = () => {
-    return super.registerRevalidateOnReconnect(this.fetch);
+    return super.registerRevalidateOnReconnect(this.revalidate);
   };
 }
