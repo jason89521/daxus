@@ -1,4 +1,4 @@
-import { postModel } from '../model';
+import { getPostById } from '../model';
 import { useFetch } from '../lib';
 
 interface Props {
@@ -6,7 +6,7 @@ interface Props {
 }
 
 export function usePost({ id }: Props) {
-  const { data } = useFetch(postModel.accessorGetters.getPostById(id), model => {
+  const { data } = useFetch(getPostById(id), model => {
     return model.data[id];
   });
 

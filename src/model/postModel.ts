@@ -1,16 +1,15 @@
 import type { Post, PostLayout } from '../types';
-import type { Action } from '../lib';
-import { Model, createPaginationAdapter } from '../lib';
+import { createModel } from '../lib';
+import { createPaginationAdapter } from '../lib';
 import { getPostById as getPostByIdRequest, getPostList as getPostListRequest } from '../request';
 
 export const postAdapter = createPaginationAdapter<Post>({});
 const initialModel = postAdapter.initialModel;
 
-type PostModel = typeof initialModel;
+export const postModel = createModel(initialModel);
 
-const getPostById: Action<PostModel, number, Post> = {
-  type: 'normal',
-  fetchData: async id => {
+export const getPostById = postModel.defineNormalAction({
+  fetchData: async (id: number) => {
     const data = await getPostByIdRequest(id);
     return data;
   },
@@ -25,10 +24,9 @@ const getPostById: Action<PostModel, number, Post> = {
     console.log(`Success on getPostById with arg: ${arg}`);
     console.log(data);
   },
-};
+});
 
-const getPostList: Action<PostModel, { layout: PostLayout }, Post[]> = {
-  type: 'infinite',
+export const getPostList = postModel.defineInfiniteAction<{ layout: PostLayout }, Post[]>({
   fetchData: async ({ layout }, { pageIndex, previousData }) => {
     if (previousData?.length === 0) return null;
     const data = await getPostListRequest({ layout, page: pageIndex });
@@ -46,6 +44,4 @@ const getPostList: Action<PostModel, { layout: PostLayout }, Post[]> = {
     console.log(`Success on getPostList with arg: ${arg}`);
     console.log(data);
   },
-};
-
-export const postModel = new Model(initialModel, { getPostById, getPostList });
+});
