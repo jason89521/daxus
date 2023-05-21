@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "dev-server": "json-server --watch db.json"
+    "dev-server": "json-server --watch db.json",
+    "test": "vitest"
   },
   "dependencies": {
     "immer": "^10.0.1",
@@ -24,6 +25,7 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "json-server": "^0.17.3",
     "typescript": "^5.0.4",
-    "vite": "^4.3.3"
+    "vite": "^4.3.3",
+    "vitest": "^0.31.1"
   }
 }
