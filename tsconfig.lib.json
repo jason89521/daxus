@@ -15,11 +15,10 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "declaration": true,
-    "emitDeclarationOnly": true,
     "stripInternal": true,
     "jsx": "react-jsx",
-    "outDir": "dist/types"
+    "outDir": "dist"
   },
-  "include": ["src/lib"],
+  "include": ["src/lib/index.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

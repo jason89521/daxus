@@ -1,19 +1,32 @@
 {
-  "name": "react-fetch",
-  "private": true,
+  "name": "react-server-model",
   "version": "0.0.0",
   "type": "module",
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "react",
+    "data fetching",
+    "auto revalidate",
+    "pagination"
+  ],
+  "types": "./dist/index.d.ts",
+  "module": "./dist/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jason89521/react-server-model"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "build-lib": " rimraf dist && tsc --project tsconfig.lib.json",
     "preview": "vite preview",
     "dev-server": "json-server --watch db.json",
     "test": "vitest"
   },
   "dependencies": {
-    "immer": "^10.0.1",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "immer": "^10.0.1"
   },
   "devDependencies": {
     "@types/react": "^18.0.28",
@@ -24,8 +37,14 @@
     "eslint": "^8.38.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "json-server": "^0.17.3",
+    "rimraf": "^5.0.1",
     "typescript": "^5.0.4",
     "vite": "^4.3.3",
-    "vitest": "^0.31.1"
+    "vitest": "^0.31.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0"
   }
 }
