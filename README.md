@@ -48,3 +48,100 @@ export function usePostList(layout: PostLayout): Post[] {
   return data;
 }
 ```
+
+## API
+
+### `createModel`
+
+Create a model. The first argument is the initial state of the model (the shape of the model).
+
+We can define two type of the action: `'normal'` or `'infinite'`. For each action, the `fetchData` and `syncModel` are required to implement. The `onError` and `onSuccess` is optional.
+
+```ts
+export const postModel = createModel(initialModel);
+
+export const getPostById = postModel.defineAction('normal', {
+  fetchData: async (id: number) => {
+    const data = await getPostByIdRequest(id);
+    return data;
+  },
+  syncModel: (draft, { data }) => {
+    postAdapter.upsertOne(draft, data);
+  },
+  onError: ({ error, arg }) => {
+    console.log(`Error on getPostById with arg: ${arg}`);
+    console.log(error);
+  },
+  onSuccess: ({ data, arg }) => {
+    console.log(`Success on getPostById with arg: ${arg}`);
+    console.log(data);
+  },
+});
+
+export const getPostList = postModel.defineAction<{ layout: PostLayout }, Post[]>('infinite', {
+  fetchData: async ({ layout }, { pageIndex, previousData }) => {
+    if (previousData?.length === 0) return null;
+    const data = await getPostListRequest({ layout, page: pageIndex });
+    return data;
+  },
+  syncModel: (draft, { data, arg, pageIndex }) => {
+    const paginationKey = JSON.stringify(arg);
+    postAdapter.updatePagination(draft, { data: data, paginationKey, pageIndex });
+  },
+  onError: ({ error, arg }) => {
+    console.log(`Error on getPostList with arg: ${arg}`);
+    console.log(error);
+  },
+  onSuccess: ({ data, arg }) => {
+    console.log(`Success on getPostList with arg: ${arg}`);
+    console.log(data);
+  },
+});
+```
+
+### `useFetch`
+
+Fetch the data to sync the corresponding model.
+
+```ts
+function usePost(id: number) {
+  const { data, isFetching } = useFetch(getPostById(id), model => postAdapter.readOne(model, id), {
+    revalidateOnFocus: false,
+  });
+
+  return { data, isFetching };
+}
+```
+
+The type of the third argument:
+
+```ts
+export interface FetchOptions<S = any> {
+  revalidateOnFocus?: boolean;
+  revalidateOnReconnect?: boolean;
+  revalidateIfStale?: boolean;
+  checkHasStaleDataFn?: (snapshot: S) => boolean;
+  retryCount?: number;
+}
+```
+
+- `revalidateOnFocus`: Whether the hook should refetch the data when the browser get the user's focus.
+- `revalidateOnReconnect`: Whether the hook should refetch the data when the user reconnect the network.
+- `revalidateIfStale`: Whether the hook should fetch the data if there is a stale data in the model.
+- `checkHasStaleDataFn`: To check whether there is a stale data. Default is `(snapshot) => !undefined(snapshot)`.
+- `retryCount`: The error retry number.
+
+### `useInfiniteFetch`
+
+The api is similar to `useFetch` except it has `fetchNextPage` function.
+
+```ts
+function usePostList(layout: PostLayout) {
+  const key = JSON.stringify({ layout });
+  const { data, isFetching, fetchNextPage } = useInfiniteFetch(getPostList({ layout }), model => {
+    return postAdapter.getPagination(model, key);
+  });
+
+  return { data, isFetching, fetchNextPage };
+}
+```
