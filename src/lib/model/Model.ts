@@ -73,5 +73,5 @@ export function createModel<M extends object>(initialModel: M) {
     };
   }
 
-  return { mutate, defineAction };
+  return { mutate, defineAction, getModel };
 }

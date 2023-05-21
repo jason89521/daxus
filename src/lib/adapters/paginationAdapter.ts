@@ -32,27 +32,41 @@ export function createPaginationAdapter<Data>({
 }) {
   type Model = PaginationModel<Data>;
 
-  function upsertOne(model: Model, data: Data) {
+  function createOne(model: Model, data: Data) {
     const id = getId(data);
     model.data[id] = data;
   }
 
+  function readOne(model: Model, id: Id) {
+    return model.data[id];
+  }
+
+  function updateOne(model: Model, id: Id, data: Partial<Data>) {
+    if (!model.data[id]) return;
+    const cache = model.data[id]!;
+    model.data[id] = { ...cache, ...data };
+  }
+
+  function deleteOne(model: Model, id: Id) {
+    delete model.data[id];
+  }
+
+  function upsertOne(model: Model, data: Data) {
+    const id = getId(data);
+    const cache = model.data[id];
+    model.data[id] = { ...cache, ...data };
+  }
+
   function updatePagination(
     model: Model,
-    {
-      pageIndex,
-      dataArray,
-      paginationKey,
-    }: { pageIndex: number; dataArray: Data[]; paginationKey: string }
+    { pageIndex, data, paginationKey }: { pageIndex: number; data: Data[]; paginationKey: string }
   ) {
     // Update the data entities
-    for (const data of dataArray) {
-      const id = getId(data);
-      const oldData = model.data[id];
-      model.data[id] = { ...oldData, ...data };
+    for (const entity of data) {
+      upsertOne(model, entity);
     }
 
-    const ids = dataArray.map(getId);
+    const ids = data.map(getId);
     if (pageIndex === 0) {
       model.paginationMetaRecord[paginationKey] = {
         idsPerPage: [ids],
@@ -68,6 +82,10 @@ export function createPaginationAdapter<Data>({
   }
 
   const paginationRecord = {} as Record<string, Data[] | undefined>;
+
+  function getPaginationMeta(model: Model, paginationKey: string) {
+    return model.paginationMetaRecord[paginationKey];
+  }
 
   function getPagination(model: Model, paginationKey: string) {
     const paginationMeta = model.paginationMetaRecord[paginationKey];
@@ -105,8 +123,13 @@ export function createPaginationAdapter<Data>({
 
   return {
     initialModel: { data: {}, paginationMetaRecord: {} } as Model,
+    createOne,
+    readOne,
+    updateOne,
+    deleteOne,
     upsertOne,
     updatePagination,
+    getPaginationMeta,
     getPagination,
   };
 }

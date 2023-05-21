@@ -34,7 +34,7 @@ export const getPostList = postModel.defineAction<{ layout: PostLayout }, Post[]
   },
   syncModel: (draft, { data, arg, pageIndex }) => {
     const paginationKey = JSON.stringify(arg);
-    postAdapter.updatePagination(draft, { dataArray: data, paginationKey, pageIndex });
+    postAdapter.updatePagination(draft, { data: data, paginationKey, pageIndex });
   },
   onError: ({ error, arg }) => {
     console.log(`Error on getPostList with arg: ${arg}`);
