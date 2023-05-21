@@ -40,39 +40,37 @@ export function createModel<M extends object>(initialModel: M) {
     notifyListeners();
   }
 
-  function defineNormalAction<Arg, Data>(
+  function defineAction<Arg, Data>(
+    type: 'normal',
     action: NormalAction<M, Arg, Data>
-  ): (arg: Arg) => NormalModelAccessor<M, Arg, Data> {
+  ): (arg: Arg) => NormalModelAccessor<M, Arg, Data>;
+  function defineAction<Arg, Data>(
+    type: 'infinite',
+    action: InfiniteAction<M, Arg, Data>
+  ): (arg: Arg) => InfiniteModelAccessor<M, Arg, Data>;
+  function defineAction<Arg, Data>(
+    type: 'normal' | 'infinite',
+    action: NormalAction<M, Arg, Data> | InfiniteAction<M, Arg, Data>
+  ) {
     const prefix = prefixCounter++;
 
     return (arg: Arg) => {
       const hashArg = stableHash(arg);
       const key = `${prefix}/${hashArg}`;
       const accessor = accessors[key];
-      if (accessor) return accessor as any;
-      const newAccessor = new NormalModelAccessor(arg, action, updateModel, getModel, subscribe);
-      accessors[key] = newAccessor;
+      if (accessor) return accessor;
+      const newAccessor = (() => {
+        const constructorArgs = [arg, action as any, updateModel, getModel, subscribe] as const;
+        if (type === 'infinite') {
+          return new InfiniteModelAccessor(...constructorArgs);
+        }
+
+        return new NormalModelAccessor(...constructorArgs);
+      })();
 
       return newAccessor;
     };
   }
 
-  function defineInfiniteAction<Arg, Data>(
-    action: InfiniteAction<M, Arg, Data>
-  ): (arg: Arg) => InfiniteModelAccessor<M, Arg, Data> {
-    const prefix = prefixCounter++;
-
-    return arg => {
-      const hashArg = stableHash(arg);
-      const key = `${prefix}/${hashArg}`;
-      const accessor = accessors[key];
-      if (accessor) return accessor as any;
-      const newAccessor = new InfiniteModelAccessor(arg, action, updateModel, getModel, subscribe);
-      accessors[key] = newAccessor;
-
-      return newAccessor;
-    };
-  }
-
-  return { defineNormalAction, defineInfiniteAction, mutate };
+  return { mutate, defineAction };
 }
