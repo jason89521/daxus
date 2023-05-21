@@ -67,6 +67,7 @@ export function createModel<M extends object>(initialModel: M) {
 
         return new NormalModelAccessor(...constructorArgs);
       })();
+      accessors[key] = newAccessor;
 
       return newAccessor;
     };
