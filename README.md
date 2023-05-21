@@ -1,114 +1,50 @@
-# React Server Model (WIP)
+# React Server Model
 
-Manage the server state and let user define the shape of the data from the server.
+React Server Model is a data management library designed for front-end application development. It provides a consistent and efficient solution for organizing and synchronizing data in front-end applications, making it easier for developers to handle data fetching, management, and synchronization.
 
-## Todo
+In React Server Model, the core concept is the Model. A Model is a unit used to organize and manage data. Developers can create multiple Models based on the requirements of their application, each containing multiple data models such as Post, Comment, and more.
 
-### `useFetch`
-
-- [x] Dedupe
-- [x] Cache
-- [x] Revalidate on focus
-- [x] Revalidate when reconnect
-- [x] Error retry
-- [x] Error callback
-- [x] Success callback
-- [x] Mutation
-- [ ] Testing
-- [x] Only rerender when used field change
-
-### `useInfiniteFetch`
-
-- [x] Dedupe
-- [x] Cache
-- [x] Revalidate on focus
-- [x] Revalidate when reconnect
-- [x] Error retry
-- [x] Error callback
-- [x] Success callback
-- [x] Mutation
-- [ ] Testing
-- [x] Only rerender when used field change
-
-### `Dev Tool`
-
-- [ ] Add dev tool like redux dev tool.
+Developers can use the provided Adapters to handle data normalization for individual Models, ensuring consistency among different data within a Model. Additionally, developers have the flexibility to define the shape of a Model to accommodate specific application needs.
 
 ## Example
 
-Create a pagination model
+Get post list.
 
 ```ts
 // in postModel.ts
-import type { Action } from 'react-server-model';
-import { Model, createPaginationAdapter } from 'react-server-model';
+import { createPaginationAdapter, createModel } from 'react-server-model';
+import type { Post, PostLayout } from './types';
 
-// createPaginationAdapter is an util function that which helps you to manage the pagination.
 export const postAdapter = createPaginationAdapter<Post>({});
-const initialModel = postAdapter.initialModel;
 
-export const postModel = createModel(initialModel);
+export const postModel = createModel(postAdapter.initialModel);
 
-// Define a normal action.
-export const getPostById = postModel.defineNormalAction({
-  fetchData: async (id: number) => {
-    const data = await getPostByIdRequest(id);
-    return data;
-  },
-  syncModel: (draft, { data }) => {
-    postAdapter.upsertOne(draft, data);
-  },
-});
-
-// Define an infinite action. An infinite action means that it will fetch the list from the server.
-export const getPostList = postModel.defineInfiniteAction<{ layout: PostLayout }, Post[]>({
+export const getPostList = postModel.defineAction<{ layout: PostLayout }, Post[]>('infinite', {
   fetchData: async ({ layout }, { pageIndex, previousData }) => {
+    // There is no more data to fetch.
     if (previousData?.length === 0) return null;
-    const data = await getPostListRequest({ layout, page: pageIndex });
-    return data;
+    const res = await fetch(`/api/posts?page=${pageIndex}&layout=${layout}`);
+    return res.json();
   },
   syncModel: (draft, { data, arg, pageIndex }) => {
+    // arg -> { layout }
+    // you can use any function to generate the pagination key.
     const paginationKey = JSON.stringify(arg);
-    postAdapter.updatePagination(draft, { dataArray: data, paginationKey, pageIndex });
+    postAdapter.updatePagination(draft, { data, paginationKey, pageIndex });
   },
 });
-```
 
-Use the model with `useFetch` or `useInfiniteFetch`
+// in usePostList.ts
+import { useInfiniteFetch } from 'react-server-model';
+import type { PostLayout, Post } from './types';
+import { getPostList } from './postModel';
 
-```jsx
-import { useFetch, useInfiniteFetch } from 'react-server-model';
-import { getPostList, getPostById } from './postModel';
-
-export function PostList() {
-  const { data, fetchNextPage } = useInfiniteFetch(getPostList({ layout }), model => {
-    const key = JSON.stringify({ layout });
+export function usePostList(layout: PostLayout): Post[] {
+  const key = JSON.stringify({ layout });
+  const { data } = useInfiniteFetch(getPostList({ layout }), model => {
     return postAdapter.getPagination(model, key);
   });
 
-  return (
-    <div>
-      {data.map(post => {
-        return (
-          <div key={post.id}>
-            <div>title: {post.title}</div>
-          </div>
-        );
-      })}
-      }
-    </div>
-  );
-}
-
-export function Post({ id }) {
-  const { data } = useFetch(
-    getPostById(id),
-    model => {
-      return model.data[id];
-    },
-    { revalidateOnFocus: false }
-  );
-
-  return <div>title: {data.title}</div>;
+  return data;
 }
 ```
