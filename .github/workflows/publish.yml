@@ -13,6 +13,6 @@ jobs:
           version: '8.5.1'
           run_install: true
       - name: Publish package on NPM 📦
-        run: pnpm run build && pnpm publish --access public
+        run: pnpm run build-lib && pnpm publish --access public --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
