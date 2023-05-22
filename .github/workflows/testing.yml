@@ -16,4 +16,4 @@ jobs:
         with:
           version: '8.5.1'
           run_install: true
-      - run: npm test
+      - run: pnpm test
