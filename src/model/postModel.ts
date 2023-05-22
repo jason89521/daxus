@@ -8,6 +8,7 @@ const initialModel = postAdapter.initialModel;
 
 export const postModel = createModel(initialModel);
 
+// testing
 export const getPostById = postModel.defineAction('normal', {
   fetchData: async (id: number) => {
     const data = await getPostByIdRequest(id);
