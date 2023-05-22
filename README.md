@@ -145,3 +145,7 @@ function usePostList(layout: PostLayout) {
   return { data, isFetching, fetchNextPage };
 }
 ```
+
+## Todo
+
+- [ ] SSR
