@@ -23,7 +23,8 @@
     "build-lib": " rimraf dist && tsc --project tsconfig.lib.json",
     "preview": "vite preview",
     "dev-server": "json-server --watch db.json",
-    "test": "vitest",
+    "test": "vitest run",
+    "test-watch": "vitest watch",
     "prepublishOnly": "pnpm run build-lib"
   },
   "dependencies": {
