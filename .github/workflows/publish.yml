@@ -12,14 +12,7 @@ jobs:
         with:
           version: '8.5.1'
           run_install: true
-      - name: Configure npm
-        run: |
-          echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' > .npmrc
-          cat .npmrc
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
       - name: Publish package on NPM 📦
-        run: pnpm run build-lib && pnpm publish --access public --no-git-checks
+        run: pnpm run build-lib && npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
