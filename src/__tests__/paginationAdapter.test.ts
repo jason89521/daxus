@@ -1,4 +1,3 @@
-import { beforeEach, describe, expect, test } from 'vitest';
 import { createPaginationAdapter } from '../lib';
 import type { Post } from './types';
 import { createPost } from './utils';
