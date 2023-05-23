@@ -1,16 +1,18 @@
 import type { Draft } from 'immer';
 
-interface BaseAction<Arg, D> {
-  onError?: (info: { error: unknown; arg: Arg }) => void;
+interface BaseAction<Arg, D, E> {
+  onError?: (info: { error: E; arg: Arg }) => void;
   onSuccess?: (info: { data: D; arg: Arg }) => void;
 }
 
-export interface NormalAction<Model, Arg = any, Data = any> extends BaseAction<Arg, Data> {
+export interface NormalAction<Model, Arg = any, Data = any, E = unknown>
+  extends BaseAction<Arg, Data, E> {
   fetchData: (arg: Arg) => Promise<Data>;
   syncModel: (model: Draft<Model>, payload: { data: Data; arg: Arg }) => void;
 }
 
-export interface InfiniteAction<Model, Arg = any, Data = any> extends BaseAction<Arg, Data[]> {
+export interface InfiniteAction<Model, Arg = any, Data = any, E = unknown>
+  extends BaseAction<Arg, Data[], E> {
   fetchData: (
     arg: Arg,
     meta: { previousData: Data | null; pageIndex: number }

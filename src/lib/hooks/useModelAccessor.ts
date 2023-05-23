@@ -5,10 +5,10 @@ import type { FetchOptions } from './types';
 import { useUpdatedRef } from './useUpdatedRef';
 
 type StateDeps = Partial<Record<keyof Status, boolean>>;
-type Accessor<M> = NormalModelAccessor<M> | InfiniteModelAccessor<M>;
+type Accessor<M, E> = NormalModelAccessor<M, any, any, E> | InfiniteModelAccessor<M, any, any, E>;
 
-export function useModelAccessor<M, D>(
-  accessor: Accessor<M>,
+export function useModelAccessor<M, D, E = unknown>(
+  accessor: Accessor<M, E>,
   getSnapshot: (model: M) => D,
   options: FetchOptions<D> = {}
 ) {

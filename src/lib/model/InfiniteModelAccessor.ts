@@ -3,7 +3,10 @@ import { ModelAccessor } from './ModelAccessor';
 import type { InfiniteAction } from './types';
 import type { Draft } from 'immer';
 
-export class InfiniteModelAccessor<M, Arg = any, RD = any> extends ModelAccessor<M> {
+export class InfiniteModelAccessor<M, Arg = any, RD = any, E = unknown> extends ModelAccessor<
+  M,
+  E
+> {
   private action: InfiniteAction<M, Arg, RD>;
   private arg: Arg;
   private updateModel: (cb: (draft: Draft<M>) => void) => void;
@@ -105,8 +108,10 @@ export class InfiniteModelAccessor<M, Arg = any, RD = any> extends ModelAccessor
       const data = await this.fetchPages({ pageSize, pageIndex });
       this.flush(data, { start: pageIndex });
       this.updateData(data);
+      this.updateStatus({ error: null });
       this.action.onSuccess?.({ data, arg });
     } catch (error) {
+      this.updateStatus({ error: error as E });
       this.action.onError?.({ error, arg });
     } finally {
       this.updateStatus({ isFetching: false });

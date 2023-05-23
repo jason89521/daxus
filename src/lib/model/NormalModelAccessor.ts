@@ -3,8 +3,11 @@ import { ModelAccessor } from './ModelAccessor';
 import type { NormalAction } from './types';
 import type { Draft } from 'immer';
 
-export class NormalModelAccessor<Model, Arg = any, Data = any> extends ModelAccessor<Model> {
-  private action: NormalAction<Model, Arg, Data>;
+export class NormalModelAccessor<Model, Arg = any, Data = any, E = unknown> extends ModelAccessor<
+  Model,
+  E
+> {
+  private action: NormalAction<Model, Arg, Data, E>;
   private arg: Arg;
   private updateModel: (cb: (model: Draft<Model>) => void) => void;
 
@@ -21,8 +24,8 @@ export class NormalModelAccessor<Model, Arg = any, Data = any> extends ModelAcce
     this.updateModel = updateModel;
   }
 
-  private internalFetch = async (remainRetryCount: number): Promise<[Data | null, unknown]> => {
-    const result: [Data | null, unknown] = [null, null];
+  private internalFetch = async (remainRetryCount: number): Promise<[Data | null, E | null]> => {
+    const result: [Data | null, E | null] = [null, null];
     const arg = this.arg;
     try {
       const data = await this.action.fetchData(arg);
@@ -32,7 +35,7 @@ export class NormalModelAccessor<Model, Arg = any, Data = any> extends ModelAcce
         const retryResult = await this.internalFetch(remainRetryCount - 1);
         return retryResult;
       }
-      result[1] = error;
+      result[1] = error as E;
     }
 
     return result;
@@ -47,9 +50,11 @@ export class NormalModelAccessor<Model, Arg = any, Data = any> extends ModelAcce
       this.updateModel(draft => {
         this.action.syncModel(draft, { data, arg });
       });
+      this.updateStatus({ error: null });
       this.action.onSuccess?.({ data, arg });
     } else {
-      this.action.onError?.({ error, arg });
+      this.updateStatus({ error });
+      this.action.onError?.({ error: error!, arg });
     }
     this.notifyDataListeners();
     this.updateStatus({ isFetching: false });

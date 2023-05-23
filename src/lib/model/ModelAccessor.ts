@@ -1,11 +1,12 @@
-export type Status = {
+export type Status<E = unknown> = {
   isFetching: boolean;
+  error: E | null;
 };
 
 export type ModelSubscribe = (listener: () => void) => () => void;
 
-export class ModelAccessor<M> {
-  protected status: Status = { isFetching: false };
+export class ModelAccessor<M, E> {
+  protected status: Status<E> = { isFetching: false, error: null };
   protected statusListeners: ((prev: Status, current: Status) => void)[] = [];
   protected dataListeners: (() => void)[] = [];
   protected retryCount = 5;
@@ -20,7 +21,7 @@ export class ModelAccessor<M> {
     this.modelSubscribe = modelSubscribe;
   }
 
-  protected updateStatus = (partialStatus: Partial<Status>) => {
+  protected updateStatus = (partialStatus: Partial<Status<E>>) => {
     const newStatus = { ...this.status, ...partialStatus };
     this.notifyStatusListeners(newStatus);
     this.status = newStatus;
