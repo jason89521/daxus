@@ -1,10 +1,11 @@
 import { isNumber, isString } from '../utils';
+import { isNonNullable } from '../utils/isNonNullable';
 
 type Id = string | number;
 
 interface PaginationMeta {
   /** Store the ids for each page index. */
-  idsPerPage: Id[][];
+  ids: Id[];
   noMore: boolean;
   sizePerPage: number;
 }
@@ -49,6 +50,11 @@ export function createPaginationAdapter<Data>({
 
   function deleteOne(model: Model, id: Id) {
     delete model.data[id];
+    for (const paginationMeta of Object.values(model.paginationMetaRecord)) {
+      if (paginationMeta?.ids.includes(id)) {
+        paginationMeta.ids = paginationMeta.ids.filter(value => value !== id);
+      }
+    }
   }
 
   function upsertOne(model: Model, data: Data) {
@@ -57,68 +63,43 @@ export function createPaginationAdapter<Data>({
     model.data[id] = { ...cache, ...data };
   }
 
-  function updatePagination(
-    model: Model,
-    { pageIndex, data, paginationKey }: { pageIndex: number; data: Data[]; paginationKey: string }
-  ) {
-    // Update the data entities
+  function upsertMany(model: Model, data: Data[]) {
     for (const entity of data) {
       upsertOne(model, entity);
     }
+  }
 
+  function replacePagination(model: Model, paginationKey: string, data: Data[]) {
+    upsertMany(model, data);
     const ids = data.map(getId);
-    if (pageIndex === 0) {
-      model.paginationMetaRecord[paginationKey] = {
-        idsPerPage: [ids],
-        noMore: false,
-        sizePerPage: ids.length,
-      };
-    } else {
-      const pagination = model.paginationMetaRecord[paginationKey];
-      if (!pagination) throw new Error(`Pagination is undefined on pageIndex: ${pageIndex}`);
-      pagination.idsPerPage[pageIndex] = ids;
-      if (ids.length < pagination.sizePerPage) pagination.noMore = true;
-    }
+    model.paginationMetaRecord[paginationKey] = {
+      ids,
+      noMore: false,
+      sizePerPage: ids.length,
+    };
   }
 
-  const paginationRecord = {} as Record<string, Data[] | undefined>;
-
-  function getPaginationMeta(model: Model, paginationKey: string) {
-    return model.paginationMetaRecord[paginationKey];
-  }
-
-  function getPagination(model: Model, paginationKey: string) {
+  function appendPagination(model: Model, paginationKey: string, data: Data[]) {
+    upsertMany(model, data);
+    const ids = data.map(getId);
     const paginationMeta = model.paginationMetaRecord[paginationKey];
-    const oldPagination = paginationRecord[paginationKey] ?? [];
     if (!paginationMeta) {
-      // It will be an empty array.
-      paginationRecord[paginationKey] = oldPagination;
-      return oldPagination;
+      throw new Error(`Attempting append an undefined pagination!`);
     }
+    paginationMeta.ids.push(...ids);
+  }
 
-    const newPagination = paginationMeta.idsPerPage.flat().map(id => {
-      const entity = model.data[id];
-      if (!entity) throw new Error(`There is no entity with the id: ${id}`);
-      return entity;
-    });
-    if (oldPagination.length !== newPagination.length) {
-      paginationRecord[paginationKey] = newPagination;
-      return newPagination;
-    }
+  function readPagination(model: Model, paginationKey: string) {
+    const meta = model.paginationMetaRecord[paginationKey];
+    if (!meta) return;
+    const { ids, ...restMeta } = meta;
+    const items = [...ids]
+      .map(id => {
+        return model.data[id];
+      })
+      .filter(isNonNullable);
 
-    const hasChanged = (() => {
-      for (let i = 0; i < oldPagination.length; i++) {
-        // The reference will be the same if the data don't change.
-        if (oldPagination[i] !== newPagination[i]) return true;
-      }
-      return false;
-    })();
-    if (hasChanged) {
-      paginationRecord[paginationKey] = newPagination;
-      return newPagination;
-    }
-
-    return oldPagination;
+    return { items, ...restMeta };
   }
 
   return {
@@ -128,8 +109,8 @@ export function createPaginationAdapter<Data>({
     updateOne,
     deleteOne,
     upsertOne,
-    updatePagination,
-    getPaginationMeta,
-    getPagination,
+    readPagination,
+    replacePagination,
+    appendPagination,
   };
 }

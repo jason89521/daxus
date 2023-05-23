@@ -17,3 +17,4 @@ jobs:
           version: '8.5.1'
           run_install: true
       - run: pnpm test
+      - run: pnpm build-lib
