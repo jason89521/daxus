@@ -15,6 +15,12 @@ export interface InfiniteAction<Model, Arg = any, Data = any> extends BaseAction
     arg: Arg,
     meta: { previousData: Data | null; pageIndex: number }
   ) => Promise<Data | null>;
+  /**
+   * It is guaranteed that the former data will be passed before the later data.
+   * @param model
+   * @param payload
+   * @returns
+   */
   syncModel: (
     model: Draft<Model>,
     payload: { data: Data; arg: Arg; pageSize: number; pageIndex: number }

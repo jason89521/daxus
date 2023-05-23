@@ -1,19 +1,17 @@
 import { useState } from 'react';
 import { useInfiniteFetch } from '../../lib';
-import { postAdapter, getPostList, postModel } from '../model';
+import { postAdapter, getPostList } from '../model';
 import type { PostLayout } from '../types';
 
 export function PostList() {
   const [layout, setLayout] = useState<PostLayout>('classic');
   const key = JSON.stringify({ layout });
   const { data, fetchNextPage } = useInfiniteFetch(getPostList({ layout }), model => {
-    return postAdapter.getPagination(model, key);
+    return postAdapter.readPagination(model, key);
   });
 
-  const paginationMeta = postAdapter.getPaginationMeta(postModel.getModel(), key);
-
   const loadMore = () => {
-    if (paginationMeta?.noMore) return;
+    if (data?.noMore) return;
     fetchNextPage();
   };
 
@@ -28,13 +26,15 @@ export function PostList() {
       >
         toggle layout
       </button>
-      <button onClick={loadMore} disabled={paginationMeta?.noMore}>
+      <button onClick={loadMore} disabled={data?.noMore}>
         fetch next page
       </button>
-      {data.map(post => {
+      {data?.items.map(post => {
         return (
           <div key={post.id}>
-            <div>title: {post.title}</div>
+            <div>
+              title: {post.title}, layout: {post.layout}
+            </div>
           </div>
         );
       })}
