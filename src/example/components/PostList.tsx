@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useInfiniteFetch } from '../lib';
+import { useInfiniteFetch } from '../../lib';
 import { postAdapter, getPostList, postModel } from '../model';
 import type { PostLayout } from '../types';
 

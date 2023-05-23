@@ -1,5 +1,5 @@
 import { getPostById } from '../model';
-import { useFetch } from '../lib';
+import { useFetch } from '../../lib';
 
 interface Props {
   id: number;
