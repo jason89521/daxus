@@ -56,9 +56,10 @@ describe('useFetch', () => {
     });
     const { getTestItem } = createTestItemModel({ onSuccess: onSuccessMock });
     function Page() {
-      const { data } = useFetch(getTestItem({ id: 0 }), model => model[0]);
+      const [id, setId] = useState(0);
+      const { data } = useFetch(getTestItem({ id }), model => model[0]);
 
-      return <div>{data}</div>;
+      return <div onClick={() => setId(1)}>{data}</div>;
     }
 
     render(<Page />);
@@ -66,6 +67,12 @@ describe('useFetch', () => {
     expect(onSuccessMock).toHaveBeenCalledTimes(1);
     expect(dataToCheck).toBe('foo/0');
     expect(argToCheck).toEqual({ id: 0 });
+
+    fireEvent.click(screen.getByText('foo/0'));
+    await act(() => sleep(10));
+    expect(onSuccessMock).toHaveBeenCalledTimes(2);
+    expect(dataToCheck).toBe('foo/1');
+    expect(argToCheck).toEqual({ id: 1 });
   });
 
   test('should trigger onError', async () => {
@@ -77,21 +84,28 @@ describe('useFetch', () => {
     });
     const { getTestItem } = createTestItemModel({
       onError: onErrorMock,
-      fetchData: () => {
-        throw new Error('test');
+      fetchData: ({ id }) => {
+        throw new Error(`error/${id}`);
       },
     });
     function Page() {
-      const { data } = useFetch(getTestItem({ id: 0 }), model => model[0]);
+      const [id, setId] = useState(0);
+      const { data } = useFetch(getTestItem({ id }), model => model[0]);
 
-      return <div>data: {data}</div>;
+      return <div onClick={() => setId(1)}>data: {data}</div>;
     }
 
     render(<Page />);
     await screen.findByText('data:');
     expect(onErrorMock).toHaveBeenCalledTimes(1);
     expect(errorToCheck).toBeInstanceOf(Error);
-    expect(errorToCheck.message).toBe('test');
+    expect(errorToCheck.message).toBe('error/0');
     expect(argToCheck).toEqual({ id: 0 });
+
+    fireEvent.click(screen.getByText('data:'));
+    await act(() => sleep(10));
+    expect(onErrorMock).toHaveBeenCalledTimes(2);
+    expect(errorToCheck.message).toBe('error/1');
+    expect(argToCheck).toEqual({ id: 1 });
   });
 });
