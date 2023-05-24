@@ -1,12 +1,12 @@
 import { createModel, createPaginationAdapter } from '../lib';
-import type { PostLayout, Post, Func } from './types';
+import type { PostLayout, Post, Func, PostModelControl } from './types';
 
 export function sleep(time: number) {
   return new Promise<void>(resolve => setTimeout(resolve, time));
 }
 
 export function createPost(id: number, layout: PostLayout = 'classic'): Post {
-  return { id, layout, title: 'title' };
+  return { id, layout, title: `title${id}` };
 }
 
 export function createTestItemModel({
@@ -30,15 +30,46 @@ export function createTestItemModel({
   return { testItemModel, getTestItem };
 }
 
-export const postAdapter = createPaginationAdapter<Post>({});
+export function createPostModel(control: PostModelControl = {}) {
+  const postAdapter = createPaginationAdapter<Post>({});
+  const postModel = createModel(postAdapter.initialModel);
+  const getPostById = postModel.defineAction('normal', {
+    fetchData: async (id: number) => {
+      if (control.sleepTime) {
+        await sleep(control.sleepTime);
+      }
 
-export const postModel = createModel(postAdapter.initialModel);
+      const post = createPost(id);
+      if (control.titlePrefix) {
+        post.title = `${control.titlePrefix} ${post.title}`;
+      }
+      return post;
+    },
+    syncModel: (model, { data }) => {
+      postAdapter.createOne(model, data);
+    },
+  });
 
-export const getPostById = postModel.defineAction('normal', {
-  fetchData: async (id: number) => {
-    return createPost(id);
-  },
-  syncModel: (model, { data }) => {
-    postAdapter.createOne(model, data);
-  },
-});
+  const getPostList = postModel.defineAction<void, Post[]>('infinite', {
+    async fetchData(_, { pageIndex }) {
+      if (control.sleepTime) {
+        await sleep(control.sleepTime);
+      }
+      const post = createPost(pageIndex);
+      if (control.titlePrefix) {
+        post.title = `${control.titlePrefix} ${post.title}`;
+      }
+      return [post];
+    },
+    syncModel(model, { pageIndex, data }) {
+      const paginationKey = '';
+      if (pageIndex === 0) {
+        postAdapter.replacePagination(model, paginationKey, data);
+      } else {
+        postAdapter.appendPagination(model, paginationKey, data);
+      }
+    },
+  });
+
+  return { postAdapter, postModel, getPostById, getPostList };
+}

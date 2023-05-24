@@ -1,3 +1,4 @@
+import { getCurrentTime } from '../utils';
 import type { ModelSubscribe } from './ModelAccessor';
 import { ModelAccessor } from './ModelAccessor';
 import type { InfiniteAction } from './types';
@@ -43,8 +44,8 @@ export class InfiniteModelAccessor<M, Arg = any, RD = any, E = unknown> extends 
     previousData: RD | null;
     pageIndex: number;
     remainRetryCount: number;
-  }): Promise<[RD | null, unknown]> => {
-    const result: [RD | null, unknown] = [null, null];
+  }): Promise<[RD | null, E | null]> => {
+    const result: [RD | null, E | null] = [null, null];
     const arg = this.arg;
     try {
       const data = await this.action.fetchData(arg, { previousData, pageIndex });
@@ -57,7 +58,7 @@ export class InfiniteModelAccessor<M, Arg = any, RD = any, E = unknown> extends 
           remainRetryCount: remainRetryCount - 1,
         });
       }
-      result[1] = error;
+      result[1] = error as E;
     }
 
     return result;
@@ -65,6 +66,7 @@ export class InfiniteModelAccessor<M, Arg = any, RD = any, E = unknown> extends 
 
   /**
    * Fetch the pages from `pageIndex` to `pageSize` (exclusive).
+   * This function returns the whole data list.
    */
   private fetchPages = async ({
     pageSize,
@@ -74,6 +76,7 @@ export class InfiniteModelAccessor<M, Arg = any, RD = any, E = unknown> extends 
     pageIndex?: number;
   }) => {
     const dataArray = [...this.data];
+    const result: [RD[], E | null] = [dataArray, null];
     let previousData: RD | null = dataArray[pageIndex - 1] ?? null;
     for (; pageIndex < pageSize; pageIndex++) {
       const [data, error] = await this.fetchPage({
@@ -82,7 +85,8 @@ export class InfiniteModelAccessor<M, Arg = any, RD = any, E = unknown> extends 
         remainRetryCount: this.retryCount,
       });
       if (error) {
-        throw error;
+        result[1] = error;
+        break;
       }
       if (!data) {
         break;
@@ -91,7 +95,8 @@ export class InfiniteModelAccessor<M, Arg = any, RD = any, E = unknown> extends 
       dataArray[pageIndex] = previousData;
     }
 
-    return dataArray.slice(0, pageIndex);
+    result[0] = dataArray.slice(0, pageIndex);
+    return result;
   };
 
   private fetch = async ({
@@ -101,20 +106,25 @@ export class InfiniteModelAccessor<M, Arg = any, RD = any, E = unknown> extends 
     pageIndex?: number;
     pageSize: number;
   }) => {
-    if (this.status.isFetching) return;
+    const currentTime = getCurrentTime();
+    if (!this.canFetch({ currentTime })) return;
+
+    this.updateStartAt(currentTime);
+
     this.updateStatus({ isFetching: true });
     const arg = this.arg;
-    try {
-      const data = await this.fetchPages({ pageSize, pageIndex });
+    const [data, error] = await this.fetchPages({ pageSize, pageIndex });
+
+    if (this.isExpiredFetching(currentTime)) return;
+
+    if (error) {
+      this.updateStatus({ error, isFetching: false });
+      this.action.onError?.({ error, arg });
+    } else {
       this.flush(data, { start: pageIndex });
       this.updateData(data);
-      this.updateStatus({ error: null });
+      this.updateStatus({ error: null, isFetching: false });
       this.action.onSuccess?.({ data, arg });
-    } catch (error) {
-      this.updateStatus({ error: error as E });
-      this.action.onError?.({ error, arg });
-    } finally {
-      this.updateStatus({ isFetching: false });
     }
   };
 
@@ -123,6 +133,7 @@ export class InfiniteModelAccessor<M, Arg = any, RD = any, E = unknown> extends 
    * and notify the listeners which are listening this accessor.
    */
   private flush = (data: RD[], { start }: { start: number }) => {
+    const pageSize = data.length;
     data.forEach((data, pageIndex) => {
       if (pageIndex < start) return;
       this.updateModel(draft => {
@@ -130,7 +141,7 @@ export class InfiniteModelAccessor<M, Arg = any, RD = any, E = unknown> extends 
           data,
           arg: this.arg,
           pageIndex,
-          pageSize: this.pageSize(),
+          pageSize,
         });
       });
     });
