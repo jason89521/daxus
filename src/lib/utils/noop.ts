@@ -1,3 +1,3 @@
-export function noop(...arg: any[]): void {
+export function noop(...arg: any[]): any {
   //
 }

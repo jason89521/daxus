@@ -10,6 +10,8 @@ export class ModelAccessor<M, E> {
   protected statusListeners: ((prev: Status, current: Status) => void)[] = [];
   protected dataListeners: (() => void)[] = [];
   protected retryCount = 5;
+  private dedupeInterval = 2000;
+  private startAt = 0;
   private modelSubscribe: ModelSubscribe;
   private revalidateOnFocusCount = 0;
   private revalidateOnReconnectCount = 0;
@@ -93,7 +95,29 @@ export class ModelAccessor<M, E> {
     this.retryCount = n;
   };
 
+  setDedupeInterval(interval: number) {
+    this.dedupeInterval = interval;
+  }
+
   getStatus = () => {
     return this.status;
   };
+
+  protected canFetch({ currentTime }: { currentTime: number }) {
+    if (!this.shouldDedupe(currentTime)) return true;
+    if (!this.status.isFetching) return true;
+    return false;
+  }
+
+  protected shouldDedupe(time: number) {
+    return time - this.startAt < this.dedupeInterval;
+  }
+
+  protected updateStartAt(time: number) {
+    this.startAt = time;
+  }
+
+  protected isExpiredFetching(time: number) {
+    return time !== this.startAt;
+  }
 }

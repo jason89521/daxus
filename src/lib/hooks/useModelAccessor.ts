@@ -17,6 +17,7 @@ export function useModelAccessor<M, D, E = unknown>(
     revalidateOnReconnect = true,
     retryCount = 3,
     revalidateIfStale = true,
+    dedupeInterval = 2000,
     checkHasStaleDataFn = (value: unknown) => !isUndefined(value),
   } = options;
   const stateDeps = useRef<StateDeps>({}).current;
@@ -70,6 +71,10 @@ export function useModelAccessor<M, D, E = unknown>(
   useEffect(() => {
     accessor.setRetryCount(retryCount);
   }, [accessor, retryCount]);
+
+  useEffect(() => {
+    accessor.setDedupeInterval(dedupeInterval);
+  }, [accessor, dedupeInterval]);
 
   useEffect(() => {
     if (revalidateOnFocus) {

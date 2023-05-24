@@ -7,3 +7,8 @@ export interface Post {
 }
 
 export type Func = (...args: any[]) => any;
+
+export interface PostModelControl {
+  sleepTime?: number;
+  titlePrefix?: string;
+}
