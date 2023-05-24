@@ -44,13 +44,8 @@ export class NormalModelAccessor<Model, Arg = any, Data = any, E = unknown> exte
 
   revalidate = async () => {
     const currentTime = getCurrentTime();
-    const shouldFetch = (() => {
-      if (!this.shouldDedupe(currentTime)) return true;
-      if (!this.status.isFetching) return true;
-      return false;
-    })();
 
-    if (!shouldFetch) return;
+    if (!this.canFetch({ currentTime })) return;
 
     this.updateStartAt(currentTime);
 
@@ -58,7 +53,7 @@ export class NormalModelAccessor<Model, Arg = any, Data = any, E = unknown> exte
     const arg = this.arg;
     const [data, error] = await this.internalFetch(this.retryCount);
 
-    if (this.isExpiredFetch(currentTime)) return;
+    if (this.isExpiredFetching(currentTime)) return;
 
     if (data) {
       this.updateModel(draft => {

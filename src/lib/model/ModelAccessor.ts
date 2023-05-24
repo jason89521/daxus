@@ -103,6 +103,12 @@ export class ModelAccessor<M, E> {
     return this.status;
   };
 
+  protected canFetch({ currentTime }: { currentTime: number }) {
+    if (!this.shouldDedupe(currentTime)) return true;
+    if (!this.status.isFetching) return true;
+    return false;
+  }
+
   protected shouldDedupe(time: number) {
     return time - this.startAt < this.dedupeInterval;
   }
@@ -111,7 +117,7 @@ export class ModelAccessor<M, E> {
     this.startAt = time;
   }
 
-  protected isExpiredFetch(time: number) {
+  protected isExpiredFetching(time: number) {
     return time !== this.startAt;
   }
 }
