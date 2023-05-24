@@ -12,16 +12,16 @@ export function createPost(id: number, layout: PostLayout = 'classic'): Post {
 export function createTestItemModel({
   onSuccess,
   onError,
-  fetchData = async (arg: { id: number; prefix?: string }) => {
-    return `${arg.prefix ?? 'foo'}/${arg.id}`;
+  fetchData = async (arg: number) => {
+    return `${arg}`;
   },
 }: { onSuccess?: Func; onError?: Func; fetchData?: Func } = {}) {
   type Model = Record<string, string | undefined>;
   const testItemModel = createModel<Model>({});
-  const getTestItem = testItemModel.defineAction<any, any>('normal', {
+  const getTestItem = testItemModel.defineAction<number, any>('normal', {
     fetchData,
     syncModel: (draft, { arg, data }) => {
-      draft[arg.id] = data;
+      draft[arg] = data;
     },
     onSuccess,
     onError,

@@ -18,7 +18,7 @@ describe('useFetch dedupeInterval', () => {
       },
     });
     function Page() {
-      const { data } = useFetch(getTestItem({ id: 0 }), model => model[0], {
+      const { data } = useFetch(getTestItem(0), model => model[0], {
         dedupeInterval: 10,
       });
 
@@ -27,7 +27,7 @@ describe('useFetch dedupeInterval', () => {
 
     render(<Page />);
     await act(() => sleep(10));
-    await act(() => getTestItem({ id: 0 }).revalidate());
+    await act(() => getTestItem(0).revalidate());
 
     await screen.findByText('data');
     expect(testItemModel.getModel()[0]).toBe('data');

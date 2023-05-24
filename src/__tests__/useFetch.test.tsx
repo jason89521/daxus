@@ -19,30 +19,30 @@ describe('useFetch', () => {
   test('should be able to update the cache', async () => {
     function Page() {
       const [id, setId] = useState(0);
-      const { data } = useFetch(getTestItem({ id }), model => model[id]);
+      const { data } = useFetch(getTestItem(id), model => model[id]);
 
       return <div onClick={() => setId(1)}>{data}</div>;
     }
 
     render(<Page />);
-    await screen.findByText('foo/0');
+    await screen.findByText('0');
     expect(testItemModel.getModel()[1]).toBeUndefined();
-    fireEvent.click(screen.getByText('foo/0'));
+    fireEvent.click(screen.getByText('0'));
     await act(() => sleep(10));
 
-    expect(testItemModel.getModel()[0]).toBe('foo/0');
-    expect(testItemModel.getModel()[1]).toBe('foo/1');
+    expect(testItemModel.getModel()[0]).toBe('0');
+    expect(testItemModel.getModel()[1]).toBe('1');
   });
 
   test('should correctly mutate the cached value', async () => {
     function Page() {
-      const { data } = useFetch(getTestItem({ id: 0 }), model => model[0]);
+      const { data } = useFetch(getTestItem(0), model => model[0]);
 
       return <div>{data}</div>;
     }
 
     render(<Page />);
-    await screen.findByText('foo/0');
+    await screen.findByText('0');
     act(() => testItemModel.mutate(model => (model[0] = 'mutated value')));
     await screen.findByText('mutated value');
   });
@@ -57,22 +57,22 @@ describe('useFetch', () => {
     const { getTestItem } = createTestItemModel({ onSuccess: onSuccessMock });
     function Page() {
       const [id, setId] = useState(0);
-      const { data } = useFetch(getTestItem({ id }), model => model[0]);
+      const { data } = useFetch(getTestItem(id), model => model[0]);
 
       return <div onClick={() => setId(1)}>{data}</div>;
     }
 
     render(<Page />);
-    await screen.findByText('foo/0');
+    await screen.findByText('0');
     expect(onSuccessMock).toHaveBeenCalledTimes(1);
-    expect(dataToCheck).toBe('foo/0');
-    expect(argToCheck).toEqual({ id: 0 });
+    expect(dataToCheck).toBe('0');
+    expect(argToCheck).toEqual(0);
 
-    fireEvent.click(screen.getByText('foo/0'));
+    fireEvent.click(screen.getByText('0'));
     await act(() => sleep(10));
     expect(onSuccessMock).toHaveBeenCalledTimes(2);
-    expect(dataToCheck).toBe('foo/1');
-    expect(argToCheck).toEqual({ id: 1 });
+    expect(dataToCheck).toBe('1');
+    expect(argToCheck).toEqual(1);
   });
 
   test('should trigger onError', async () => {
@@ -84,13 +84,13 @@ describe('useFetch', () => {
     });
     const { getTestItem } = createTestItemModel({
       onError: onErrorMock,
-      fetchData: ({ id }) => {
+      fetchData: id => {
         throw new Error(`error/${id}`);
       },
     });
     function Page() {
       const [id, setId] = useState(0);
-      const { data } = useFetch(getTestItem({ id }), model => model[0]);
+      const { data } = useFetch(getTestItem(id), model => model[0]);
 
       return <div onClick={() => setId(1)}>data: {data}</div>;
     }
@@ -100,12 +100,12 @@ describe('useFetch', () => {
     expect(onErrorMock).toHaveBeenCalledTimes(1);
     expect(errorToCheck).toBeInstanceOf(Error);
     expect(errorToCheck.message).toBe('error/0');
-    expect(argToCheck).toEqual({ id: 0 });
+    expect(argToCheck).toEqual(0);
 
     fireEvent.click(screen.getByText('data:'));
     await act(() => sleep(10));
     expect(onErrorMock).toHaveBeenCalledTimes(2);
     expect(errorToCheck.message).toBe('error/1');
-    expect(argToCheck).toEqual({ id: 1 });
+    expect(argToCheck).toEqual(1);
   });
 });
