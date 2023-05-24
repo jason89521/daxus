@@ -1,10 +1,21 @@
 import { useCallback } from 'react';
 import type { InfiniteModelAccessor } from '../model';
 import { useModelAccessor } from './useModelAccessor';
-import type { FetchOptions } from './types';
+import type { FetchOptions, InfiniteHookReturn } from './types';
+import { isNull } from '../utils/isNull';
 
 export function useInfiniteFetch<M, Arg, RD, D = any, E = unknown>(
   accessor: InfiniteModelAccessor<M, Arg, RD, E>,
+  getSnapshot: (model: M) => D,
+  options?: FetchOptions<D>
+): InfiniteHookReturn<D, E>;
+export function useInfiniteFetch<M, Arg, RD, D = any, E = unknown>(
+  accessor: InfiniteModelAccessor<M, Arg, RD, E> | null,
+  getSnapshot: (model: M) => D,
+  options?: FetchOptions<D>
+): InfiniteHookReturn<D | undefined, E>;
+export function useInfiniteFetch<M, Arg, RD, D = any, E = unknown>(
+  accessor: InfiniteModelAccessor<M, Arg, RD, E> | null,
   getSnapshot: (model: M) => D,
   options: FetchOptions<D> = {}
 ) {
@@ -12,6 +23,7 @@ export function useInfiniteFetch<M, Arg, RD, D = any, E = unknown>(
   const { isFetching, error } = status;
 
   const fetchNextPage = useCallback(() => {
+    if (isNull(accessor)) return;
     accessor.fetchNext();
   }, [accessor]);
 
