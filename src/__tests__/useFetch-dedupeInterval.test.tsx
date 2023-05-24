@@ -3,8 +3,7 @@ import { act, render, screen } from '@testing-library/react';
 import { createTestItemModel, sleep } from './utils';
 
 describe('useFetch dedupeInterval', () => {
-  //
-  test.only('', async () => {
+  test('should sync model with the data from the latest request', async () => {
     let shouldSleep = true;
     const { testItemModel, getTestItem } = createTestItemModel({
       fetchData: async () => {
