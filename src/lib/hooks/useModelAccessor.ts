@@ -1,14 +1,28 @@
 import { useCallback, useEffect, useMemo, useRef, useSyncExternalStore } from 'react';
 import type { InfiniteModelAccessor, NormalModelAccessor, Status } from '../model';
-import { isUndefined, objectKeys, stableHash } from '../utils';
+import { isUndefined, noop, objectKeys, stableHash } from '../utils';
 import type { FetchOptions } from './types';
 import { useUpdatedRef } from './useUpdatedRef';
+import { isNull } from '../utils/isNull';
 
 type StateDeps = Partial<Record<keyof Status, boolean>>;
 type Accessor<M, E> = NormalModelAccessor<M, any, any, E> | InfiniteModelAccessor<M, any, any, E>;
+type ReturnValue<D, E> = { stateDeps: StateDeps; status: Status<E>; data: D };
+
+const defaultStatus: Status = { isFetching: false, error: null };
 
 export function useModelAccessor<M, D, E = unknown>(
   accessor: Accessor<M, E>,
+  getSnapshot: (model: M) => D,
+  options?: FetchOptions<D>
+): ReturnValue<D, E>;
+export function useModelAccessor<M, D, E = unknown>(
+  accessor: Accessor<M, E> | null,
+  getSnapshot: (model: M) => D,
+  options?: FetchOptions<D>
+): ReturnValue<D | undefined, E>;
+export function useModelAccessor<M, D, E = unknown>(
+  accessor: Accessor<M, E> | null,
   getSnapshot: (model: M) => D,
   options: FetchOptions<D> = {}
 ) {
@@ -22,9 +36,14 @@ export function useModelAccessor<M, D, E = unknown>(
   } = options;
   const stateDeps = useRef<StateDeps>({}).current;
   const getSnapshotRef = useUpdatedRef(getSnapshot);
+  const getStatus = useCallback(() => {
+    if (isNull(accessor)) return defaultStatus;
+    return accessor.getStatus();
+  }, [accessor]);
   const status = useSyncExternalStore(
     useCallback(
       listener => {
+        if (isNull(accessor)) return noop;
         return accessor.subscribeStatus((prev, current) => {
           for (const key of objectKeys(stateDeps)) {
             if (prev[key] !== current[key]) {
@@ -36,11 +55,16 @@ export function useModelAccessor<M, D, E = unknown>(
       },
       [accessor, stateDeps]
     ),
-    accessor.getStatus,
-    accessor.getStatus
+
+    getStatus,
+    getStatus
   );
 
   const [subscribeData, getData] = useMemo(() => {
+    if (isNull(accessor)) {
+      return [() => noop, noop];
+    }
+
     let memoizedSnapshot = getSnapshotRef.current(accessor.getModel());
 
     return [
@@ -69,30 +93,35 @@ export function useModelAccessor<M, D, E = unknown>(
   })();
 
   useEffect(() => {
+    if (isNull(accessor)) return;
     accessor.setRetryCount(retryCount);
   }, [accessor, retryCount]);
 
   useEffect(() => {
+    if (isNull(accessor)) return;
     accessor.setDedupeInterval(dedupeInterval);
   }, [accessor, dedupeInterval]);
 
   useEffect(() => {
+    if (isNull(accessor)) return;
     if (revalidateOnFocus) {
       return accessor.registerRevalidateOnFocus();
     }
   }, [accessor, revalidateOnFocus]);
 
   useEffect(() => {
+    if (isNull(accessor)) return;
     if (revalidateOnReconnect) {
       return accessor.registerRevalidateOnReconnect();
     }
   }, [accessor, revalidateOnReconnect]);
 
   useEffect(() => {
+    if (isNull(accessor)) return;
     if (shouldRevalidate) {
       accessor.revalidate();
     }
   }, [accessor, shouldRevalidate]);
 
-  return { stateDeps, status, data, hasStaleData };
+  return { stateDeps, status, data };
 }
