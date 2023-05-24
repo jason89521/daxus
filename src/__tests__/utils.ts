@@ -30,7 +30,7 @@ export function createTestItemModel({
   return { testItemModel, getTestItem };
 }
 
-export const postAdapter = createPaginationAdapter({});
+export const postAdapter = createPaginationAdapter<Post>({});
 
 export const postModel = createModel(postAdapter.initialModel);
 

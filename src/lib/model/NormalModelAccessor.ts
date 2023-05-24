@@ -1,3 +1,4 @@
+import { getCurrentTime } from '../utils';
 import type { ModelSubscribe } from './ModelAccessor';
 import { ModelAccessor } from './ModelAccessor';
 import type { NormalAction } from './types';
@@ -42,10 +43,23 @@ export class NormalModelAccessor<Model, Arg = any, Data = any, E = unknown> exte
   };
 
   revalidate = async () => {
-    if (this.status.isFetching) return;
+    const currentTime = getCurrentTime();
+    const shouldFetch = (() => {
+      if (!this.shouldDedupe(currentTime)) return true;
+      if (!this.status.isFetching) return true;
+      return false;
+    })();
+
+    if (!shouldFetch) return;
+
+    this.updateStartAt(currentTime);
+
     this.updateStatus({ isFetching: true });
     const arg = this.arg;
     const [data, error] = await this.internalFetch(this.retryCount);
+
+    if (this.isExpiredFetch(currentTime)) return;
+
     if (data) {
       this.updateModel(draft => {
         this.action.syncModel(draft, { data, arg });
