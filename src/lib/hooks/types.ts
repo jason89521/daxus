@@ -4,6 +4,7 @@ export interface FetchOptions<S = any> {
   revalidateIfStale?: boolean;
   checkHasStaleDataFn?: (snapshot: S) => boolean;
   retryCount?: number;
+  retryInterval?: number;
   dedupeInterval?: number;
 }
 

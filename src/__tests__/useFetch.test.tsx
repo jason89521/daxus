@@ -90,20 +90,23 @@ describe('useFetch', () => {
     });
     function Page() {
       const [id, setId] = useState(0);
-      const { data } = useFetch(getTestItem(id), model => model[0]);
+      const { data } = useFetch(getTestItem(id), model => model[0], {
+        retryInterval: 10,
+      });
 
       return <div onClick={() => setId(1)}>data: {data}</div>;
     }
 
     render(<Page />);
     await screen.findByText('data:');
+    await act(() => sleep(35));
     expect(onErrorMock).toHaveBeenCalledTimes(1);
     expect(errorToCheck).toBeInstanceOf(Error);
     expect(errorToCheck.message).toBe('error/0');
     expect(argToCheck).toEqual(0);
 
     fireEvent.click(screen.getByText('data:'));
-    await act(() => sleep(10));
+    await act(() => sleep(35));
     expect(onErrorMock).toHaveBeenCalledTimes(2);
     expect(errorToCheck.message).toBe('error/1');
     expect(argToCheck).toEqual(1);

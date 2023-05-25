@@ -5,11 +5,18 @@ export type Status<E = unknown> = {
 
 export type ModelSubscribe = (listener: () => void) => () => void;
 
+type RetryTimeoutMeta = {
+  timeoutId: number;
+  reject: () => void;
+};
+
 export class ModelAccessor<M, E> {
   protected status: Status<E> = { isFetching: false, error: null };
   protected statusListeners: ((prev: Status, current: Status) => void)[] = [];
   protected dataListeners: (() => void)[] = [];
   protected retryCount = 5;
+  protected retryInterval = 1000;
+  private retryTimeoutMeta: RetryTimeoutMeta | null = null;
   private dedupeInterval = 2000;
   private startAt = 0;
   private modelSubscribe: ModelSubscribe;
@@ -99,6 +106,10 @@ export class ModelAccessor<M, E> {
     this.dedupeInterval = interval;
   }
 
+  setRetryInterval(interval: number) {
+    this.retryInterval = interval;
+  }
+
   getStatus = () => {
     return this.status;
   };
@@ -118,6 +129,16 @@ export class ModelAccessor<M, E> {
   }
 
   protected isExpiredFetching(time: number) {
-    return time !== this.startAt;
+    return time < this.startAt;
+  }
+
+  protected setRetryTimeoutMeta(meta: RetryTimeoutMeta) {
+    this.retryTimeoutMeta = meta;
+  }
+
+  abortRetry() {
+    if (!this.retryTimeoutMeta) return;
+    clearTimeout(this.retryTimeoutMeta.timeoutId);
+    this.retryTimeoutMeta.reject();
   }
 }
