@@ -1,5 +1,16 @@
 import type { Draft } from 'immer';
 
+interface BasePayload<Arg, Data> {
+  startAt: number;
+  arg: Arg;
+  data: Data;
+}
+
+interface InfinitePayload<Arg, Data> extends BasePayload<Arg, Data> {
+  previousData: Data | null;
+  pageIndex: number;
+}
+
 interface BaseAction<Arg, D, E> {
   onError?: (info: { error: E; arg: Arg }) => void;
   onSuccess?: (info: { data: D; arg: Arg }) => void;
@@ -8,7 +19,7 @@ interface BaseAction<Arg, D, E> {
 export interface NormalAction<Model, Arg = any, Data = any, E = unknown>
   extends BaseAction<Arg, Data, E> {
   fetchData: (arg: Arg) => Promise<Data>;
-  syncModel: (model: Draft<Model>, payload: { data: Data; arg: Arg }) => void;
+  syncModel: (model: Draft<Model>, payload: BasePayload<Arg, Data>) => void;
 }
 
 export interface InfiniteAction<Model, Arg = any, Data = any, E = unknown>

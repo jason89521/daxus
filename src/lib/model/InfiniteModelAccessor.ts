@@ -51,14 +51,24 @@ export class InfiniteModelAccessor<M, Arg = any, RD = any, E = unknown> extends 
       const data = await this.action.fetchData(arg, { previousData, pageIndex });
       result[0] = data;
     } catch (error) {
-      if (remainRetryCount > 0) {
-        return await this.fetchPage({
-          previousData,
-          pageIndex,
-          remainRetryCount: remainRetryCount - 1,
-        });
+      if (remainRetryCount <= 0) {
+        result[1] = error as E;
+        return result;
       }
-      result[1] = error as E;
+
+      const retryResult = await new Promise<[RD | null, E | null]>((resolve, reject) => {
+        const timeoutId = window.setTimeout(async () => {
+          const r = await this.fetchPage({
+            previousData,
+            pageIndex,
+            remainRetryCount: remainRetryCount - 1,
+          });
+          resolve(r);
+        }, this.retryInterval);
+        this.setRetryTimeoutMeta({ timeoutId, reject });
+      });
+
+      return retryResult;
     }
 
     return result;
@@ -109,6 +119,7 @@ export class InfiniteModelAccessor<M, Arg = any, RD = any, E = unknown> extends 
     const currentTime = getCurrentTime();
     if (!this.canFetch({ currentTime })) return;
 
+    this.abortRetry();
     this.updateStartAt(currentTime);
 
     this.updateStatus({ isFetching: true });

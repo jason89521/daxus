@@ -5,3 +5,4 @@ export * from './isNumber';
 export * from './stableHash';
 export * from './objectKeys';
 export * from './getCurrentTime';
+export * from './waitFor';
