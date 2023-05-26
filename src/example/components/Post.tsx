@@ -2,10 +2,11 @@ import { usePost } from '../hooks';
 
 interface Props {
   id: number;
+  revalidateOnFocus?: boolean;
 }
 
-export function Post({ id }: Props) {
-  const { post } = usePost({ id });
+export function Post({ id, revalidateOnFocus }: Props) {
+  const { post } = usePost({ id, revalidateOnFocus });
 
   if (!post) return <div>loading</div>;
 

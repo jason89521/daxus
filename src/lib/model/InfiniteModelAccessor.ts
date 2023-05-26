@@ -64,7 +64,7 @@ export class InfiniteModelAccessor<M, Arg = any, RD = any, E = unknown> extends 
             remainRetryCount: remainRetryCount - 1,
           });
           resolve(r);
-        }, this.retryInterval);
+        }, this.getRetryInterval());
         this.setRetryTimeoutMeta({ timeoutId, reject });
       });
 
@@ -92,7 +92,7 @@ export class InfiniteModelAccessor<M, Arg = any, RD = any, E = unknown> extends 
       const [data, error] = await this.fetchPage({
         previousData,
         pageIndex,
-        remainRetryCount: this.retryCount,
+        remainRetryCount: this.getRetryCount(),
       });
       if (error) {
         result[1] = error;
@@ -171,13 +171,5 @@ export class InfiniteModelAccessor<M, Arg = any, RD = any, E = unknown> extends 
     const pageIndex = this.pageSize();
     const pageSize = pageIndex + 1;
     this.fetch({ pageSize, pageIndex });
-  };
-
-  registerRevalidateOnFocus = () => {
-    return super.registerRevalidateOnFocus(this.revalidate);
-  };
-
-  registerRevalidateOnReconnect = () => {
-    return super.registerRevalidateOnReconnect(this.revalidate);
   };
 }

@@ -51,7 +51,7 @@ export class NormalModelAccessor<Model, Arg = any, Data = any, E = unknown> exte
         const timeoutId = window.setTimeout(async () => {
           const r = await this.internalFetch(remainRetryCount - 1);
           resolve(r);
-        }, this.retryInterval);
+        }, this.getRetryInterval());
 
         this.setRetryTimeoutMeta({ timeoutId, reject });
       });
@@ -71,7 +71,7 @@ export class NormalModelAccessor<Model, Arg = any, Data = any, E = unknown> exte
 
     this.updateStatus({ isFetching: true });
     const arg = this.arg;
-    const [data, error, startAt] = await this.internalFetch(this.retryCount);
+    const [data, error, startAt] = await this.internalFetch(this.getRetryCount());
 
     if (this.isExpiredFetching(startAt)) return;
     this.updateStartAt(startAt);
@@ -88,21 +88,5 @@ export class NormalModelAccessor<Model, Arg = any, Data = any, E = unknown> exte
     }
     this.notifyDataListeners();
     this.updateStatus({ isFetching: false });
-  };
-
-  /**
-   * @internal
-   * @returns
-   */
-  registerRevalidateOnFocus = () => {
-    return super.registerRevalidateOnFocus(this.revalidate);
-  };
-
-  /**
-   * @internal
-   * @returns
-   */
-  registerRevalidateOnReconnect = () => {
-    return super.registerRevalidateOnReconnect(this.revalidate);
   };
 }

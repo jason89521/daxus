@@ -1,3 +1,14 @@
+import type { FetchOptions } from '../hooks/types';
+import type { MutableRefObject } from 'react';
+
+const defaultOptions = {
+  revalidateOnFocus: true,
+  revalidateOnReconnect: true,
+  retryCount: 3,
+  retryInterval: 1000,
+  dedupeInterval: 2000,
+} satisfies FetchOptions;
+
 export type Status<E = unknown> = {
   isFetching: boolean;
   error: E | null;
@@ -14,14 +25,15 @@ export class ModelAccessor<M, E> {
   protected status: Status<E> = { isFetching: false, error: null };
   protected statusListeners: ((prev: Status, current: Status) => void)[] = [];
   protected dataListeners: (() => void)[] = [];
-  protected retryCount = 5;
-  protected retryInterval = 1000;
   private retryTimeoutMeta: RetryTimeoutMeta | null = null;
-  private dedupeInterval = 2000;
   private startAt = 0;
   private modelSubscribe: ModelSubscribe;
   private revalidateOnFocusCount = 0;
   private revalidateOnReconnectCount = 0;
+  private optionsRefSet = new Set<MutableRefObject<FetchOptions>>();
+  private removeOnFocusListener: (() => void) | null = null;
+  private removeOnReconnectListener: (() => void) | null = null;
+  revalidate!: () => void;
 
   getModel: () => M;
 
@@ -44,31 +56,78 @@ export class ModelAccessor<M, E> {
     this.dataListeners.forEach(l => l());
   };
 
-  registerRevalidateOnFocus(revalidate: () => void) {
-    this.revalidateOnFocusCount += 1;
-    if (this.revalidateOnFocusCount === 1) {
-      window.addEventListener('focus', revalidate);
-    }
-    return () => {
-      this.revalidateOnFocusCount -= 1;
-      if (this.revalidateOnFocusCount === 0) {
-        window.removeEventListener('focus', revalidate);
-      }
-    };
-  }
+  protected getOptions = () => {
+    const { value } = this.optionsRefSet.values().next() as IteratorReturnResult<
+      MutableRefObject<FetchOptions> | undefined
+    >;
+    if (!value) return defaultOptions;
 
-  registerRevalidateOnReconnect(revalidate: () => void) {
-    this.revalidateOnReconnectCount += 1;
-    if (this.revalidateOnReconnectCount === 1) {
-      window.addEventListener('online', revalidate);
-    }
+    return { ...defaultOptions, ...value.current };
+  };
+
+  private getFirstOptionsRef = () => {
+    const { value } = this.optionsRefSet.values().next() as IteratorReturnResult<
+      MutableRefObject<FetchOptions> | undefined
+    >;
+    return value;
+  };
+
+  private registerOnFocus = () => {
+    window.addEventListener('focus', this.revalidate);
+
     return () => {
-      this.revalidateOnReconnectCount -= 1;
-      if (this.revalidateOnReconnectCount === 0) {
-        window.removeEventListener('online', revalidate);
+      window.removeEventListener('focus', this.revalidate);
+    };
+  };
+
+  private registerOnReconnect = () => {
+    window.addEventListener('online', this.revalidate);
+
+    return () => {
+      window.removeEventListener('online', this.revalidate);
+    };
+  };
+
+  mount = ({ optionsRef }: { optionsRef: MutableRefObject<FetchOptions> }) => {
+    this.optionsRefSet.add(optionsRef);
+
+    if (this.getFirstOptionsRef() === optionsRef) {
+      if (optionsRef.current.revalidateOnFocus ?? defaultOptions.revalidateOnFocus) {
+        this.removeOnFocusListener = this.registerOnFocus();
+      }
+      if (optionsRef.current.revalidateOnReconnect ?? defaultOptions.revalidateOnReconnect) {
+        this.removeOnReconnectListener = this.registerOnReconnect();
+      }
+    }
+
+    return () => {
+      // Remove the optionRef and remove the listeners.
+      // If it is the first optionsRef, remove the listeners (if exist).
+      const isUnmountFirstOptionsRef = this.getFirstOptionsRef() === optionsRef;
+      if (isUnmountFirstOptionsRef) {
+        this.removeOnFocusListener?.();
+        this.removeOnReconnectListener?.();
+      }
+      this.optionsRefSet.delete(optionsRef);
+
+      // If it is not the first optionsRef, do nothing.
+      if (!isUnmountFirstOptionsRef) return;
+      // Register next option if there is a mounted optionsRef (if exist).
+      const firstOptionRef = this.getFirstOptionsRef();
+      if (!firstOptionRef) {
+        this.removeOnFocusListener = null;
+        this.removeOnReconnectListener = null;
+        return;
+      }
+
+      if (firstOptionRef.current.revalidateOnFocus ?? defaultOptions.revalidateOnFocus) {
+        this.removeOnFocusListener = this.registerOnFocus();
+      }
+      if (firstOptionRef.current.revalidateOnReconnect ?? defaultOptions.revalidateOnReconnect) {
+        this.removeOnReconnectListener = this.registerOnReconnect();
       }
     };
-  }
+  };
 
   /**
    * @internal
@@ -98,17 +157,17 @@ export class ModelAccessor<M, E> {
     };
   };
 
-  setRetryCount = (n: number) => {
-    this.retryCount = n;
+  protected getRetryCount = () => {
+    return this.getOptions().retryCount;
   };
 
-  setDedupeInterval(interval: number) {
-    this.dedupeInterval = interval;
-  }
+  protected getDedupeInterval = () => {
+    return this.getOptions().dedupeInterval;
+  };
 
-  setRetryInterval(interval: number) {
-    this.retryInterval = interval;
-  }
+  protected getRetryInterval = () => {
+    return this.getOptions().retryInterval;
+  };
 
   getStatus = () => {
     return this.status;
@@ -121,7 +180,7 @@ export class ModelAccessor<M, E> {
   }
 
   protected shouldDedupe(time: number) {
-    return time - this.startAt < this.dedupeInterval;
+    return time - this.startAt < this.getDedupeInterval();
   }
 
   protected updateStartAt(time: number) {
