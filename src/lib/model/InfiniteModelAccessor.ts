@@ -27,6 +27,30 @@ export class InfiniteModelAccessor<M, Arg = any, RD = any, E = unknown> extends 
     this.updateModel = updateModel;
   }
 
+  /**
+   * @internal
+   */
+  revalidate = async () => {
+    const pageSize = this.pageSize() || 1;
+    this.fetch({ pageSize, pageIndex: 0 });
+  };
+
+  /**
+   * @internal
+   * @returns
+   */
+  fetchNext = async () => {
+    if (this.isFetchingNextPage) return;
+    const pageIndex = this.pageSize();
+    const pageSize = pageIndex + 1;
+    try {
+      this.isFetchingNextPage = true;
+      await this.fetch({ pageSize, pageIndex });
+    } finally {
+      this.isFetchingNextPage = false;
+    }
+  };
+
   private updateData = (data: RD[]) => {
     this.data = data;
     this.notifyDataListeners();
@@ -161,24 +185,7 @@ export class InfiniteModelAccessor<M, Arg = any, RD = any, E = unknown> extends 
     });
   };
 
-  pageSize = () => {
+  private pageSize = () => {
     return this.data.length;
-  };
-
-  revalidate = async () => {
-    const pageSize = this.pageSize() || 1;
-    this.fetch({ pageSize, pageIndex: 0 });
-  };
-
-  fetchNext = async () => {
-    if (this.isFetchingNextPage) return;
-    const pageIndex = this.pageSize();
-    const pageSize = pageIndex + 1;
-    try {
-      this.isFetchingNextPage = true;
-      await this.fetch({ pageSize, pageIndex });
-    } finally {
-      this.isFetchingNextPage = false;
-    }
   };
 }

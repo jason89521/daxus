@@ -28,13 +28,17 @@ export class ModelAccessor<M, E> {
   private retryTimeoutMeta: RetryTimeoutMeta | null = null;
   private startAt = 0;
   private modelSubscribe: ModelSubscribe;
-  private revalidateOnFocusCount = 0;
-  private revalidateOnReconnectCount = 0;
   private optionsRefSet = new Set<MutableRefObject<FetchOptions>>();
   private removeOnFocusListener: (() => void) | null = null;
   private removeOnReconnectListener: (() => void) | null = null;
+  /**
+   * @internal
+   */
   revalidate!: () => void;
 
+  /**
+   * @internal
+   */
   getModel: () => M;
 
   constructor(getModel: () => M, modelSubscribe: ModelSubscribe) {
@@ -42,52 +46,21 @@ export class ModelAccessor<M, E> {
     this.modelSubscribe = modelSubscribe;
   }
 
-  protected updateStatus = (partialStatus: Partial<Status<E>>) => {
-    const newStatus = { ...this.status, ...partialStatus };
-    this.notifyStatusListeners(newStatus);
-    this.status = newStatus;
-  };
+  /**
+   * @internal
+   * @returns
+   */
+  abortRetry() {
+    if (!this.retryTimeoutMeta) return;
+    clearTimeout(this.retryTimeoutMeta.timeoutId);
+    this.retryTimeoutMeta.reject();
+  }
 
-  protected notifyStatusListeners = (newCache: Status) => {
-    this.statusListeners.forEach(l => l(this.status, newCache));
-  };
-
-  protected notifyDataListeners = () => {
-    this.dataListeners.forEach(l => l());
-  };
-
-  protected getOptions = () => {
-    const { value } = this.optionsRefSet.values().next() as IteratorReturnResult<
-      MutableRefObject<FetchOptions> | undefined
-    >;
-    if (!value) return defaultOptions;
-
-    return { ...defaultOptions, ...value.current };
-  };
-
-  private getFirstOptionsRef = () => {
-    const { value } = this.optionsRefSet.values().next() as IteratorReturnResult<
-      MutableRefObject<FetchOptions> | undefined
-    >;
-    return value;
-  };
-
-  private registerOnFocus = () => {
-    window.addEventListener('focus', this.revalidate);
-
-    return () => {
-      window.removeEventListener('focus', this.revalidate);
-    };
-  };
-
-  private registerOnReconnect = () => {
-    window.addEventListener('online', this.revalidate);
-
-    return () => {
-      window.removeEventListener('online', this.revalidate);
-    };
-  };
-
+  /**
+   * @internal
+   * @param param0
+   * @returns
+   */
   mount = ({ optionsRef }: { optionsRef: MutableRefObject<FetchOptions> }) => {
     this.optionsRefSet.add(optionsRef);
 
@@ -157,6 +130,37 @@ export class ModelAccessor<M, E> {
     };
   };
 
+  /**
+   * @internal
+   * @returns
+   */
+  getStatus = () => {
+    return this.status;
+  };
+
+  protected updateStatus = (partialStatus: Partial<Status<E>>) => {
+    const newStatus = { ...this.status, ...partialStatus };
+    this.notifyStatusListeners(newStatus);
+    this.status = newStatus;
+  };
+
+  protected notifyStatusListeners = (newCache: Status) => {
+    this.statusListeners.forEach(l => l(this.status, newCache));
+  };
+
+  protected notifyDataListeners = () => {
+    this.dataListeners.forEach(l => l());
+  };
+
+  protected getOptions = () => {
+    const { value } = this.optionsRefSet.values().next() as IteratorReturnResult<
+      MutableRefObject<FetchOptions> | undefined
+    >;
+    if (!value) return defaultOptions;
+
+    return { ...defaultOptions, ...value.current };
+  };
+
   protected getRetryCount = () => {
     return this.getOptions().retryCount;
   };
@@ -167,10 +171,6 @@ export class ModelAccessor<M, E> {
 
   protected getRetryInterval = () => {
     return this.getOptions().retryInterval;
-  };
-
-  getStatus = () => {
-    return this.status;
   };
 
   protected canFetch({ currentTime }: { currentTime: number }) {
@@ -195,9 +195,26 @@ export class ModelAccessor<M, E> {
     this.retryTimeoutMeta = meta;
   }
 
-  abortRetry() {
-    if (!this.retryTimeoutMeta) return;
-    clearTimeout(this.retryTimeoutMeta.timeoutId);
-    this.retryTimeoutMeta.reject();
-  }
+  private getFirstOptionsRef = () => {
+    const { value } = this.optionsRefSet.values().next() as IteratorReturnResult<
+      MutableRefObject<FetchOptions> | undefined
+    >;
+    return value;
+  };
+
+  private registerOnFocus = () => {
+    window.addEventListener('focus', this.revalidate);
+
+    return () => {
+      window.removeEventListener('focus', this.revalidate);
+    };
+  };
+
+  private registerOnReconnect = () => {
+    window.addEventListener('online', this.revalidate);
+
+    return () => {
+      window.removeEventListener('online', this.revalidate);
+    };
+  };
 }
