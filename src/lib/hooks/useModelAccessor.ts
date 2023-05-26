@@ -27,15 +27,11 @@ export function useModelAccessor<M, D, E = unknown>(
   options: FetchOptions<D> = {}
 ) {
   const {
-    revalidateOnFocus = true,
-    revalidateOnReconnect = true,
-    retryCount = 3,
-    retryInterval = 1000,
     revalidateIfStale = true,
-    dedupeInterval = 2000,
     checkHasStaleDataFn = (value: unknown) => !isUndefined(value),
   } = options;
   const stateDeps = useRef<StateDeps>({}).current;
+  const optionsRef = useUpdatedRef(options);
   const getSnapshotRef = useUpdatedRef(getSnapshot);
   const getStatus = useCallback(() => {
     if (isNull(accessor)) return defaultStatus;
@@ -56,7 +52,6 @@ export function useModelAccessor<M, D, E = unknown>(
       },
       [accessor, stateDeps]
     ),
-
     getStatus,
     getStatus
   );
@@ -94,33 +89,8 @@ export function useModelAccessor<M, D, E = unknown>(
   })();
 
   useEffect(() => {
-    if (isNull(accessor)) return;
-    accessor.setRetryCount(retryCount);
-  }, [accessor, retryCount]);
-
-  useEffect(() => {
-    if (isNull(accessor)) return;
-    accessor.setDedupeInterval(dedupeInterval);
-  }, [accessor, dedupeInterval]);
-
-  useEffect(() => {
-    if (isNull(accessor)) return;
-    accessor.setRetryInterval(retryInterval);
-  }, [accessor, retryInterval]);
-
-  useEffect(() => {
-    if (isNull(accessor)) return;
-    if (revalidateOnFocus) {
-      return accessor.registerRevalidateOnFocus();
-    }
-  }, [accessor, revalidateOnFocus]);
-
-  useEffect(() => {
-    if (isNull(accessor)) return;
-    if (revalidateOnReconnect) {
-      return accessor.registerRevalidateOnReconnect();
-    }
-  }, [accessor, revalidateOnReconnect]);
+    return accessor?.mount({ optionsRef });
+  }, [accessor, optionsRef]);
 
   useEffect(() => {
     if (isNull(accessor)) return;

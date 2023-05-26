@@ -26,6 +26,7 @@ function UpdateButton({ id }: { id: number }) {
 
 function App() {
   const [postId, setPostId] = useState(1);
+  const [show, setShow] = useState(true);
 
   const changePostId = () => {
     if (postId === 3) setPostId(1);
@@ -35,11 +36,12 @@ function App() {
   return (
     <div>
       <button onClick={changePostId}>Change post id</button>
-      <UpdateButton id={postId} />
+      {/* <UpdateButton id={postId} /> */}
       <button onClick={() => getPostById(postId).abortRetry()}>Abort</button>
+      <button onClick={() => setShow(!show)}>hide / show first post</button>
+      {show && <Post revalidateOnFocus={false} id={postId} />}
       <Post id={postId} />
-      <Post id={postId} />
-      <PostList />
+      {/* <PostList /> */}
     </div>
   );
 }
