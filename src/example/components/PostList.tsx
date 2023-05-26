@@ -13,6 +13,7 @@ export function PostList() {
   const loadMore = () => {
     if (data?.noMore) return;
     fetchNextPage();
+    fetchNextPage();
   };
 
   return (
