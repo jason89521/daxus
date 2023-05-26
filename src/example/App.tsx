@@ -41,7 +41,7 @@ function App() {
       <button onClick={() => setShow(!show)}>hide / show first post</button>
       {show && <Post revalidateOnFocus={false} id={postId} />}
       <Post id={postId} />
-      {/* <PostList /> */}
+      <PostList />
     </div>
   );
 }

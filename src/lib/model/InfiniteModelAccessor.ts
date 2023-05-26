@@ -12,6 +12,7 @@ export class InfiniteModelAccessor<M, Arg = any, RD = any, E = unknown> extends 
   private arg: Arg;
   private updateModel: (cb: (draft: Draft<M>) => void) => void;
   private data: RD[] = [];
+  private isFetchingNextPage = false;
 
   constructor(
     arg: Arg,
@@ -117,7 +118,9 @@ export class InfiniteModelAccessor<M, Arg = any, RD = any, E = unknown> extends 
     pageSize: number;
   }) => {
     const currentTime = getCurrentTime();
-    if (!this.canFetch({ currentTime })) return;
+    // If page size is larger than current page size,
+    // then we can determine that this fetch is trying to fetch the next page
+    if (!this.canFetch({ currentTime }) && pageSize <= this.pageSize()) return;
 
     this.abortRetry();
     this.updateStartAt(currentTime);
@@ -168,8 +171,14 @@ export class InfiniteModelAccessor<M, Arg = any, RD = any, E = unknown> extends 
   };
 
   fetchNext = async () => {
+    if (this.isFetchingNextPage) return;
     const pageIndex = this.pageSize();
     const pageSize = pageIndex + 1;
-    this.fetch({ pageSize, pageIndex });
+    try {
+      this.isFetchingNextPage = true;
+      await this.fetch({ pageSize, pageIndex });
+    } finally {
+      this.isFetchingNextPage = false;
+    }
   };
 }

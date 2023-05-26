@@ -41,11 +41,11 @@ export const getPostList = postModel.defineAction<{ layout: PostLayout }, Post[]
     }
   },
   onError: ({ error, arg }) => {
-    console.log(`Error on getPostList with arg: ${arg}`);
+    console.log(`Error on getPostList with arg:`, arg);
     console.log(error);
   },
   onSuccess: ({ data, arg }) => {
-    console.log(`Success on getPostList with arg: ${arg}`);
+    console.log(`Success on getPostList with arg:`, arg);
     console.log(data);
   },
 });
