@@ -31,6 +31,39 @@ export class NormalModelAccessor<Model, Arg = any, Data = any, E = unknown> exte
   }
 
   /**
+   * @internal
+   * @returns
+   */
+  revalidate = async () => {
+    const currentTime = getCurrentTime();
+
+    if (!this.canFetch({ currentTime })) return;
+
+    this.abortRetry();
+    this.updateStartAt(currentTime);
+
+    this.updateStatus({ isFetching: true });
+    const arg = this.arg;
+    const [data, error, startAt] = await this.internalFetch(this.getRetryCount());
+
+    if (this.isExpiredFetching(startAt)) return;
+    this.updateStartAt(startAt);
+
+    if (data) {
+      this.updateModel(draft => {
+        this.action.syncModel(draft, { data, arg, startAt });
+      });
+      this.updateStatus({ error: null });
+      this.action.onSuccess?.({ data, arg });
+    } else {
+      this.updateStatus({ error });
+      this.action.onError?.({ error: error!, arg });
+    }
+    this.notifyDataListeners();
+    this.updateStatus({ isFetching: false });
+  };
+
+  /**
    * Throw an error when the error retry is aborted.
    * @param remainRetryCount
    * @returns
@@ -59,34 +92,5 @@ export class NormalModelAccessor<Model, Arg = any, Data = any, E = unknown> exte
     }
 
     return result;
-  };
-
-  revalidate = async () => {
-    const currentTime = getCurrentTime();
-
-    if (!this.canFetch({ currentTime })) return;
-
-    this.abortRetry();
-    this.updateStartAt(currentTime);
-
-    this.updateStatus({ isFetching: true });
-    const arg = this.arg;
-    const [data, error, startAt] = await this.internalFetch(this.getRetryCount());
-
-    if (this.isExpiredFetching(startAt)) return;
-    this.updateStartAt(startAt);
-
-    if (data) {
-      this.updateModel(draft => {
-        this.action.syncModel(draft, { data, arg, startAt });
-      });
-      this.updateStatus({ error: null });
-      this.action.onSuccess?.({ data, arg });
-    } else {
-      this.updateStatus({ error });
-      this.action.onError?.({ error: error!, arg });
-    }
-    this.notifyDataListeners();
-    this.updateStatus({ isFetching: false });
   };
 }
