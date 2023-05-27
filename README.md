@@ -8,8 +8,8 @@ Developers can use the provided Adapters to handle data normalization for indivi
 
 ## Document
 
-- [Getting Started]('./docs/getting-started.md')
-- [API]('./docs/api.md)
+- [Getting Started]('/docs/getting-started.md')
+- [API]('/docs/api.md)
 
 ## Why Create This Project
 
