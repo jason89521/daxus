@@ -6,6 +6,11 @@ In React Server Model, the core concept is the Model. A Model is a unit used to 
 
 Developers can use the provided Adapters to handle data normalization for individual Models, ensuring consistency among different data within a Model. Additionally, developers have the flexibility to define the shape of a Model to accommodate specific application needs.
 
+## Document
+
+- [Getting Started]('./docs/getting-started.md')
+- [API]('./docs/api.md)
+
 ## Why Create This Project
 
 I use Redux for state management in my work. One of the advantages of Redux is that it centralizes all the states, and we can use actions to update them. For example, when a user creates a comment, we expect the `post.totalCommentCount` to increase.
