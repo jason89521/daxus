@@ -86,7 +86,8 @@ import { useInfiniteFetch } from 'react-server-model';
 
 export function usePostList(layout: PostLayout) {
   const result = useInfiniteFetch(getPostList({ layout }), model => {
-    return postAdapter.readPagination({ layout });
+    const key = JSON.stringify({ layout });
+    return postAdapter.readPagination(model, key);
   });
 
   return result; // { data, error, isFetching, fetchNextPage }
