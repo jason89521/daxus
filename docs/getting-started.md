@@ -59,7 +59,7 @@ export const getPostList = postModel.defineAction<{ layout: PostLayout }, Post[]
 });
 ```
 
-There are two types of actions: `'normal'` and `'infinite'`. When the API follows a pagination format, using the `'infinite'` action is more suitable. In other cases, the `'normal'` action will suffice.
+There are two types of actions: `'normal'` and `'infinite'`. When you need to implement infinite loading, using the `'infinite'` action is more suitable. In other cases, using the `'normal'` action is sufficient.
 
 Next, let's implement `usePost`:
 
