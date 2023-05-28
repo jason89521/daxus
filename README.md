@@ -1,10 +1,6 @@
 # React Server Model
 
-React Server Model is a data management library designed for front-end application development. It provides a consistent and efficient solution for organizing and synchronizing data in front-end applications, making it easier for developers to handle data fetching, management, and synchronization.
-
-In React Server Model, the core concept is the Model. A Model is a unit used to organize and manage data. Developers can create multiple Models based on the requirements of their application, each containing multiple data models such as Post, Comment, and more.
-
-Developers can use the provided Adapters to handle data normalization for individual Models, ensuring consistency among different data within a Model. Additionally, developers have the flexibility to define the shape of a Model to accommodate specific application needs.
+The goal of React Server Model is to provide an API that is as convenient to use as SWR, while also allowing customization of data, enabling users to have more flexibility in modifying their data.
 
 ## Document
 
