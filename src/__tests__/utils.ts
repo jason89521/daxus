@@ -30,7 +30,7 @@ export function createTestItemModel({
   return { testItemModel, getTestItem };
 }
 
-export function createPostModel(control: PostModelControl = {}) {
+export function createPostModel(control: PostModelControl) {
   const postAdapter = createPaginationAdapter<Post>({});
   const postModel = createModel(postAdapter.initialModel);
   const getPostById = postModel.defineAction('normal', {
