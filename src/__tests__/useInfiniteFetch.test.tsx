@@ -5,7 +5,7 @@ import type { PostModelControl } from './types';
 
 describe('useInfiniteFetch', () => {
   test('should be able to update the cache', async () => {
-    const { getPostList, postAdapter } = createPostModel();
+    const { getPostList, postAdapter } = createPostModel({});
     function Page() {
       const { data, fetchNextPage } = useInfiniteFetch(getPostList(), model =>
         postAdapter.readPagination(model, '')
@@ -27,7 +27,7 @@ describe('useInfiniteFetch', () => {
   });
 
   test('should correctly mutate the cached value', async () => {
-    const { getPostList, postAdapter, postModel } = createPostModel();
+    const { getPostList, postAdapter, postModel } = createPostModel({});
     function Page() {
       const { data, fetchNextPage } = useInfiniteFetch(getPostList(), model =>
         postAdapter.readPagination(model, '')
