@@ -35,6 +35,8 @@ export function createPostModel(control: PostModelControl = {}) {
   const postModel = createModel(postAdapter.initialModel);
   const getPostById = postModel.defineAction('normal', {
     fetchData: async (id: number) => {
+      control.fetchDataMock?.();
+
       if (control.sleepTime) {
         await sleep(control.sleepTime);
       }
