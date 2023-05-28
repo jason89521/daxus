@@ -37,6 +37,10 @@ export function createPostModel(control: PostModelControl = {}) {
     fetchData: async (id: number) => {
       control.fetchDataMock?.();
 
+      if (control.fetchDataError) {
+        throw control.fetchDataError;
+      }
+
       if (control.sleepTime) {
         await sleep(control.sleepTime);
       }
@@ -50,11 +54,21 @@ export function createPostModel(control: PostModelControl = {}) {
     syncModel: (model, { data }) => {
       postAdapter.createOne(model, data);
     },
+    onSuccess: info => {
+      control.onSuccessMock?.(info);
+    },
+    onError: info => {
+      control.onErrorMock?.(info);
+    },
   });
 
   const getPostList = postModel.defineAction<void, Post[]>('infinite', {
     async fetchData(_, { pageIndex }) {
       control.fetchDataMock?.();
+
+      if (control.fetchDataError) {
+        throw control.fetchDataError;
+      }
 
       if (control.sleepTime) {
         await sleep(control.sleepTime);
@@ -72,6 +86,12 @@ export function createPostModel(control: PostModelControl = {}) {
       } else {
         postAdapter.appendPagination(model, paginationKey, data);
       }
+    },
+    onSuccess: info => {
+      control.onSuccessMock?.(info);
+    },
+    onError: info => {
+      control.onErrorMock?.(info);
     },
   });
 
