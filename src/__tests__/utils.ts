@@ -97,3 +97,7 @@ export function createPostModel(control: PostModelControl = {}) {
 
   return { postAdapter, postModel, getPostById, getPostList };
 }
+
+export function getPostModelControl(initialControl: PostModelControl) {
+  return initialControl;
+}
