@@ -54,6 +54,8 @@ export function createPostModel(control: PostModelControl = {}) {
 
   const getPostList = postModel.defineAction<void, Post[]>('infinite', {
     async fetchData(_, { pageIndex }) {
+      control.fetchDataMock?.();
+
       if (control.sleepTime) {
         await sleep(control.sleepTime);
       }
