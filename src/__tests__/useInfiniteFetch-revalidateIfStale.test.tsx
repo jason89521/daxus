@@ -1,7 +1,7 @@
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { useInfiniteFetch } from '../lib';
 import type { PostModelControl } from './types';
-import { createPost, createPostModel } from './utils';
+import { createPost, createPostModel, render } from './utils';
 
 describe('useInfiniteFetch revalidateIfStale', async () => {
   test('should revalidate if there is no stale data', async () => {

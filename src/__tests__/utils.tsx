@@ -1,5 +1,8 @@
+import type { ReactNode } from 'react';
+import { StrictMode } from 'react';
 import { createModel, createPaginationAdapter } from '../lib';
 import type { PostLayout, Post, Func, PostModelControl } from './types';
+import { render as _render } from '@testing-library/react';
 
 export function sleep(time: number) {
   return new Promise<void>(resolve => setTimeout(resolve, time));
@@ -100,4 +103,8 @@ export function createPostModel(control: PostModelControl) {
 
 export function getPostModelControl(initialControl: PostModelControl) {
   return initialControl;
+}
+
+export function render(element: ReactNode) {
+  _render(<StrictMode>{element}</StrictMode>);
 }

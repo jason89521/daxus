@@ -4,6 +4,8 @@ import { ModelAccessor } from './ModelAccessor';
 import type { InfiniteAction } from './types';
 import type { Draft } from 'immer';
 
+type Task = 'validate' | 'next' | 'idle';
+
 export class InfiniteModelAccessor<M, Arg = any, RD = any, E = unknown> extends ModelAccessor<
   M,
   E
@@ -12,8 +14,8 @@ export class InfiniteModelAccessor<M, Arg = any, RD = any, E = unknown> extends 
   private arg: Arg;
   private updateModel: (cb: (draft: Draft<M>) => void) => void;
   private data: RD[] = [];
-  private isFetchingNextPage = false;
   private rejectFetching: (() => void) | null = null;
+  private currentTask: Task = 'idle';
 
   constructor(
     arg: Arg,
@@ -33,7 +35,7 @@ export class InfiniteModelAccessor<M, Arg = any, RD = any, E = unknown> extends 
    */
   revalidate = async () => {
     const pageSize = this.pageSize() || 1;
-    this.fetch({ pageSize, pageIndex: 0 });
+    this.fetch({ pageSize, pageIndex: 0, task: 'validate' });
   };
 
   /**
@@ -41,15 +43,9 @@ export class InfiniteModelAccessor<M, Arg = any, RD = any, E = unknown> extends 
    * @returns
    */
   fetchNext = async () => {
-    if (this.isFetchingNextPage) return;
     const pageIndex = this.pageSize();
     const pageSize = pageIndex + 1;
-    try {
-      this.isFetchingNextPage = true;
-      await this.fetch({ pageSize, pageIndex });
-    } finally {
-      this.isFetchingNextPage = false;
-    }
+    this.fetch({ pageSize, pageIndex, task: 'next' });
   };
 
   private updateData = (data: RD[]) => {
@@ -135,15 +131,22 @@ export class InfiniteModelAccessor<M, Arg = any, RD = any, E = unknown> extends 
   private fetch = async ({
     pageIndex = this.pageSize(),
     pageSize,
+    task,
   }: {
     pageIndex?: number;
     pageSize: number;
+    task: Task;
   }) => {
     const currentTime = getCurrentTime();
-    // If page size is larger than current page size,
-    // then we can determine that this fetch is trying to fetch the next page
-    if (!this.canFetch({ currentTime }) && pageSize <= this.pageSize()) return;
+    if (!this.canFetch({ currentTime })) {
+      // If the next task is to fetch the next page, and the current task is validate,
+      // then abort the current task and start to fetch next page.
+      if (!(this.currentTask === 'validate' && task === 'next')) {
+        return;
+      }
+    }
 
+    this.currentTask = task;
     this.abortRetry();
     this.rejectFetching?.();
     this.updateStartAt(currentTime);
@@ -164,6 +167,7 @@ export class InfiniteModelAccessor<M, Arg = any, RD = any, E = unknown> extends 
         this.updateStatus({ error: null, isFetching: false });
         this.action.onSuccess?.({ data, arg });
       }
+      this.currentTask = 'idle';
     } catch (error) {
       // This error happens when any fetching is aborted.
       // We don't need to handle this.
