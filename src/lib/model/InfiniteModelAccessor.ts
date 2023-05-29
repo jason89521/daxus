@@ -93,14 +93,8 @@ export class InfiniteModelAccessor<M, Arg = any, RD = any, E = unknown> extends 
         });
       this.rejectFetching = reject;
     });
-    try {
-      const result = await promise;
-      return result;
-    } catch (error) {
-      // Happens when the fetching is rejected.
-    }
 
-    return [null, null];
+    return promise;
   };
 
   /**
@@ -156,18 +150,23 @@ export class InfiniteModelAccessor<M, Arg = any, RD = any, E = unknown> extends 
 
     this.updateStatus({ isFetching: true });
     const arg = this.arg;
-    const [data, error] = await this.fetchPages({ pageSize, pageIndex });
+    try {
+      const [data, error] = await this.fetchPages({ pageSize, pageIndex });
 
-    if (this.isExpiredFetching(currentTime)) return;
+      if (this.isExpiredFetching(currentTime)) return;
 
-    if (error) {
-      this.updateStatus({ error, isFetching: false });
-      this.action.onError?.({ error, arg });
-    } else {
-      this.flush(data, { start: pageIndex });
-      this.updateData(data);
-      this.updateStatus({ error: null, isFetching: false });
-      this.action.onSuccess?.({ data, arg });
+      if (error) {
+        this.updateStatus({ error, isFetching: false });
+        this.action.onError?.({ error, arg });
+      } else {
+        this.flush(data, { start: pageIndex });
+        this.updateData(data);
+        this.updateStatus({ error: null, isFetching: false });
+        this.action.onSuccess?.({ data, arg });
+      }
+    } catch (error) {
+      // This error happens when any fetching is aborted.
+      // We don't need to handle this.
     }
   };
 
