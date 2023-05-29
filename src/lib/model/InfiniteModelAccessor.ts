@@ -13,6 +13,7 @@ export class InfiniteModelAccessor<M, Arg = any, RD = any, E = unknown> extends 
   private updateModel: (cb: (draft: Draft<M>) => void) => void;
   private data: RD[] = [];
   private isFetchingNextPage = false;
+  private rejectFetching: (() => void) | null = null;
 
   constructor(
     arg: Arg,
@@ -70,33 +71,30 @@ export class InfiniteModelAccessor<M, Arg = any, RD = any, E = unknown> extends 
     pageIndex: number;
     remainRetryCount: number;
   }): Promise<[RD | null, E | null]> => {
-    const result: [RD | null, E | null] = [null, null];
     const arg = this.arg;
-    try {
-      const data = await this.action.fetchData(arg, { previousData, pageIndex });
-      result[0] = data;
-    } catch (error) {
-      if (remainRetryCount <= 0) {
-        result[1] = error as E;
-        return result;
-      }
+    const promise = new Promise<[RD | null, E | null]>((resolve, reject) => {
+      this.action
+        .fetchData(arg, { previousData, pageIndex })
+        .then(value => resolve([value, null]))
+        .catch(e => {
+          if (remainRetryCount <= 0) {
+            resolve([null, e]);
+            return;
+          }
 
-      const retryResult = await new Promise<[RD | null, E | null]>((resolve, reject) => {
-        const timeoutId = window.setTimeout(async () => {
-          const r = await this.fetchPage({
-            previousData,
-            pageIndex,
-            remainRetryCount: remainRetryCount - 1,
-          });
-          resolve(r);
-        }, this.getRetryInterval());
-        this.setRetryTimeoutMeta({ timeoutId, reject });
-      });
+          const timeoutId = window.setTimeout(() => {
+            this.fetchPage({
+              previousData,
+              pageIndex,
+              remainRetryCount: remainRetryCount - 1,
+            }).then(resolve);
+          }, this.getRetryInterval());
+          this.setRetryTimeoutMeta({ timeoutId, reject });
+        });
+      this.rejectFetching = reject;
+    });
 
-      return retryResult;
-    }
-
-    return result;
+    return promise;
   };
 
   /**
@@ -147,22 +145,28 @@ export class InfiniteModelAccessor<M, Arg = any, RD = any, E = unknown> extends 
     if (!this.canFetch({ currentTime }) && pageSize <= this.pageSize()) return;
 
     this.abortRetry();
+    this.rejectFetching?.();
     this.updateStartAt(currentTime);
 
     this.updateStatus({ isFetching: true });
     const arg = this.arg;
-    const [data, error] = await this.fetchPages({ pageSize, pageIndex });
+    try {
+      const [data, error] = await this.fetchPages({ pageSize, pageIndex });
 
-    if (this.isExpiredFetching(currentTime)) return;
+      if (this.isExpiredFetching(currentTime)) return;
 
-    if (error) {
-      this.updateStatus({ error, isFetching: false });
-      this.action.onError?.({ error, arg });
-    } else {
-      this.flush(data, { start: pageIndex });
-      this.updateData(data);
-      this.updateStatus({ error: null, isFetching: false });
-      this.action.onSuccess?.({ data, arg });
+      if (error) {
+        this.updateStatus({ error, isFetching: false });
+        this.action.onError?.({ error, arg });
+      } else {
+        this.flush(data, { start: pageIndex });
+        this.updateData(data);
+        this.updateStatus({ error: null, isFetching: false });
+        this.action.onSuccess?.({ data, arg });
+      }
+    } catch (error) {
+      // This error happens when any fetching is aborted.
+      // We don't need to handle this.
     }
   };
 
