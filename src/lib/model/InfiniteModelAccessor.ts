@@ -13,6 +13,7 @@ export class InfiniteModelAccessor<M, Arg = any, RD = any, E = unknown> extends 
   private updateModel: (cb: (draft: Draft<M>) => void) => void;
   private data: RD[] = [];
   private isFetchingNextPage = false;
+  private rejectFetching: (() => void) | null = null;
 
   constructor(
     arg: Arg,
@@ -70,33 +71,36 @@ export class InfiniteModelAccessor<M, Arg = any, RD = any, E = unknown> extends 
     pageIndex: number;
     remainRetryCount: number;
   }): Promise<[RD | null, E | null]> => {
-    const result: [RD | null, E | null] = [null, null];
     const arg = this.arg;
+    const promise = new Promise<[RD | null, E | null]>((resolve, reject) => {
+      this.action
+        .fetchData(arg, { previousData, pageIndex })
+        .then(value => resolve([value, null]))
+        .catch(e => {
+          if (remainRetryCount <= 0) {
+            resolve([null, e]);
+            return;
+          }
+
+          const timeoutId = window.setTimeout(() => {
+            this.fetchPage({
+              previousData,
+              pageIndex,
+              remainRetryCount: remainRetryCount - 1,
+            }).then(resolve);
+          }, this.getRetryInterval());
+          this.setRetryTimeoutMeta({ timeoutId, reject });
+        });
+      this.rejectFetching = reject;
+    });
     try {
-      const data = await this.action.fetchData(arg, { previousData, pageIndex });
-      result[0] = data;
+      const result = await promise;
+      return result;
     } catch (error) {
-      if (remainRetryCount <= 0) {
-        result[1] = error as E;
-        return result;
-      }
-
-      const retryResult = await new Promise<[RD | null, E | null]>((resolve, reject) => {
-        const timeoutId = window.setTimeout(async () => {
-          const r = await this.fetchPage({
-            previousData,
-            pageIndex,
-            remainRetryCount: remainRetryCount - 1,
-          });
-          resolve(r);
-        }, this.getRetryInterval());
-        this.setRetryTimeoutMeta({ timeoutId, reject });
-      });
-
-      return retryResult;
+      // Happens when the fetching is rejected.
     }
 
-    return result;
+    return [null, null];
   };
 
   /**
@@ -147,6 +151,7 @@ export class InfiniteModelAccessor<M, Arg = any, RD = any, E = unknown> extends 
     if (!this.canFetch({ currentTime }) && pageSize <= this.pageSize()) return;
 
     this.abortRetry();
+    this.rejectFetching?.();
     this.updateStartAt(currentTime);
 
     this.updateStatus({ isFetching: true });

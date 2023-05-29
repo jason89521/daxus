@@ -17,6 +17,7 @@ export async function getPostList({
   layout: PostLayout;
   page: number;
 }): Promise<Post[]> {
+  await sleep(500);
   const res = await fetch(
     `http://localhost:3000/posts?_page=${page + 1}&layout=${layout}&_limit=5`
   );
