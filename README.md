@@ -183,3 +183,10 @@ Advantages: Automatic deduplication and revalidation.
 Disadvantages: Data is not centrally managed, inability to customize returned data.
 
 Based on the above, my motivation for developing React Server Model is to create a package that combines the advantages of both Redux and SWR while minimizing their disadvantages.
+
+## The features I need to achieve
+
+- Automatic deduplication and revalidation
+- Customization of data shape
+- Easier and more intuitive data mutation
+- Ability to achieve code splitting
