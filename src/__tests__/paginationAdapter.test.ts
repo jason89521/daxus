@@ -49,27 +49,23 @@ describe('paginationAdapter', () => {
     expect(adapter.readPagination(model, paginationKey)).toEqual({
       items: page0,
       noMore: false,
-      sizePerPage: 5,
     });
     adapter.appendPagination(model, paginationKey, page1);
     expect(adapter.readPagination(model, paginationKey)).toEqual({
       items: [...page0, ...page1],
       noMore: false,
-      sizePerPage: 5,
     });
 
     adapter.deleteOne(model, 0);
     expect(adapter.readPagination(model, paginationKey)).toEqual({
       items: [...page0.slice(1), ...page1],
       noMore: false,
-      sizePerPage: 5,
     });
 
     adapter.appendPagination(model, paginationKey, [{ ...post0 }]);
     expect(adapter.readPagination(model, paginationKey)).toEqual({
       items: [...page0.slice(1), ...page1, post0],
       noMore: false,
-      sizePerPage: 5,
     });
   });
 });
