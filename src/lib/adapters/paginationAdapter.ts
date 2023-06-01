@@ -7,11 +7,15 @@ interface PaginationMeta {
   /** Store the ids for each page index. */
   ids: Id[];
   noMore: boolean;
-  sizePerPage: number;
+}
+
+interface Pagination<Data> {
+  items: Data[];
+  noMore: boolean;
 }
 
 interface PaginationModel<Data> {
-  data: Record<Id, Data | undefined>;
+  entityRecord: Record<Id, Data | undefined>;
   paginationMetaRecord: Record<string, PaginationMeta | undefined>;
 }
 
@@ -35,21 +39,21 @@ export function createPaginationAdapter<Data>({
 
   function createOne(model: Model, data: Data) {
     const id = getId(data);
-    model.data[id] = data;
+    model.entityRecord[id] = data;
   }
 
   function readOne(model: Model, id: Id) {
-    return model.data[id];
+    return model.entityRecord[id];
   }
 
   function updateOne(model: Model, id: Id, data: Partial<Data>) {
-    if (!model.data[id]) return;
-    const cache = model.data[id]!;
-    model.data[id] = { ...cache, ...data };
+    if (!model.entityRecord[id]) return;
+    const cache = model.entityRecord[id]!;
+    model.entityRecord[id] = { ...cache, ...data };
   }
 
   function deleteOne(model: Model, id: Id) {
-    delete model.data[id];
+    delete model.entityRecord[id];
     for (const paginationMeta of Object.values(model.paginationMetaRecord)) {
       if (paginationMeta?.ids.includes(id)) {
         paginationMeta.ids = paginationMeta.ids.filter(value => value !== id);
@@ -59,8 +63,8 @@ export function createPaginationAdapter<Data>({
 
   function upsertOne(model: Model, data: Data) {
     const id = getId(data);
-    const cache = model.data[id];
-    model.data[id] = { ...cache, ...data };
+    const cache = model.entityRecord[id];
+    model.entityRecord[id] = { ...cache, ...data };
   }
 
   function upsertMany(model: Model, data: Data[]) {
@@ -75,7 +79,6 @@ export function createPaginationAdapter<Data>({
     model.paginationMetaRecord[paginationKey] = {
       ids,
       noMore: false,
-      sizePerPage: ids.length,
     };
   }
 
@@ -89,13 +92,13 @@ export function createPaginationAdapter<Data>({
     paginationMeta.ids.push(...ids);
   }
 
-  function readPagination(model: Model, paginationKey: string) {
+  function readPagination(model: Model, paginationKey: string): Pagination<Data> | undefined {
     const meta = model.paginationMetaRecord[paginationKey];
     if (!meta) return;
     const { ids, ...restMeta } = meta;
     const items = [...ids]
       .map(id => {
-        return model.data[id];
+        return model.entityRecord[id];
       })
       .filter(isNonNullable);
 
@@ -103,7 +106,7 @@ export function createPaginationAdapter<Data>({
   }
 
   return {
-    initialModel: { data: {}, paginationMetaRecord: {} } as Model,
+    initialModel: { entityRecord: {}, paginationMetaRecord: {} } as Model,
     createOne,
     readOne,
     updateOne,
