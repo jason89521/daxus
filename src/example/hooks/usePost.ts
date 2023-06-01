@@ -10,7 +10,7 @@ export function usePost({ id, revalidateOnFocus }: Props) {
   const { data } = useFetch(
     getPostById(id),
     model => {
-      return model.data[id];
+      return model.entityRecord[id];
     },
     { revalidateOnFocus }
   );
