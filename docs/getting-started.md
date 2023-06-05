@@ -1,111 +1,104 @@
-## Getting Started
+# Getting Started
 
-In React Server Model, the smallest unit is a `model`. Before getting started, we need to define the type of the model:
+In React Server Model, you need to define the shape of your data yourself. We take care of handling deduplication, revalidation, and other data fetching optimizations. However, it is up to you to decide how to update your data after fetching it.
+
+## Model
+
+We refer to different data shapes as a "model." In my company, we have data such as posts, comments, and forums. Defining the structure of these different data shapes, such as pagination, can be considered a model.
 
 ```typescript
-export type PostLayout = 'image' | 'classic';
+import { createPaginationAdapter, createModel } from 'react-server-model';
 
-export interface Post {
-  id: number;
-  title: string;
-  layout: PostLayout;
-}
+const postAdapter = createPaginationAdapter({});
+const postModel = createModel(postAdapter.initialModel);
 ```
 
-Once we have the type of the model, we can proceed to create the model:
+Defining a model is straightforward. You simply use `createModel` and pass in the initial value.
+
+> `createPaginationAdapter` is a utility function provided by us to quickly create a pagination model. However, you can also define your custom pagination model.
+
+## Action
+
+Once you have created a model, you can start defining actions.
 
 ```typescript
-import { createModel, createPaginationAdapter } from 'react-server-model';
-
-export const postAdapter = createPaginationAdapter<Post>({});
-
-export const postModel = createModel(postAdapter.initialModel);
-```
-
-Your model can have any shape, and React Server Model provides `createPaginationAdapter` to help create a pagination-based model.
-
-After creating the model, we can define actions:
-
-```typescript
-export const getPostById = postModel.defineAction<number, Post>('normal', {
+const getPostById = postModel.defineAction<number, Post>('normal', {
   fetchData: async id => {
     const data = await getPostFromServer(id);
     return data; // the type of data is `Post`
   },
   syncModel: (model, { data, arg }) => {
-    // arg -> would be the id of the post
     postAdapter.upsertOne(model, data);
   },
 });
 
-export const getPostList = postModel.defineAction<{ layout: PostLayout }, Post[]>('infinite', {
+const getPostList = postModel.defineAction<{ filter: string }, Post[]>('infinite', {
   fetchData: async ({ layout }, { pageIndex, previousData }) => {
     // If the previous API returns an empty array, stop fetching.
     if (previousData?.length === 0) return null;
-    const data = await getPostListFromServer({ layout, page: pageIndex });
+    const data = await getPostListFromServer({ filter, page: pageIndex });
     return data;
   },
-  syncModel: (draft, { data, arg, pageIndex }) => {
-    // arg -> { layout }
+  syncModel: (model, { data, arg, pageIndex }) => {
+    // arg -> {filter}
     // You can use any function to generate the pagination key.
     // We use `JSON.stringify` for simplicity here.
     const paginationKey = JSON.stringify(arg);
     if (pageIndex === 0) {
-      postAdapter.replacePagination(draft, paginationKey, data);
+      postAdapter.replacePagination(model, paginationKey, data);
     } else {
-      postAdapter.appendPagination(draft, paginationKey, data);
+      postAdapter.appendPagination(model, paginationKey, data);
     }
   },
 });
 ```
 
-There are two types of actions: `'normal'` and `'infinite'`. When you need to implement infinite loading, using the `'infinite'` action is more suitable. In other cases, using the `'normal'` action is sufficient.
+When defining an action, you need to provide two necessary parameters: `fetchData` and `syncModel`. `fetchData` describes how this action fetches data from the server, and `syncModel` determines how the data is synchronized into your model after fetching.
 
-Next, let's implement `usePost`:
+You may have noticed that the first parameter of `defineAction` has two possible values. When implementing infinite scrolling, using `'infinite'` is a better choice. Otherwise, for most cases, `'normal'` should suffice.
+
+## `useFetch` and `useInfiniteFetch`
+
+After defining actions, you can use `useFetch` or `useInfiniteFetch` in a custom hook to fetch data from the server. Use `useFetch` for `'normal'` actions and `useInfiniteFetch` for `'infinite'` actions.
 
 ```typescript
-import { useFetch } from 'react-server-model';
+import { useFetch, useInfiniteFetch } from 'react-server-model';
 
 export function usePost(id: number) {
   const result = useFetch(getPostById(id), model => {
     return postAdapter.readOne(model, id);
   });
+  return result; // {data, error, isFetching}
+}
 
-  return result; // { data, error, isFetching }
+export function usePostList(filter: string) {
+  const result = useInfiniteFetch(
+    getPostList({ filter }),
+
+    model => {
+      const key = JSON.stringify({ filter });
+      return postAdapter.readPagination(model, key);
+    }
+  );
+  return result; // { data, error, isFetching, fetchNextPage}
 }
 ```
 
-In `usePost`, we utilize `useFetch`, `getPostById`, and `postAdapter`. The first two parameters of `useFetch` are required: the action's return value and a function to obtain the model snapshot. In this example, we use `postAdapter.readOne` to retrieve posts with different IDs.
+The first parameter of `useFetch` and `useInfiniteFetch` is the return value of the previously defined action. The second parameter determines how to display the corresponding model data. These hooks will automatically handle the request initiation and data synchronization into your model, as defined in the actions.
 
-The benefit of using `useFetch` is that it helps deduplicate identical requests and automatically revalidates data in the model under certain conditions. Users only need to define how to fetch data and synchronize the model in the action.
+You can use these custom hooks anywhere in your code, and you don't need to worry about duplicate requests because we handle that for you.
 
-The implementation of `usePostList` is similar:
+## Mutation
 
-```typescript
-import { useInfiniteFetch } from 'react-server-model';
-
-export function usePostList(layout: PostLayout) {
-  const result = useInfiniteFetch(getPostList({ layout }), model => {
-    const key = JSON.stringify({ layout });
-    return postAdapter.readPagination(model, key);
-  });
-
-  return result; // { data, error, isFetching, fetchNextPage }
-}
-```
-
-The usage of `useInfiniteFetch` is almost identical to `useFetch`, with the difference being the addition of `fetchNextPage` to fetch the next page of data.
-
-Next, let's cover the method for mutating the model. Here, we assume that we need to create a post and add it to the corresponding pagination:
+Finally, let's discuss model mutation. In many cases, besides fetching data from the server, we also have user interactions that update data. For example, if a user creates a new post and we want to display it in the list with the filter set to "all," we can use the `mutate` method:
 
 ```typescript
-export function createPost(title: string, layout: PostLayout) {
-  const response = await createPostFromServer({ title, layout });
+export function createPost(title: string, content: string) {
+  const res = await createPostApi({ title, content });
   postModel.mutate(model => {
-    const key = JSON.stringify({ layout });
-    postAdapter.appendPagination(model, key, response);
+    model.appendPagination(model, 'all', [res]);
   });
 }
 ```
 
-As you can see, we can easily mutate the model using `postModel.mutate`.
+That's it! Using `mutate`, you can directly update your model. Subsequently, the `useFetch` and `useInfiniteFetch` hooks of the corresponding actions will check if the data you want to display has changed and trigger a rerender if necessary.
