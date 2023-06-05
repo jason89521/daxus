@@ -5,7 +5,10 @@ The goal of React Server Model is to provide an API that is as convenient to use
 ## Document
 
 - [Getting Started](/docs/getting-started.md)
-- [API](/docs/api.md)
+- API
+  - [Pagination Adapter](/docs/pagination-adapter.md)
+  - useFetch (This hook is not stable yet, its api may change frequently.)
+  - useInfinite (This hook is not stable yet, its api may change frequently.)
 
 ## The Motivation
 
