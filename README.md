@@ -2,6 +2,12 @@
 
 The goal of React Server Model is to provide an API that is as convenient to use as SWR, while also allowing customization of data, enabling users to have more flexibility in modifying their data.
 
+## TOC
+
+- [Getting Started](#getting-started)
+- [Why Not Just Using SWR](#why-not-just-using-swr)
+- [The Motivation](#the-motivation)
+
 ## Getting Started
 
 In React Server Model, you need to define the shape of your data yourself. We take care of handling deduplication, revalidation, and other data fetching optimizations. However, it is up to you to decide how to update your data after fetching it.
