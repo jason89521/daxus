@@ -153,12 +153,10 @@ export class ModelAccessor<M, E> {
   };
 
   protected getOptions = () => {
-    const { value } = this.optionsRefSet.values().next() as IteratorReturnResult<
-      MutableRefObject<FetchOptions> | undefined
-    >;
-    if (!value) return defaultOptions;
+    const firstOptionsRef = this.getFirstOptionsRef();
+    if (!firstOptionsRef) return defaultOptions;
 
-    return { ...defaultOptions, ...value.current };
+    return { ...defaultOptions, ...firstOptionsRef.current };
   };
 
   protected getRetryCount = () => {
@@ -203,18 +201,30 @@ export class ModelAccessor<M, E> {
   };
 
   private registerOnFocus = () => {
-    window.addEventListener('focus', this.revalidate);
+    const revalidate = () => {
+      if (this.getOptions().revalidateOnFocus) {
+        this.revalidate();
+      }
+    };
+
+    window.addEventListener('focus', revalidate);
 
     return () => {
-      window.removeEventListener('focus', this.revalidate);
+      window.removeEventListener('focus', revalidate);
     };
   };
 
   private registerOnReconnect = () => {
-    window.addEventListener('online', this.revalidate);
+    const revalidate = () => {
+      if (this.getOptions().revalidateOnReconnect) {
+        this.revalidate();
+      }
+    };
+
+    window.addEventListener('online', revalidate);
 
     return () => {
-      window.removeEventListener('online', this.revalidate);
+      window.removeEventListener('online', revalidate);
     };
   };
 }
