@@ -19,7 +19,7 @@ export function useInfiniteFetch<M, Arg, RD, D = any, E = unknown>(
   getSnapshot: (model: M) => D,
   options: FetchOptions<D> = {}
 ) {
-  const { stateDeps, status, data } = useModelAccessor(accessor, getSnapshot, options);
+  const { stateDeps, status, data, revalidate } = useModelAccessor(accessor, getSnapshot, options);
   const { isFetching, error } = status;
 
   const fetchNextPage = useCallback(() => {
@@ -40,5 +40,6 @@ export function useInfiniteFetch<M, Arg, RD, D = any, E = unknown>(
       stateDeps.error = true;
       return error;
     },
+    revalidate,
   };
 }
