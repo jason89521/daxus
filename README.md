@@ -10,6 +10,16 @@ The goal of React Server Model is to provide an API that is as convenient to use
   - useFetch (This hook is not stable yet, its api may change frequently.)
   - useInfinite (This hook is not stable yet, its api may change frequently.)
 
+## Why not just using SWR
+
+The core idea of SWR is to keep the server state as up-to-date as possible. However, in our company with a large user base, we prefer to make requests only when necessary. Take articles as an example, the content of an article doesn't change frequently after it's published, and the API for the article list already returns all the necessary information. Therefore, if a user navigates from the article list to the article page, we don't want to make an additional API request. In this case, SWR is not well-suited for our use case because SWR's cache doesn't know that the API for the article list has already obtained the required information (maybe it can? I haven't delved too deeply into this). So, even when using `useSWR('/api/post/1')`, it will still send a request.
+
+Another scenario is when a user adds a comment. We want to either 1. place the comment at the top of the comment list if the user chooses to view the most popular comments or 2. place it at the bottom of the comment list if the user chooses to view comments from oldest to newest. In this situation, we don't want to revalidate the entire comment list because the API's response may not include the user's comment (especially when the user is viewing the most popular comments, the newly added comment is unlikely to become popular).
+
+However, we also have use cases where we need the latest data, such as notifications. Although SWR is a great choice in this scenario, it doesn't meet the requirements mentioned earlier. To maintain consistency in our tech stack, we want to avoid using different libraries in different situations. For example, using SWR for fetching notifications but using another library for the article list.
+
+And that's why I developed this library. Unlike the core idea of SWR, my goal is not to keep the server state as up-to-date as possible, but to provide developers with more control over when to update the data.
+
 ## The Motivation
 
 I use Redux for state management in my work. One of the advantages of Redux is that it centralizes all the states, and we can use actions to update them. For example, when a user creates a comment, we expect the `post.totalCommentCount` to increase.
