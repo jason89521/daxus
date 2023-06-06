@@ -2,8 +2,8 @@ import type { FetchOptions } from '../hooks/types';
 import type { MutableRefObject } from 'react';
 
 const defaultOptions = {
-  revalidateOnFocus: true,
-  revalidateOnReconnect: true,
+  revalidateOnFocus: false,
+  revalidateOnReconnect: false,
   retryCount: 3,
   retryInterval: 1000,
   dedupeInterval: 2000,

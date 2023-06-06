@@ -27,7 +27,7 @@ export function useModelAccessor<M, D, E = unknown>(
   options: FetchOptions<D> = {}
 ) {
   const {
-    revalidateIfStale = true,
+    revalidateIfStale = false,
     checkHasStaleDataFn = (value: unknown) => !isUndefined(value),
   } = options;
   const stateDeps = useRef<StateDeps>({}).current;
@@ -61,7 +61,7 @@ export function useModelAccessor<M, D, E = unknown>(
       return [() => noop, noop];
     }
 
-    let memoizedSnapshot = getSnapshotRef.current(accessor.getModel());
+    let memoizedSnapshot = getSnapshot(accessor.getModel());
 
     return [
       (listener: () => void) => {
