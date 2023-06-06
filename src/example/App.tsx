@@ -39,8 +39,8 @@ function App() {
       {/* <UpdateButton id={postId} /> */}
       <button onClick={() => getPostById(postId).abortRetry()}>Abort</button>
       <button onClick={() => setShow(!show)}>hide / show first post</button>
-      {show && <Post revalidateOnFocus={false} id={postId} />}
-      <Post id={postId} />
+      {show && <Post revalidateOnFocus={false} id={postId} pollingInterval={1000} />}
+      <Post id={postId} pollingInterval={0} />
       <PostList />
     </div>
   );

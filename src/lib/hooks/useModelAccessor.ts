@@ -34,10 +34,10 @@ export function useModelAccessor<M, D, E = unknown>(
   const {
     revalidateIfStale = false,
     checkHasStaleDataFn = (value: unknown) => !isUndefined(value),
+    pollingInterval,
   } = options;
   const stateDeps = useRef<StateDeps>({}).current;
   const optionsRef = useUpdatedRef(options);
-  const getSnapshotRef = useUpdatedRef(getSnapshot);
   const getStatus = useCallback(() => {
     if (isNull(accessor)) return defaultStatus;
     return accessor.getStatus();
@@ -71,7 +71,7 @@ export function useModelAccessor<M, D, E = unknown>(
     return [
       (listener: () => void) => {
         return accessor.subscribeData(() => {
-          const snapshot = getSnapshotRef.current(accessor.getModel());
+          const snapshot = getSnapshot(accessor.getModel());
           if (stableHash(snapshot) !== stableHash(memoizedSnapshot)) {
             memoizedSnapshot = snapshot;
             listener();
@@ -80,7 +80,8 @@ export function useModelAccessor<M, D, E = unknown>(
       },
       () => memoizedSnapshot,
     ] as const;
-  }, [accessor, getSnapshotRef]);
+    // We assume the `getSnapshot` is depending on `accessor` so we don't put it in the dependencies array.
+  }, [accessor]);
 
   const data = useSyncExternalStore(subscribeData, getData, getData);
   const hasStaleData = checkHasStaleDataFn(data);
@@ -103,6 +104,11 @@ export function useModelAccessor<M, D, E = unknown>(
       accessor.revalidate();
     }
   }, [accessor, shouldRevalidate]);
+
+  useEffect(() => {
+    optionsRef.current.pollingInterval = pollingInterval;
+    accessor?.tryRegisterPollingInterval(optionsRef);
+  }, [pollingInterval, optionsRef, accessor]);
 
   const revalidate = useCallback(() => {
     accessor?.revalidate();

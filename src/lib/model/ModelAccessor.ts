@@ -7,6 +7,7 @@ const defaultOptions = {
   retryCount: 3,
   retryInterval: 1000,
   dedupeInterval: 2000,
+  pollingInterval: 0,
 } satisfies FetchOptions;
 
 export type Status<E = unknown> = {
@@ -21,6 +22,8 @@ type RetryTimeoutMeta = {
   reject: () => void;
 };
 
+type OptionsRef = MutableRefObject<FetchOptions>;
+
 export class ModelAccessor<M, E> {
   protected status: Status<E> = { isFetching: false, error: null };
   protected statusListeners: ((prev: Status, current: Status) => void)[] = [];
@@ -28,9 +31,10 @@ export class ModelAccessor<M, E> {
   private retryTimeoutMeta: RetryTimeoutMeta | null = null;
   private startAt = 0;
   private modelSubscribe: ModelSubscribe;
-  private optionsRefSet = new Set<MutableRefObject<FetchOptions>>();
+  private optionsRefSet = new Set<OptionsRef>();
   private removeOnFocusListener: (() => void) | null = null;
   private removeOnReconnectListener: (() => void) | null = null;
+  private pollingIntervalId: number | undefined;
   /**
    * @internal
    */
@@ -61,7 +65,7 @@ export class ModelAccessor<M, E> {
    * @param param0
    * @returns
    */
-  mount = ({ optionsRef }: { optionsRef: MutableRefObject<FetchOptions> }) => {
+  mount = ({ optionsRef }: { optionsRef: OptionsRef }) => {
     this.optionsRefSet.add(optionsRef);
 
     if (this.getFirstOptionsRef() === optionsRef) {
@@ -72,16 +76,17 @@ export class ModelAccessor<M, E> {
     return () => {
       // Remove the optionRef and remove the listeners.
       // If it is the first optionsRef, remove the listeners (if exist).
-      const isUnmountFirstOptionsRef = this.getFirstOptionsRef() === optionsRef;
-      if (isUnmountFirstOptionsRef) {
+      const isFirstOptionsRef = this.getFirstOptionsRef() === optionsRef;
+      if (isFirstOptionsRef) {
         this.removeOnFocusListener?.();
         this.removeOnReconnectListener?.();
+        clearInterval(this.pollingIntervalId);
       }
       this.optionsRefSet.delete(optionsRef);
 
       // If it is not the first optionsRef, do nothing.
-      if (!isUnmountFirstOptionsRef) return;
-      // Register next option if there is a mounted optionsRef (if exist).
+      if (!isFirstOptionsRef) return;
+      // Register new listeners if there is a optionsRef existed after unmounting the previous one.
       const firstOptionRef = this.getFirstOptionsRef();
       if (!firstOptionRef) {
         this.removeOnFocusListener = null;
@@ -91,7 +96,29 @@ export class ModelAccessor<M, E> {
 
       this.removeOnFocusListener = this.registerOnFocus();
       this.removeOnReconnectListener = this.registerOnReconnect();
+      const pollingInterval =
+        firstOptionRef.current.pollingInterval ?? defaultOptions.pollingInterval;
+      if (pollingInterval <= 0) return;
+      this.pollingIntervalId = window.setInterval(this.revalidate, pollingInterval);
     };
+  };
+
+  /**
+   * This method should be invoked when `options.pollingInterval` changed.
+   * As a result, we should put it in the useEffect function.
+   * @internal
+   * @param optionsRef
+   * @returns
+   */
+  tryRegisterPollingInterval = (optionsRef: OptionsRef) => {
+    const firstOptionsRef = this.getFirstOptionsRef();
+    if (optionsRef !== firstOptionsRef) return;
+    const pollingInterval = optionsRef.current.pollingInterval ?? defaultOptions.pollingInterval;
+    // Since we may need to set up another interval, we should clear the previous one.
+    clearInterval(this.pollingIntervalId);
+    if (pollingInterval <= 0) return;
+
+    this.pollingIntervalId = window.setInterval(this.revalidate, pollingInterval);
   };
 
   /**
@@ -187,7 +214,7 @@ export class ModelAccessor<M, E> {
 
   private getFirstOptionsRef = () => {
     const { value } = this.optionsRefSet.values().next() as IteratorReturnResult<
-      MutableRefObject<FetchOptions> | undefined
+      OptionsRef | undefined
     >;
     return value;
   };
