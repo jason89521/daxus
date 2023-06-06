@@ -7,7 +7,9 @@ describe('useFetch revalidateOnFocus', () => {
     const control = getPostModelControl({});
     const { getPostById, postAdapter } = createPostModel(control);
     function Page() {
-      const { data } = useFetch(getPostById(0), model => postAdapter.readOne(model, 0));
+      const { data } = useFetch(getPostById(0), model => postAdapter.readOne(model, 0), {
+        revalidateOnFocus: true,
+      });
 
       return <div>title: {data?.title}</div>;
     }

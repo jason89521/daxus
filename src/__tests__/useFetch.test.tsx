@@ -57,7 +57,7 @@ describe('useFetch', () => {
     const { getTestItem } = createTestItemModel({ onSuccess: onSuccessMock });
     function Page() {
       const [id, setId] = useState(0);
-      const { data } = useFetch(getTestItem(id), model => model[0]);
+      const { data } = useFetch(getTestItem(id), model => model[id]);
 
       return <div onClick={() => setId(1)}>{data}</div>;
     }
@@ -69,7 +69,7 @@ describe('useFetch', () => {
     expect(argToCheck).toEqual(0);
 
     fireEvent.click(screen.getByText('0'));
-    await act(() => sleep(10));
+    await act(() => sleep(100));
     expect(onSuccessMock).toHaveBeenCalledTimes(2);
     expect(dataToCheck).toBe('1');
     expect(argToCheck).toEqual(1);

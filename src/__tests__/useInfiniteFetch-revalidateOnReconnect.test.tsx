@@ -7,8 +7,10 @@ describe('useInfiniteFetch revalidateOnReconnect', () => {
     const control = getPostModelControl({ titlePrefix: 'online' });
     const { getPostList, postAdapter } = createPostModel(control);
     function Page() {
-      const { data, fetchNextPage } = useInfiniteFetch(getPostList(), model =>
-        postAdapter.readPagination(model, '')
+      const { data, fetchNextPage } = useInfiniteFetch(
+        getPostList(),
+        model => postAdapter.readPagination(model, ''),
+        { revalidateOnReconnect: true }
       );
 
       return (
