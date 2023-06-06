@@ -43,6 +43,7 @@ export class NormalModelAccessor<Model, Arg = any, Data = any, E = unknown> exte
     this.updateStartAt(currentTime);
 
     this.updateStatus({ isFetching: true });
+    this.onFetchingStart();
     const arg = this.arg;
     const [data, error, startAt] = await this.internalFetch(this.getRetryCount());
 
@@ -61,6 +62,7 @@ export class NormalModelAccessor<Model, Arg = any, Data = any, E = unknown> exte
     }
     this.notifyDataListeners();
     this.updateStatus({ isFetching: false });
+    this.onFetchingFinish();
   };
 
   /**

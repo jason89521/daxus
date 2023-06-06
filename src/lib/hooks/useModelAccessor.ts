@@ -105,11 +105,6 @@ export function useModelAccessor<M, D, E = unknown>(
     }
   }, [accessor, shouldRevalidate]);
 
-  useEffect(() => {
-    optionsRef.current.pollingInterval = pollingInterval;
-    accessor?.tryRegisterPollingInterval(optionsRef);
-  }, [pollingInterval, optionsRef, accessor]);
-
   const revalidate = useCallback(() => {
     accessor?.revalidate();
   }, [accessor]);

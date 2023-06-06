@@ -34,7 +34,7 @@ export class ModelAccessor<M, E> {
   private optionsRefSet = new Set<OptionsRef>();
   private removeOnFocusListener: (() => void) | null = null;
   private removeOnReconnectListener: (() => void) | null = null;
-  private pollingIntervalId: number | undefined;
+  private pollingTimeoutId: number | undefined;
   /**
    * @internal
    */
@@ -80,7 +80,6 @@ export class ModelAccessor<M, E> {
       if (isFirstOptionsRef) {
         this.removeOnFocusListener?.();
         this.removeOnReconnectListener?.();
-        clearInterval(this.pollingIntervalId);
       }
       this.optionsRefSet.delete(optionsRef);
 
@@ -96,29 +95,8 @@ export class ModelAccessor<M, E> {
 
       this.removeOnFocusListener = this.registerOnFocus();
       this.removeOnReconnectListener = this.registerOnReconnect();
-      const pollingInterval =
-        firstOptionRef.current.pollingInterval ?? defaultOptions.pollingInterval;
-      if (pollingInterval <= 0) return;
-      this.pollingIntervalId = window.setInterval(this.revalidate, pollingInterval);
+      clearTimeout(this.pollingTimeoutId);
     };
-  };
-
-  /**
-   * This method should be invoked when `options.pollingInterval` changed.
-   * As a result, we should put it in the useEffect function.
-   * @internal
-   * @param optionsRef
-   * @returns
-   */
-  tryRegisterPollingInterval = (optionsRef: OptionsRef) => {
-    const firstOptionsRef = this.getFirstOptionsRef();
-    if (optionsRef !== firstOptionsRef) return;
-    const pollingInterval = optionsRef.current.pollingInterval ?? defaultOptions.pollingInterval;
-    // Since we may need to set up another interval, we should clear the previous one.
-    clearInterval(this.pollingIntervalId);
-    if (pollingInterval <= 0) return;
-
-    this.pollingIntervalId = window.setInterval(this.revalidate, pollingInterval);
   };
 
   /**
@@ -212,6 +190,17 @@ export class ModelAccessor<M, E> {
     this.retryTimeoutMeta = meta;
   }
 
+  protected onFetchingStart = () => {
+    clearTimeout(this.pollingTimeoutId);
+  };
+
+  protected onFetchingFinish = () => {
+    const { pollingInterval } = this.getOptions();
+    if (pollingInterval > 0) {
+      this.pollingTimeoutId = window.setTimeout(this.invokePollingRevalidation, pollingInterval);
+    }
+  };
+
   private getFirstOptionsRef = () => {
     const { value } = this.optionsRefSet.values().next() as IteratorReturnResult<
       OptionsRef | undefined
@@ -245,5 +234,15 @@ export class ModelAccessor<M, E> {
     return () => {
       window.removeEventListener('online', revalidate);
     };
+  };
+
+  /**
+   * invoke `this.revalidate` if `options.pollingInterval` is larger than 0.
+   * @returns
+   */
+  private invokePollingRevalidation = () => {
+    const { pollingInterval } = this.getOptions();
+    if (pollingInterval <= 0) return;
+    this.revalidate();
   };
 }
