@@ -83,7 +83,9 @@ export class InfiniteModelAccessor<M, Arg = any, RD = any, E = unknown> extends 
               previousData,
               pageIndex,
               remainRetryCount: remainRetryCount - 1,
-            }).then(resolve);
+            })
+              .then(resolve)
+              .catch(reject);
           }, this.getRetryInterval());
           this.setRetryTimeoutMeta({ timeoutId, reject });
         });

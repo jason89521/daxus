@@ -65,12 +65,8 @@ export class ModelAccessor<M, E> {
     this.optionsRefSet.add(optionsRef);
 
     if (this.getFirstOptionsRef() === optionsRef) {
-      if (optionsRef.current.revalidateOnFocus ?? defaultOptions.revalidateOnFocus) {
-        this.removeOnFocusListener = this.registerOnFocus();
-      }
-      if (optionsRef.current.revalidateOnReconnect ?? defaultOptions.revalidateOnReconnect) {
-        this.removeOnReconnectListener = this.registerOnReconnect();
-      }
+      this.removeOnFocusListener = this.registerOnFocus();
+      this.removeOnReconnectListener = this.registerOnReconnect();
     }
 
     return () => {
@@ -93,12 +89,8 @@ export class ModelAccessor<M, E> {
         return;
       }
 
-      if (firstOptionRef.current.revalidateOnFocus ?? defaultOptions.revalidateOnFocus) {
-        this.removeOnFocusListener = this.registerOnFocus();
-      }
-      if (firstOptionRef.current.revalidateOnReconnect ?? defaultOptions.revalidateOnReconnect) {
-        this.removeOnReconnectListener = this.registerOnReconnect();
-      }
+      this.removeOnFocusListener = this.registerOnFocus();
+      this.removeOnReconnectListener = this.registerOnReconnect();
     };
   };
 
