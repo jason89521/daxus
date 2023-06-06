@@ -17,7 +17,7 @@ export function useFetch<M, Arg, RD, D = any, E = unknown>(
   getSnapshot: (model: M) => D,
   options: FetchOptions = {}
 ) {
-  const { stateDeps, status, data } = useModelAccessor(accessor, getSnapshot, options);
+  const { stateDeps, status, data, revalidate } = useModelAccessor(accessor, getSnapshot, options);
   const { isFetching, error } = status;
 
   return {
@@ -32,5 +32,6 @@ export function useFetch<M, Arg, RD, D = any, E = unknown>(
       stateDeps.error = true;
       return error;
     },
+    revalidate,
   };
 }

@@ -7,7 +7,12 @@ import { isNull } from '../utils/isNull';
 
 type StateDeps = Partial<Record<keyof Status, boolean>>;
 type Accessor<M, E> = NormalModelAccessor<M, any, any, E> | InfiniteModelAccessor<M, any, any, E>;
-type ReturnValue<D, E> = { stateDeps: StateDeps; status: Status<E>; data: D };
+type ReturnValue<D, E> = {
+  stateDeps: StateDeps;
+  status: Status<E>;
+  data: D;
+  revalidate: () => void;
+};
 
 const defaultStatus: Status = { isFetching: false, error: null };
 
@@ -99,5 +104,9 @@ export function useModelAccessor<M, D, E = unknown>(
     }
   }, [accessor, shouldRevalidate]);
 
-  return { stateDeps, status, data };
+  const revalidate = useCallback(() => {
+    accessor?.revalidate();
+  }, [accessor]);
+
+  return { stateDeps, status, data, revalidate };
 }
