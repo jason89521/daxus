@@ -6,6 +6,7 @@ export interface FetchOptions<S = any> {
   retryCount?: number;
   retryInterval?: number;
   dedupeInterval?: number;
+  pollingInterval?: number;
 }
 
 export interface HookReturn<D, E> {

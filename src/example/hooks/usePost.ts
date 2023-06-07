@@ -1,18 +1,18 @@
 import { getPostById } from '../model';
 import { useFetch } from '../../lib';
+import type { FetchOptions } from '../../lib/hooks/types';
 
-interface Props {
+interface Props extends FetchOptions {
   id: number;
-  revalidateOnFocus?: boolean;
 }
 
-export function usePost({ id, revalidateOnFocus }: Props) {
+export function usePost({ id, ...options }: Props) {
   const { data } = useFetch(
     getPostById(id),
     model => {
       return model.entityRecord[id];
     },
-    { revalidateOnFocus }
+    { ...options }
   );
 
   return { post: data };

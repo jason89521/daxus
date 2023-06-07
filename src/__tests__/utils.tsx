@@ -106,5 +106,5 @@ export function getPostModelControl(initialControl: PostModelControl) {
 }
 
 export function render(element: ReactNode) {
-  _render(<StrictMode>{element}</StrictMode>);
+  return _render(<StrictMode>{element}</StrictMode>);
 }

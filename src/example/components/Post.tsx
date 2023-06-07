@@ -1,12 +1,12 @@
+import type { FetchOptions } from '../../lib/hooks/types';
 import { usePost } from '../hooks';
 
-interface Props {
+interface Props extends FetchOptions {
   id: number;
-  revalidateOnFocus?: boolean;
 }
 
-export function Post({ id, revalidateOnFocus }: Props) {
-  const { post } = usePost({ id, revalidateOnFocus });
+export function Post(props: Props) {
+  const { post } = usePost(props);
 
   if (!post) return <div>loading</div>;
 
