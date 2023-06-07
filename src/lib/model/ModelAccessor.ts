@@ -52,16 +52,6 @@ export class ModelAccessor<M, E> {
 
   /**
    * @internal
-   * @returns
-   */
-  abortRetry() {
-    if (!this.retryTimeoutMeta) return;
-    clearTimeout(this.retryTimeoutMeta.timeoutId);
-    this.retryTimeoutMeta.reject();
-  }
-
-  /**
-   * @internal
    * @param param0
    * @returns
    */
@@ -192,6 +182,7 @@ export class ModelAccessor<M, E> {
 
   protected onFetchingStart = () => {
     clearTimeout(this.pollingTimeoutId);
+    this.abortRetry();
   };
 
   protected onFetchingFinish = () => {
@@ -245,4 +236,14 @@ export class ModelAccessor<M, E> {
     if (pollingInterval <= 0) return;
     this.revalidate();
   };
+
+  /**
+   * @internal
+   * @returns
+   */
+  private abortRetry() {
+    if (!this.retryTimeoutMeta) return;
+    clearTimeout(this.retryTimeoutMeta.timeoutId);
+    this.retryTimeoutMeta.reject();
+  }
 }

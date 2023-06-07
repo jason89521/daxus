@@ -14,6 +14,11 @@ export class InfiniteModelAccessor<M, Arg = any, RD = any, E = unknown> extends 
   private arg: Arg;
   private updateModel: (cb: (draft: Draft<M>) => void) => void;
   private data: RD[] = [];
+  /**
+   * This property is used to reject ant ongoing fetching.
+   * It may be invoked when there is a revalidation executing,
+   * but the user call the fetching next.
+   */
   private rejectFetching: (() => void) | null = null;
   private currentTask: Task = 'idle';
 
@@ -149,11 +154,10 @@ export class InfiniteModelAccessor<M, Arg = any, RD = any, E = unknown> extends 
     }
 
     this.currentTask = task;
-    this.abortRetry();
     this.rejectFetching?.();
     this.updateStartAt(currentTime);
-
     this.updateStatus({ isFetching: true });
+    this.onFetchingStart();
     const arg = this.arg;
     try {
       const [data, error] = await this.fetchPages({ pageSize, pageIndex });
@@ -170,6 +174,7 @@ export class InfiniteModelAccessor<M, Arg = any, RD = any, E = unknown> extends 
         this.action.onSuccess?.({ data, arg });
       }
       this.currentTask = 'idle';
+      this.onFetchingFinish();
     } catch (error) {
       // This error happens when any fetching is aborted.
       // We don't need to handle this.
