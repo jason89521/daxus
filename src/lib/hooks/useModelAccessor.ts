@@ -90,6 +90,8 @@ export function useModelAccessor<M, D, E = unknown>(
     if (revalidateIfStale) return true;
     // If there is no stale data, we should fetch the data.
     if (!hasStaleData) return true;
+    // This condition is useful when `pollingInterval` changes.
+    if ((pollingInterval ?? 0) > 0) return true;
 
     return false;
   })();

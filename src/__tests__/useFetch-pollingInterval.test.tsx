@@ -61,4 +61,41 @@ describe('useFetch pollingInterval', () => {
     await act(() => sleep(20));
     expect(onSuccessMock).toHaveBeenCalledTimes(1);
   });
+
+  test('should start polling when pollingInterval changes', async () => {
+    const onSuccessMock = vi.fn();
+    const control = getPostModelControl({ onSuccessMock });
+    const { getPostById, postAdapter } = createPostModel(control);
+    function Page() {
+      const [pollingInterval, setPollingInterval] = useState(0);
+      const { data } = useFetch(getPostById(0), model => postAdapter.readOne(model, 0), {
+        pollingInterval,
+      });
+
+      return (
+        <>
+          <button onClick={() => setPollingInterval(10)}>start polling</button>
+          <div>title: {data?.title}</div>
+        </>
+      );
+    }
+
+    const { getByText, findByText } = render(<Page />);
+    await findByText('title: title0');
+    expect(onSuccessMock).toHaveBeenCalledOnce();
+    await act(() => sleep(100));
+    fireEvent.click(getByText('start polling'));
+    await waitFor(
+      () => {
+        expect(onSuccessMock).toHaveBeenCalledTimes(2);
+      },
+      { interval: 1 }
+    );
+    await waitFor(
+      () => {
+        expect(onSuccessMock).toHaveBeenCalledTimes(3);
+      },
+      { interval: 1 }
+    );
+  });
 });
