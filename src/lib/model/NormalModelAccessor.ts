@@ -39,9 +39,7 @@ export class NormalModelAccessor<Model, Arg = any, Data = any, E = unknown> exte
 
     if (!this.canFetch({ currentTime })) return;
 
-    this.abortRetry();
     this.updateStartAt(currentTime);
-
     this.updateStatus({ isFetching: true });
     this.onFetchingStart();
     const arg = this.arg;
