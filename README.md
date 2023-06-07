@@ -106,7 +106,7 @@ Finally, let's discuss model mutation. In many cases, besides fetching data from
 export function createPost(title: string, content: string) {
   const res = await createPostApi({ title, content });
   postModel.mutate(model => {
-    model.appendPagination(model, 'all', [res]);
+    postAdapter.appendPagination(model, 'all', [res]);
   });
 }
 ```
