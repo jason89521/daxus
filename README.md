@@ -1,6 +1,6 @@
 # React Server Model
 
-RSM (React Server Model) is a server state management library that prioritizes developer control over data. It offers customizable data structures and adapters to handle data updates efficiently. With an intuitive API, developers can directly access and manipulate their data structures. RSM also provides hooks for seamless server data retrieval and synchronization. It's a flexible alternative for developers seeking greater control and customization in server state management compared to frameworks like React Query or SWR.
+RSM (React Server Model) is a server state management library that emphasizes developer control over data. It allows for customized data structures and adapters to handle data updates effectively. With an intuitive API, developers can directly access and manipulate their data structures. RSM also provides hooks like `useFetch` and `useInfiniteFetch` for easy server data retrieval and synchronization. It offers a flexible approach for developers who desire more control and customization in managing server state in their React applications.
 
 ## TOC
 
