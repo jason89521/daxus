@@ -135,7 +135,7 @@ async function createComment(postId, content) {
 
 As you can see, updating the state using `postModel` and `postAdapter` is straightforward, and you can integrate this code into any function, not just hooks or components.
 
-In addition, RSM provides two hooks, `useFetch` and `useInfiniteFetch`, which help you fetch server data and synchronize it with your data structure. Using these hooks eliminates the need to worry about deduplication, revalidation, and other concerns, as RSM takes care of them. Of course, if you prefer, you can also use `useEffect` to fetch data. It depends on how you want to use RSM.
+In addition, RSM provides two hooks, `useFetch` and `useInfiniteFetch`, which help you fetch server data and synchronize it with your data structure. Using these hooks eliminates the need to worry about deduplication, revalidation, and other concerns, as RSM takes care of them.
 
 The main goal of RSM is to give you a high level of control over your data, while deduplication, revalidation, and similar features are secondary. If you don't require such a high level of control over your data, React Query or SWR might be more suitable choices.
 
