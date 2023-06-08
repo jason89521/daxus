@@ -203,7 +203,8 @@ export const commentSlice = createSlice({
     // other reducers
     builder.addCase(createComment.fulfilled, (state, action) => {
       const key = getKey(action.meta.arg);
-      commentAdapter.appendPagination(state, key, [action.payload]);
+      commentAdapter.appendPagination(state, key, [action.payload.items]);
+      commentAdapter.setNextKey(state, key, action.payload.nextKey);
     });
   },
 });
