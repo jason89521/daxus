@@ -1,10 +1,11 @@
 # React Server Model
 
-The goal of React Server Model is to provide an API that is as convenient to use as SWR, while also allowing customization of data, enabling users to have more flexibility in modifying their data.
+RSM (Redux Server Model) is a server state management library that prioritizes developer control over data. It offers customizable data structures and adapters to handle data updates efficiently. With an intuitive API, developers can directly access and manipulate their data structures. RSM also provides hooks for seamless server data retrieval and synchronization. It's a flexible alternative for developers seeking greater control and customization in server state management compared to frameworks like React Query or SWR.
 
 ## TOC
 
 - [Getting Started](#getting-started)
+- [Concept](#concept)
 - [Why Not Just Using SWR](#why-not-just-using-swr)
 - [The Motivation](#the-motivation)
 
@@ -112,6 +113,31 @@ export function createPost(title: string, content: string) {
 ```
 
 That's it! Using `mutate`, you can directly update your model. Subsequently, the `useFetch` and `useInfiniteFetch` hooks of the corresponding actions will check if the data you want to display has changed and trigger a rerender if necessary.
+
+## Concept
+
+The greatest advantage of using RSM is that you can customize the data structure for each data. For example, pagination might be the most suitable data structure for comments, while a dictionary might be preferred based on user settings. It depends on how you intend to use the data.
+
+The core concept of RSM is to create an adapter for your data structure to handle various data updates (similar to the provided `createPaginationAdapter`). All operations that modify the data are performed through the adapter, making the code more concise and reducing code duplication.
+
+RSM provides an intuitive API that allows direct access to your data structure, and you can expect all data to be updated according to your adapter. This is particularly useful when your data has high dependencies. For example, when you add a comment to post 1, you would expect the `totalCommentCount` of post 1 to increase. In this case, you can simply write:
+
+```javascript
+async function createComment(postId, content) {
+  const response = await createCommentApi(postId, content);
+  // handle other logic with the response
+  postModel.mutate(model => {
+    const post = postAdapter.readOne(model, postId);
+    if (post) post.totalCommentCount += 1;
+  });
+}
+```
+
+As you can see, updating the state using `postModel` and `postAdapter` is straightforward, and you can integrate this code into any function, not just hooks or components.
+
+In addition, RSM provides two hooks, `useFetch` and `useInfiniteFetch`, which help you fetch server data and synchronize it with your data structure. Using these hooks eliminates the need to worry about deduplication, revalidation, and other concerns, as RSM takes care of them. Of course, if you prefer, you can also use `useEffect` to fetch data. It depends on how you want to use RSM.
+
+The main goal of RSM is to give you a high level of control over your data, while deduplication, revalidation, and similar features are secondary. If you don't require such a high level of control over your data, React Query or SWR might be more suitable choices.
 
 ## Why not just using SWR
 
