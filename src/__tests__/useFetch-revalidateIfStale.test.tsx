@@ -11,7 +11,7 @@ describe('useFetch revalidateIfStale', async () => {
     };
     const { getPostById, postAdapter } = createPostModel(control);
     function Page() {
-      const { data } = useFetch(getPostById(0), model => postAdapter.readOne(model, 0));
+      const { data } = useFetch(getPostById(0), model => postAdapter.tryReadOne(model, 0));
 
       return <div>title: {data?.title}</div>;
     }
@@ -27,7 +27,7 @@ describe('useFetch revalidateIfStale', async () => {
     const control: PostModelControl = { fetchDataMock };
     const { getPostById, postAdapter, postModel } = createPostModel(control);
     function Page() {
-      const { data } = useFetch(getPostById(0), model => postAdapter.readOne(model, 0), {
+      const { data } = useFetch(getPostById(0), model => postAdapter.tryReadOne(model, 0), {
         revalidateIfStale: false,
       });
 

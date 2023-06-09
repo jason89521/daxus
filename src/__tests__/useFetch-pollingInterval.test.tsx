@@ -10,7 +10,7 @@ describe('useFetch pollingInterval', () => {
     const { getPostById, postAdapter } = createPostModel(control);
     function Page() {
       const [pollingInterval, setPollingInterval] = useState(10);
-      const { data } = useFetch(getPostById(0), model => postAdapter.readOne(model, 0), {
+      const { data } = useFetch(getPostById(0), model => postAdapter.tryReadOne(model, 0), {
         pollingInterval,
       });
 
@@ -36,7 +36,7 @@ describe('useFetch pollingInterval', () => {
     const control = getPostModelControl({ onSuccessMock });
     const { getPostById, postAdapter } = createPostModel(control);
     function Post({ pollingInterval }: { pollingInterval: number }) {
-      const { data } = useFetch(getPostById(0), model => postAdapter.readOne(model, 0), {
+      const { data } = useFetch(getPostById(0), model => postAdapter.tryReadOne(model, 0), {
         pollingInterval,
       });
 
@@ -68,7 +68,7 @@ describe('useFetch pollingInterval', () => {
     const { getPostById, postAdapter } = createPostModel(control);
     function Page() {
       const [pollingInterval, setPollingInterval] = useState(0);
-      const { data } = useFetch(getPostById(0), model => postAdapter.readOne(model, 0), {
+      const { data } = useFetch(getPostById(0), model => postAdapter.tryReadOne(model, 0), {
         pollingInterval,
       });
 

@@ -12,7 +12,7 @@ describe('useInfiniteFetch revalidateIfStale', async () => {
     const { getPostList, postAdapter } = createPostModel(control);
     function Page() {
       const { data } = useInfiniteFetch(getPostList(), model =>
-        postAdapter.readPagination(model, '')
+        postAdapter.tryReadPagination(model, '')
       );
 
       return (
@@ -38,7 +38,7 @@ describe('useInfiniteFetch revalidateIfStale', async () => {
     function Page() {
       const { data } = useInfiniteFetch(
         getPostList(),
-        model => postAdapter.readPagination(model, ''),
+        model => postAdapter.tryReadPagination(model, ''),
         { revalidateIfStale: false }
       );
 

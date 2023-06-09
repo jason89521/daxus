@@ -10,7 +10,7 @@ describe('useInfiniteFetch dedupeInterval', () => {
     function Page() {
       const { data, fetchNextPage } = useInfiniteFetch(
         getPostList(),
-        model => postAdapter.readPagination(model, ''),
+        model => postAdapter.tryReadPagination(model, ''),
         { dedupeInterval: 10 }
       );
 
@@ -35,11 +35,11 @@ describe('useInfiniteFetch dedupeInterval', () => {
     const post = createPost(0);
     post.title = `${control.titlePrefix} ${post.title}`;
     await screen.findByText(post.title);
-    expect(postAdapter.readPagination(postModel.getModel(), '')?.items).toEqual([post]);
+    expect(postAdapter.tryReadPagination(postModel.getModel(), '')?.items).toEqual([post]);
 
     // The expired request should not update the model
     await act(() => sleep(100));
     await screen.findByText(post.title);
-    expect(postAdapter.readPagination(postModel.getModel(), '')?.items).toEqual([post]);
+    expect(postAdapter.tryReadPagination(postModel.getModel(), '')?.items).toEqual([post]);
   });
 });

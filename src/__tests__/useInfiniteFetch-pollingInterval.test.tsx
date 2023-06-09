@@ -12,7 +12,7 @@ describe('useInfiniteFetch pollingInterval', () => {
       const [pollingInterval, setPollingInterval] = useState(10);
       const { data } = useInfiniteFetch(
         getPostList(),
-        model => postAdapter.readPagination(model, ''),
+        model => postAdapter.tryReadPagination(model, ''),
         { pollingInterval }
       );
 
@@ -47,7 +47,7 @@ describe('useInfiniteFetch pollingInterval', () => {
     function Page() {
       const { data, fetchNextPage } = useInfiniteFetch(
         getPostList(),
-        model => postAdapter.readPagination(model, ''),
+        model => postAdapter.tryReadPagination(model, ''),
         { pollingInterval: 10 }
       );
 
