@@ -12,25 +12,39 @@ describe('paginationAdapter', () => {
   });
 
   test('CRUD', () => {
-    expect(adapter.readOne(model, 0)).toBeUndefined();
+    expect(adapter.tryReadOne(model, 0)).toBeUndefined();
+    expect(adapter.tryReadOneFactory(0)(model)).toBeUndefined();
+    expect(() => adapter.readOne(model, 0)).toThrowError();
 
     adapter.createOne(model, { ...post0 });
+    expect(adapter.tryReadOne(model, 0)).toEqual(post0);
+    expect(adapter.tryReadOneFactory(0)(model)).toEqual(post0);
     expect(adapter.readOne(model, 0)).toEqual(post0);
 
     adapter.updateOne(model, 0, { layout: 'image' });
+
+    expect(adapter.tryReadOne(model, 0)).toEqual({ ...post0, layout: 'image' });
+    expect(adapter.tryReadOneFactory(0)(model)).toEqual({ ...post0, layout: 'image' });
     expect(adapter.readOne(model, 0)).toEqual({ ...post0, layout: 'image' });
+
     adapter.updateOne(model, 1, { layout: 'classic' });
-    expect(adapter.readOne(model, 1)).toBeUndefined();
+    expect(adapter.tryReadOne(model, 1)).toBeUndefined();
+    expect(adapter.tryReadOneFactory(1)(model)).toBeUndefined();
+    expect(() => adapter.readOne(model, 1)).toThrowError();
 
     adapter.deleteOne(model, 0);
-    expect(adapter.readOne(model, 0)).toBeUndefined();
+    expect(adapter.tryReadOne(model, 0)).toBeUndefined();
+    expect(adapter.tryReadOneFactory(0)(model)).toBeUndefined();
+    expect(() => adapter.readOne(model, 1)).toThrowError();
 
     // create a post
     const post1 = createPost(1);
     adapter.upsertOne(model, { ...post1 });
+    expect(adapter.tryReadOne(model, 1)).toEqual({ ...post1 });
     expect(adapter.readOne(model, 1)).toEqual({ ...post1 });
     // update a post
     adapter.upsertOne(model, { ...post1, layout: 'image' });
+    expect(adapter.tryReadOne(model, 1)).toEqual({ ...post1, layout: 'image' });
     expect(adapter.readOne(model, 1)).toEqual({ ...post1, layout: 'image' });
   });
 
