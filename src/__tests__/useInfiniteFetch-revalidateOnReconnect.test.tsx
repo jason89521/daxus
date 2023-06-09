@@ -9,7 +9,7 @@ describe('useInfiniteFetch revalidateOnReconnect', () => {
     function Page() {
       const { data, fetchNextPage } = useInfiniteFetch(
         getPostList(),
-        model => postAdapter.readPagination(model, ''),
+        model => postAdapter.tryReadPagination(model, ''),
         { revalidateOnReconnect: true }
       );
 
@@ -37,7 +37,7 @@ describe('useInfiniteFetch revalidateOnReconnect', () => {
     function Page() {
       const { data, fetchNextPage } = useInfiniteFetch(
         getPostList(),
-        model => postAdapter.readPagination(model, ''),
+        model => postAdapter.tryReadPagination(model, ''),
         { revalidateOnReconnect: false }
       );
 

@@ -8,7 +8,7 @@ describe('useInfiniteFetch', () => {
     const { getPostList, postAdapter } = createPostModel({});
     function Page() {
       const { data, fetchNextPage } = useInfiniteFetch(getPostList(), model =>
-        postAdapter.readPagination(model, '')
+        postAdapter.tryReadPagination(model, '')
       );
 
       return (
@@ -30,7 +30,7 @@ describe('useInfiniteFetch', () => {
     const { getPostList, postAdapter, postModel } = createPostModel({});
     function Page() {
       const { data, fetchNextPage } = useInfiniteFetch(getPostList(), model =>
-        postAdapter.readPagination(model, '')
+        postAdapter.tryReadPagination(model, '')
       );
 
       return (
@@ -56,7 +56,7 @@ describe('useInfiniteFetch', () => {
     const { getPostList, postAdapter } = createPostModel(control);
     function Page() {
       const { data, fetchNextPage } = useInfiniteFetch(getPostList(), model =>
-        postAdapter.readPagination(model, '')
+        postAdapter.tryReadPagination(model, '')
       );
 
       return (
@@ -88,7 +88,7 @@ describe('useInfiniteFetch', () => {
     function Page() {
       const { data, fetchNextPage } = useInfiniteFetch(
         getPostList(),
-        model => postAdapter.readPagination(model, ''),
+        model => postAdapter.tryReadPagination(model, ''),
         { retryCount: 0 }
       );
 

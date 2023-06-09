@@ -9,7 +9,7 @@ describe('useInfiniteFetch revalidateOnFocus', () => {
     function Page() {
       const { data, fetchNextPage } = useInfiniteFetch(
         getPostList(),
-        model => postAdapter.readPagination(model, ''),
+        model => postAdapter.tryReadPagination(model, ''),
         { revalidateOnFocus: true }
       );
 
@@ -37,7 +37,7 @@ describe('useInfiniteFetch revalidateOnFocus', () => {
     function Page() {
       const { data, fetchNextPage } = useInfiniteFetch(
         getPostList(),
-        model => postAdapter.readPagination(model, ''),
+        model => postAdapter.tryReadPagination(model, ''),
         { revalidateOnFocus: false }
       );
 
@@ -65,7 +65,7 @@ describe('useInfiniteFetch revalidateOnFocus', () => {
     const { getPostList, postAdapter } = createPostModel(control);
     function Page() {
       const { data, fetchNextPage } = useInfiniteFetch(getPostList(), model =>
-        postAdapter.readPagination(model, '')
+        postAdapter.tryReadPagination(model, '')
       );
 
       return (
