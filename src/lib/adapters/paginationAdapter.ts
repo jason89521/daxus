@@ -30,6 +30,13 @@ function defaultGetId(data: unknown): Id {
   throw new Error('Should specify the `getId` function');
 }
 
+function createPaginationMeta(): PaginationMeta {
+  return {
+    ids: [],
+    noMore: false,
+  };
+}
+
 export function createPaginationAdapter<Data>({
   getId = defaultGetId,
 }: {
@@ -37,7 +44,12 @@ export function createPaginationAdapter<Data>({
 }) {
   type Model = PaginationModel<Data>;
 
-  function createOne(model: Model, data: Data) {
+  /**
+   * Add the data to the model
+   * @param model
+   * @param data
+   */
+  function createOne(model: Model, data: Data): void {
     const id = getId(data);
     model.entityRecord[id] = data;
   }
@@ -85,12 +97,24 @@ export function createPaginationAdapter<Data>({
     return entity;
   }
 
+  /**
+   * Update the entity with the new data. If the entity is not existed, do nothing.
+   * @param model
+   * @param id
+   * @param data
+   * @returns
+   */
   function updateOne(model: Model, id: Id, data: Partial<Data>) {
     if (!model.entityRecord[id]) return;
     const cache = model.entityRecord[id]!;
     model.entityRecord[id] = { ...cache, ...data };
   }
 
+  /**
+   * Delete the entity with the specified id and remove the data from pagination (if existed).
+   * @param model
+   * @param id
+   */
   function deleteOne(model: Model, id: Id) {
     delete model.entityRecord[id];
     for (const paginationMeta of Object.values(model.paginationMetaRecord)) {
@@ -100,18 +124,75 @@ export function createPaginationAdapter<Data>({
     }
   }
 
+  /**
+   * Update the entity with the data. If the entity is not existed, insert it to the model.
+   * @param model
+   * @param data
+   */
   function upsertOne(model: Model, data: Data) {
     const id = getId(data);
     const cache = model.entityRecord[id];
     model.entityRecord[id] = { ...cache, ...data };
   }
 
+  /**
+   * Call `upsertOne` for every data.
+   * @param model
+   * @param data
+   */
   function upsertMany(model: Model, data: Data[]) {
     for (const entity of data) {
       upsertOne(model, entity);
     }
   }
 
+  function updatePaginationMeta(model: Model, key: string, meta: PaginationMeta): void {
+    model.paginationMetaRecord[key] = meta;
+  }
+
+  /**
+   * Try to read the pagination meta. If the meta is not existed, return `undefined`.
+   * @param model
+   * @param key
+   * @returns
+   */
+  function tryReadPaginationMeta(model: Model, key: string): PaginationMeta | undefined {
+    return model.paginationMetaRecord[key];
+  }
+
+  /**
+   * This function returns a function that accepts a model as the only one parameter.
+   * It is useful when using `useFetch` or `useInfiniteFetch`.
+   * @param key
+   * @returns
+   */
+  function tryReadPaginationMetaFactory(key: string): (model: Model) => PaginationMeta | undefined {
+    return model => tryReadPaginationMeta(model, key);
+  }
+
+  /**
+   * Read the pagination with the specified key. If it is not existed, throw an error.
+   * It is useful when you are sure that the pagination is existed.
+   * @param model
+   * @param key
+   * @returns
+   */
+  function readPaginationMeta(model: Model, key: string): PaginationMeta {
+    const meta = tryReadPaginationMeta(model, key);
+    if (!meta) {
+      throw new Error(
+        `pagination meta with key: ${key} is not existed, use tryReadPaginationMeta instead.`
+      );
+    }
+    return meta;
+  }
+
+  /**
+   * Replace the whole pagination with the given data array.
+   * @param model
+   * @param paginationKey
+   * @param data
+   */
   function replacePagination(model: Model, paginationKey: string, data: Data[]) {
     upsertMany(model, data);
     const ids = data.map(getId);
@@ -121,18 +202,46 @@ export function createPaginationAdapter<Data>({
     };
   }
 
-  function appendPagination(model: Model, paginationKey: string, data: Data[]) {
+  /**
+   * Append the data to the pagination. If the pagination is not existed, create one.
+   * @param model
+   * @param key
+   * @param data
+   */
+  function appendPagination(model: Model, key: string, data: Data[]) {
     upsertMany(model, data);
+    const meta = tryReadPaginationMeta(model, key) ?? createPaginationMeta();
     const ids = data.map(getId);
-    const paginationMeta = model.paginationMetaRecord[paginationKey];
-    if (!paginationMeta) {
-      throw new Error(`Attempting append an undefined pagination!`);
-    }
-    paginationMeta.ids.push(...ids);
+    const originalIds = meta.ids;
+    const set = new Set([...originalIds, ...ids]);
+    meta.ids = [...set];
+    updatePaginationMeta(model, key, meta);
   }
 
-  function readPagination(model: Model, paginationKey: string): Pagination<Data> | undefined {
-    const meta = model.paginationMetaRecord[paginationKey];
+  /**
+   * Prepend the data to the pagination. If the pagination is not existed, create one.
+   * @param model
+   * @param key
+   * @param data
+   */
+  function prependPagination(model: Model, key: string, data: Data[]) {
+    upsertMany(model, data);
+    const meta = tryReadPaginationMeta(model, key) ?? createPaginationMeta();
+    const ids = data.map(getId);
+    const originalIds = meta.ids;
+    const set = new Set([...ids, ...originalIds]);
+    meta.ids = [...set];
+    updatePaginationMeta(model, key, meta);
+  }
+
+  /**
+   * Try to read the pagination with the specified key. If it is not existed, return `undefined`.
+   * @param model
+   * @param key
+   * @returns
+   */
+  function tryReadPagination(model: Model, key: string): Pagination<Data> | undefined {
+    const meta = tryReadPaginationMeta(model, key);
     if (!meta) return;
     const { ids, ...restMeta } = meta;
     const items = [...ids]
@@ -144,6 +253,48 @@ export function createPaginationAdapter<Data>({
     return { items, ...restMeta };
   }
 
+  /**
+   * Returns a function that accepts model as the only one parameter.
+   * If is useful when using `useFetch` or `useInfiniteFetch`.
+   * @param key
+   * @returns
+   * @example
+   * ```ts
+   * useInfiniteFetch(getPostList(filter), postAdapter.tryReadPaginationFactory(filter));
+   * ```
+   */
+  function tryReadPaginationFactory(key: string): (model: Model) => Pagination<Data> | undefined {
+    return model => tryReadPagination(model, key);
+  }
+
+  /**
+   * Read the pagination with the specified key. If the pagination is not existed, throw an error.
+   * It is useful when you are sure that the pagination is existed.
+   * @param model
+   * @param key
+   * @returns
+   */
+  function readPagination(model: Model, key: string): Pagination<Data> {
+    const pagination = tryReadPagination(model, key);
+    if (!pagination) {
+      throw new Error(`pagination with key: ${key} is not existed, use tryReadPagination instead`);
+    }
+    return pagination;
+  }
+
+  /**
+   * Set the `noMore` property in the pagination meta.
+   * @param model
+   * @param key
+   * @param noMore
+   */
+  function setNoMore(model: Model, key: string, noMore: boolean): void {
+    const meta = tryReadPaginationMeta(model, key);
+    if (meta) {
+      meta.noMore = noMore;
+    }
+  }
+
   return {
     initialModel: { entityRecord: {}, paginationMetaRecord: {} } as Model,
     createOne,
@@ -153,8 +304,15 @@ export function createPaginationAdapter<Data>({
     updateOne,
     deleteOne,
     upsertOne,
+    tryReadPaginationMeta,
+    tryReadPaginationMetaFactory,
+    readPaginationMeta,
+    tryReadPagination,
+    tryReadPaginationFactory,
     readPagination,
     replacePagination,
     appendPagination,
+    prependPagination,
+    setNoMore,
   };
 }
