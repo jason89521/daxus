@@ -2,142 +2,111 @@
 
 RSM (React Server Model) is a server state management library that emphasizes developer control over data. It allows for customized data structures and adapters to handle data updates effectively. With an intuitive API, developers can directly access and manipulate their data structures. RSM also provides hooks like `useFetch` and `useInfiniteFetch` for easy server data retrieval and synchronization. It offers a flexible approach for developers who desire more control and customization in managing server state in their React applications.
 
-## TOC
-
-- [Getting Started](#getting-started)
-- [Concept](#concept)
-- [Why Not Just Using SWR](#why-not-just-using-swr)
-- [The Motivation](#the-motivation)
+- [React Server Model](#react-server-model)
+  - [Getting Started](#getting-started)
+  - [Why not just using SWR](#why-not-just-using-swr)
+  - [The Motivation](#the-motivation)
+    - [Modifying Data](#modifying-data)
+    - [Retrieving Data](#retrieving-data)
+    - [Conclusion](#conclusion)
+  - [The features I need to achieve](#the-features-i-need-to-achieve)
 
 ## Getting Started
 
-In React Server Model, you need to define the shape of your data yourself. We take care of handling deduplication, revalidation, and other data fetching optimizations. However, it is up to you to decide how to update your data after fetching it.
+In RSM (React Server Model), you need to create a separate model with different type of data structure for each data. For example, you can create a pagination model for posts and a dictionary model for user settings. Let's take posts as an example.
 
-### Model
-
-We refer to different data shapes as a "model." In my company, we have data such as posts, comments, and forums. Defining the structure of these different data shapes, such as pagination, can be considered a model.
+First, create the post model:
 
 ```typescript
-import { createPaginationAdapter, createModel } from 'react-server-model';
-
-const postAdapter = createPaginationAdapter({});
-const postModel = createModel(postAdapter.initialModel);
+export const postAdapter = createPaginationAdapter({});
+export const postModel = createModel(postAdapter.initialModel);
 ```
 
-Defining a model is straightforward. You simply use `createModel` and pass in the initial value.
+RSM provides the `createPaginationAdapter` function to quickly create a pagination model. This function returns an object that includes the initial model and various pagination operations.
 
-> `createPaginationAdapter` is a utility function provided by us to quickly create a pagination model. However, you can also define your custom pagination model.
-
-### Action
-
-Once you have created a model, you can start defining actions.
+After creating the model, you need to define different accessors. Accessors play a crucial role in fetching server data and synchronizing it with the model.
 
 ```typescript
-const getPostById = postModel.defineAccessor<number, Post>('normal', {
-  fetchData: async id => {
-    const data = await getPostFromServer(id);
-    return data; // the type of data is `Post`
-  },
-  syncModel: (model, { data, arg }) => {
-    postAdapter.upsertOne(model, data);
-  },
-});
-
-const getPostList = postModel.defineAccessor<{ filter: string }, Post[]>('infinite', {
-  fetchData: async ({ layout }, { pageIndex, previousData }) => {
-    // If the previous API returns an empty array, stop fetching.
-    if (previousData?.length === 0) return null;
-    const data = await getPostListFromServer({ filter, page: pageIndex });
+export const getPostById = postModel.defineAccessor<number, Post>('normal', {
+  fetchData: async arg => {
+    const data = await getPostApi({ id: arg });
     return data;
   },
-  syncModel: (model, { data, arg, pageIndex }) => {
-    // arg -> {filter}
-    // You can use any function to generate the pagination key.
-    // We use `JSON.stringify` for simplicity here.
-    const paginationKey = JSON.stringify(arg);
-    if (pageIndex === 0) {
-      postAdapter.replacePagination(model, paginationKey, data);
-    } else {
-      postAdapter.appendPagination(model, paginationKey, data);
-    }
+  syncModel: (model, payload) => {
+    postAdapter.upsertOne(model, payload.data);
   },
 });
+
+export const getPostList = postModel.defineAccessor<void, { items: Post[]; nextKey: string }>(
+  'infinite',
+  {
+    fetchData: async (_arg, { pageIndex, previousData }) => {
+      if (previousData?.items.length === 0) return null; // there is no more data to fetch
+      const data = await getPostListApi({ pageIndex, nextKey: previousData?.nextKey });
+      return data;
+    },
+    syncModel: (model, payload) => {
+      const paginationKey = 'all';
+      postAdapter.appendPagination(model, paginationKey, payload.data.items);
+      if (payload.data.items.length === 0) {
+        postAdapter.setNoMore(model, paginationKey, true);
+      }
+    },
+  }
+);
 ```
 
-When defining an action, you need to provide two necessary parameters: `fetchData` and `syncModel`. `fetchData` describes how this action fetches data from the server, and `syncModel` determines how the data is synchronized into your model after fetching.
+We use `defineAccessor` to define an accessor. First, we determine whether the accessor is `'normal'` or `'infinite'`. `'infinite'` accessors are typically used for implementing infinite scrolling, while `'normal'` accessors are sufficient for most cases. Next, we define `fetchData` and `syncModel`. `fetchData` is the function used by the accessor to handle requests, and `syncModel` synchronizes the data obtained from `fetchData` with the model. It's where you decide how to update the model with the data.
 
-You may have noticed that the first parameter of `defineAccessor` has two possible values. When implementing infinite scrolling, using `'infinite'` is a better choice. Otherwise, for most cases, `'normal'` should suffice.
-
-### `useFetch` and `useInfiniteFetch`
-
-After defining actions, you can use `useFetch` or `useInfiniteFetch` in a custom hook to fetch data from the server. Use `useFetch` for `'normal'` actions and `useInfiniteFetch` for `'infinite'` actions.
+`defineAccessor` returns an accessor creator function. Apart from using `useAccessor` (which we'll discuss later), you can also directly utilize the accessor to revalidate data:
 
 ```typescript
-import { useFetch, useInfiniteFetch } from 'react-server-model';
+const accessor = getPostById(0);
+accessor.revalidate();
+```
 
-export function usePost(id: number) {
-  const result = useFetch(getPostById(id), model => {
-    return postAdapter.readOne(model, id);
-  });
-  return result; // {data, error, isFetching}
-}
+For `'infinite'` accessors, there is an additional `fetchNext` function to fetch the next page of pagination:
 
-export function usePostList(filter: string) {
-  const result = useInfiniteFetch(
-    getPostList({ filter }),
+```typescript
+const accessor = getPostList();
+accessor.fetchNext();
+```
 
-    model => {
-      const key = JSON.stringify({ filter });
-      return postAdapter.readPagination(model, key);
+RSM provides the `useAccessor` hook, which automatically calls `revalidate`. You can also enable or disable various settings for the accessor within this hook, such as `revalidateOnFocus` and `pollingInterval`.
+
+```typescript
+export function usePost(id: number, revalidateOnFocus: boolean) {
+  const accessor = getPostById(id);
+  const { data, error, isFetching } = useAccessor(
+    accessor,
+    model => postAdapter.tryReadOne(model, id),
+    {
+      revalidateOnFocus,
     }
   );
-  return result; // { data, error, isFetching, fetchNextPage}
+  const isLoading = typeof data === 'undefined' && isFetching;
+
+  return { data, error, isLoading, revalidate: () => accessor.revalidate() };
 }
 ```
 
-The first parameter of `useFetch` and `useInfiniteFetch` is the return value of the previously defined action. The second parameter determines how to display the corresponding model data. These hooks will automatically handle the request initiation and data synchronization into your model, as defined in the actions.
+The first argument of `useAccessor` is the accessor, and the second argument determines how to read the corresponding data from the model. In the above example, `postAdapter.tryReadOne` reads the data for the corresponding ID from the model and returns `undefined` if the data hasn't been obtained yet. The last argument is for setting the accessor's options.
 
-You can use these custom hooks anywhere in your code, and you don't need to worry about duplicate requests because we handle that for you.
+You can safely call `useAccessor` for the same accessor in multiple places without triggering multiple requests because the accessor handles deduplication internally.
 
-### Mutation
-
-Finally, let's discuss model mutation. In many cases, besides fetching data from the server, we also have user interactions that update data. For example, if a user creates a new post and we want to display it in the list with the filter set to "all," we can use the `mutate` method:
+Finally, let's discuss model mutation. Let's assume we need to create a comment, and after successfully creating it, we want to increment the `totalCommentCount` of the corresponding post:
 
 ```typescript
-export function createPost(title: string, content: string) {
-  const res = await createPostApi({ title, content });
+async function createComment(postId: number, content: string) {
+  const newComment = await createCommentApi({ postId, content });
+  // other logic with `newComment`
   postModel.mutate(model => {
-    postAdapter.appendPagination(model, 'all', [res]);
+    postAdapter.readOne(model, postId).totalCommentCount += 1;
   });
 }
 ```
 
-That's it! Using `mutate`, you can directly update your model. Subsequently, the `useFetch` and `useInfiniteFetch` hooks of the corresponding actions will check if the data you want to display has changed and trigger a rerender if necessary.
-
-## Concept
-
-The greatest advantage of using RSM is that you can customize the data structure for each data. For example, pagination might be the most suitable data structure for comments, while a dictionary might be preferred based on user settings. It depends on how you intend to use the data.
-
-The core concept of RSM is to create an adapter for your data structure to handle various data updates (similar to the provided `createPaginationAdapter`). All operations that modify the data are performed through the adapter, making the code more concise and reducing code duplication.
-
-RSM provides an intuitive API that allows direct access to your data structure, and you can expect all data to be updated according to your adapter. This is particularly useful when your data has high dependencies. For example, when you add a comment to post 1, you would expect the `totalCommentCount` of post 1 to increase. In this case, you can simply write:
-
-```javascript
-async function createComment(postId, content) {
-  const response = await createCommentApi(postId, content);
-  // handle other logic with the response
-  postModel.mutate(model => {
-    const post = postAdapter.readOne(model, postId);
-    if (post) post.totalCommentCount += 1;
-  });
-}
-```
-
-As you can see, updating the state using `postModel` and `postAdapter` is straightforward, and you can integrate this code into any function, not just hooks or components.
-
-In addition, RSM provides two hooks, `useFetch` and `useInfiniteFetch`, which help you fetch server data and synchronize it with your data structure. Using these hooks eliminates the need to worry about deduplication, revalidation, and other concerns, as RSM takes care of them.
-
-The main goal of RSM is to give you a high level of control over your data, while deduplication, revalidation, and similar features are secondary. If you don't require such a high level of control over your data, React Query or SWR might be more suitable choices.
+Mutating the model is straightforward, and thanks to RSM's use of Immer, you can mutate the model without worrying about immutability. Feel free to mutate it directly.
 
 ## Why not just using SWR
 
