@@ -30,10 +30,6 @@ export class NormalAccessor<Model, Arg = any, Data = any, E = unknown> extends A
     this.notifyModel = notifyModel;
   }
 
-  /**
-   * @internal
-   * @returns
-   */
   revalidate = async () => {
     const currentTime = getCurrentTime();
 
