@@ -35,18 +35,11 @@ export class InfiniteAccessor<M, Arg = any, RD = any, E = unknown> extends Acces
     this.notifyModel = notifyModel;
   }
 
-  /**
-   * @internal
-   */
   revalidate = async () => {
     const pageSize = this.pageSize() || 1;
     this.fetch({ pageSize, pageIndex: 0, task: 'validate' });
   };
 
-  /**
-   * @internal
-   * @returns
-   */
   fetchNext = async () => {
     const pageIndex = this.pageSize();
     const pageSize = pageIndex + 1;
