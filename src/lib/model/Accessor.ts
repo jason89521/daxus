@@ -1,14 +1,6 @@
+import { defaultOptions } from '../constants';
 import type { FetchOptions } from '../hooks/types';
 import type { MutableRefObject } from 'react';
-
-const defaultOptions = {
-  revalidateOnFocus: false,
-  revalidateOnReconnect: false,
-  retryCount: 3,
-  retryInterval: 1000,
-  dedupeInterval: 2000,
-  pollingInterval: 0,
-} satisfies FetchOptions;
 
 export type Status<E = unknown> = {
   isFetching: boolean;
@@ -22,7 +14,8 @@ type RetryTimeoutMeta = {
   reject: () => void;
 };
 
-type OptionsRef = MutableRefObject<FetchOptions>;
+type Options = Required<FetchOptions>;
+type OptionsRef = MutableRefObject<Options>;
 
 export class Accessor<M, E> {
   protected status: Status<E> = { isFetching: false, error: null };
@@ -124,11 +117,11 @@ export class Accessor<M, E> {
     this.statusListeners.forEach(l => l(this.status, newCache));
   };
 
-  protected getOptions = () => {
+  protected getOptions = (): Required<FetchOptions> => {
     const firstOptionsRef = this.getFirstOptionsRef();
     if (!firstOptionsRef) return defaultOptions;
 
-    return { ...defaultOptions, ...firstOptionsRef.current };
+    return firstOptionsRef.current;
   };
 
   protected getRetryCount = () => {

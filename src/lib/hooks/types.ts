@@ -2,12 +2,14 @@ export interface FetchOptions<S = any> {
   revalidateOnFocus?: boolean;
   revalidateOnReconnect?: boolean;
   revalidateIfStale?: boolean;
-  checkHasStaleDataFn?: (snapshot: S) => boolean;
+  checkHasStaleData?: (snapshot: S) => boolean;
   retryCount?: number;
   retryInterval?: number;
   dedupeInterval?: number;
   pollingInterval?: number;
 }
+
+export type RequiredFetchOptions = Required<FetchOptions>;
 
 export interface HookReturn<D, E> {
   readonly data: D;

@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useMemo, useRef, useSyncExternalStore } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useRef, useSyncExternalStore } from 'react';
 import type { InfiniteAccessor, NormalAccessor, Status } from '../model';
 import { isUndefined, noop, objectKeys, stableHash } from '../utils';
 import type { FetchOptions } from './types';
 import { useUpdatedRef } from './useUpdatedRef';
 import { isNull } from '../utils/isNull';
+import { accessorOptionsContext } from '../contexts';
 
 type StateDeps = Partial<Record<keyof Status | 'data', boolean>>;
 type Accessor<M, E> = NormalAccessor<M, any, any, E> | InfiniteAccessor<M, any, any, E>;
@@ -32,11 +33,12 @@ export function useAccessor<M, D, E = unknown>(
 ): ReturnValue<D, E> {
   const {
     revalidateIfStale = false,
-    checkHasStaleDataFn = (value: unknown) => !isUndefined(value),
+    checkHasStaleData = (value: unknown) => !isUndefined(value),
     pollingInterval,
   } = options;
+  const defaultOptions = useContext(accessorOptionsContext);
   const stateDeps = useRef<StateDeps>({}).current;
-  const optionsRef = useUpdatedRef(options);
+  const optionsRef = useUpdatedRef<Required<FetchOptions<D>>>({ ...defaultOptions, ...options });
   const getStatus = useCallback(() => {
     if (isNull(accessor)) return defaultStatus;
     return accessor.getStatus();
@@ -85,7 +87,7 @@ export function useAccessor<M, D, E = unknown>(
   }, [accessor, stateDeps]);
 
   const data = useSyncExternalStore(subscribeData, getData, getData);
-  const hasStaleData = checkHasStaleDataFn(data);
+  const hasStaleData = checkHasStaleData(data);
   const shouldRevalidate = (() => {
     // Always revalidate if `revalidateIfStale` is `true`.
     if (revalidateIfStale) return true;
