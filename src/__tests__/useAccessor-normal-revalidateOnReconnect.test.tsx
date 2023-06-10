@@ -1,13 +1,13 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import { useFetch } from '../lib';
-import { createPostModel, getPostModelControl, sleep } from './utils';
+import { useAccessor } from '../lib';
+import { createPostModel, createPostModelControl, sleep } from './utils';
 
-describe('useFetch revalidateOnReconnect', () => {
+describe('useAccessor-normal revalidateOnReconnect', () => {
   test('should revalidate when network reconnect', async () => {
-    const control = getPostModelControl({});
+    const control = createPostModelControl({});
     const { getPostById, postAdapter } = createPostModel(control);
     function Page() {
-      const { data } = useFetch(getPostById(0), model => postAdapter.tryReadOne(model, 0), {
+      const { data } = useAccessor(getPostById(0), postAdapter.tryReadOneFactory(0), {
         revalidateOnReconnect: true,
       });
 
@@ -26,10 +26,10 @@ describe('useFetch revalidateOnReconnect', () => {
   });
 
   test('should not revalidate when network reconnect if revalidateOnReconnect is set to false', async () => {
-    const control = getPostModelControl({});
+    const control = createPostModelControl({});
     const { getPostById, postAdapter } = createPostModel(control);
     function Page() {
-      const { data } = useFetch(getPostById(0), model => postAdapter.tryReadOne(model, 0), {
+      const { data } = useAccessor(getPostById(0), postAdapter.tryReadOneFactory(0), {
         revalidateOnReconnect: false,
       });
 

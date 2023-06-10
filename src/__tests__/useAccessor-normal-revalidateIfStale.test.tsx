@@ -1,9 +1,9 @@
 import { render, screen } from '@testing-library/react';
-import { useFetch } from '../lib';
+import { useAccessor } from '../lib';
 import type { PostModelControl } from './types';
 import { createPost, createPostModel } from './utils';
 
-describe('useFetch revalidateIfStale', async () => {
+describe('useAccessor-normal revalidateIfStale', async () => {
   test('should revalidate if there is no stale data', async () => {
     const fetchDataMock = vi.fn();
     const control: PostModelControl = {
@@ -11,7 +11,7 @@ describe('useFetch revalidateIfStale', async () => {
     };
     const { getPostById, postAdapter } = createPostModel(control);
     function Page() {
-      const { data } = useFetch(getPostById(0), model => postAdapter.tryReadOne(model, 0));
+      const { data } = useAccessor(getPostById(0), postAdapter.tryReadOneFactory(0));
 
       return <div>title: {data?.title}</div>;
     }
@@ -27,7 +27,7 @@ describe('useFetch revalidateIfStale', async () => {
     const control: PostModelControl = { fetchDataMock };
     const { getPostById, postAdapter, postModel } = createPostModel(control);
     function Page() {
-      const { data } = useFetch(getPostById(0), model => postAdapter.tryReadOne(model, 0), {
+      const { data } = useAccessor(getPostById(0), postAdapter.tryReadOneFactory(0), {
         revalidateIfStale: false,
       });
 

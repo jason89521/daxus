@@ -1,13 +1,13 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import { useFetch } from '../lib';
-import { createPostModel, getPostModelControl, sleep } from './utils';
+import { useAccessor } from '../lib';
+import { createPostModel, createPostModelControl, sleep } from './utils';
 
-describe('useFetch revalidateOnFocus', () => {
+describe('useAccessor-normal revalidateOnFocus', () => {
   test('should revalidate when window get focused', async () => {
-    const control = getPostModelControl({});
+    const control = createPostModelControl({});
     const { getPostById, postAdapter } = createPostModel(control);
     function Page() {
-      const { data } = useFetch(getPostById(0), model => postAdapter.tryReadOne(model, 0), {
+      const { data } = useAccessor(getPostById(0), postAdapter.tryReadOneFactory(0), {
         revalidateOnFocus: true,
       });
 
@@ -26,10 +26,10 @@ describe('useFetch revalidateOnFocus', () => {
   });
 
   test('should not revalidate when window get focused if revalidateOnFocus is set to false', async () => {
-    const control = getPostModelControl({});
+    const control = createPostModelControl({});
     const { getPostById, postAdapter } = createPostModel(control);
     function Page() {
-      const { data } = useFetch(getPostById(0), model => postAdapter.tryReadOne(model, 0), {
+      const { data } = useAccessor(getPostById(0), postAdapter.tryReadOneFactory(0), {
         revalidateOnFocus: false,
       });
 

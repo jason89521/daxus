@@ -5,32 +5,31 @@ import type { FetchOptions } from './types';
 import { useUpdatedRef } from './useUpdatedRef';
 import { isNull } from '../utils/isNull';
 
-type StateDeps = Partial<Record<keyof Status, boolean>>;
+type StateDeps = Partial<Record<keyof Status | 'data', boolean>>;
 type Accessor<M, E> = NormalAccessor<M, any, any, E> | InfiniteAccessor<M, any, any, E>;
 type ReturnValue<D, E> = {
-  stateDeps: StateDeps;
-  status: Status<E>;
-  data: D;
-  revalidate: () => void;
+  readonly isFetching: boolean;
+  readonly error: E;
+  readonly data: D;
 };
 
 const defaultStatus: Status = { isFetching: false, error: null };
 
-export function useModelAccessor<M, D, E = unknown>(
+export function useAccessor<M, D, E = unknown>(
   accessor: Accessor<M, E>,
   getSnapshot: (model: M) => D,
   options?: FetchOptions<D>
 ): ReturnValue<D, E>;
-export function useModelAccessor<M, D, E = unknown>(
+export function useAccessor<M, D, E = unknown>(
   accessor: Accessor<M, E> | null,
   getSnapshot: (model: M) => D,
   options?: FetchOptions<D>
 ): ReturnValue<D | undefined, E>;
-export function useModelAccessor<M, D, E = unknown>(
+export function useAccessor<M, D, E = unknown>(
   accessor: Accessor<M, E> | null,
   getSnapshot: (model: M) => D,
   options: FetchOptions<D> = {}
-) {
+): ReturnValue<D, E> {
   const {
     revalidateIfStale = false,
     checkHasStaleDataFn = (value: unknown) => !isUndefined(value),
@@ -48,6 +47,7 @@ export function useModelAccessor<M, D, E = unknown>(
         if (isNull(accessor)) return noop;
         return accessor.subscribeStatus((prev, current) => {
           for (const key of objectKeys(stateDeps)) {
+            if (key === 'data') continue;
             if (prev[key] !== current[key]) {
               listener();
               return;
@@ -71,6 +71,7 @@ export function useModelAccessor<M, D, E = unknown>(
     return [
       (listener: () => void) => {
         return accessor.subscribeData(() => {
+          if (!stateDeps.data) return;
           const snapshot = getSnapshot(accessor.getModel());
           if (stableHash(snapshot) !== stableHash(memoizedSnapshot)) {
             memoizedSnapshot = snapshot;
@@ -81,7 +82,7 @@ export function useModelAccessor<M, D, E = unknown>(
       () => memoizedSnapshot,
     ] as const;
     // We assume the `getSnapshot` is depending on `accessor` so we don't put it in the dependencies array.
-  }, [accessor]);
+  }, [accessor, stateDeps]);
 
   const data = useSyncExternalStore(subscribeData, getData, getData);
   const hasStaleData = checkHasStaleDataFn(data);
@@ -107,9 +108,18 @@ export function useModelAccessor<M, D, E = unknown>(
     }
   }, [accessor, shouldRevalidate]);
 
-  const revalidate = useCallback(() => {
-    accessor?.revalidate();
-  }, [accessor]);
-
-  return { stateDeps, status, data, revalidate };
+  return {
+    get data() {
+      stateDeps.data = true;
+      return data;
+    },
+    get isFetching() {
+      stateDeps.isFetching = true;
+      return status.isFetching;
+    },
+    get error() {
+      stateDeps.error = true;
+      return status.error as E;
+    },
+  };
 }

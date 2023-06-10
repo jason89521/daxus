@@ -1,2 +1,1 @@
-export * from './useFetch';
-export * from './useInfiniteFetch';
+export * from './useAccessor';

@@ -1,22 +1,21 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import { useInfiniteFetch } from '../lib';
-import { createPostModel, getPostModelControl, sleep } from './utils';
+import { createPostModel, createPostModelControl, sleep } from './utils';
+import { useAccessor } from '../lib';
 
-describe('useInfiniteFetch revalidateOnReconnect', () => {
+describe('useAccessor-infinite revalidateOnReconnect', () => {
   test('should revalidate when network reconnect', async () => {
-    const control = getPostModelControl({ titlePrefix: 'online' });
+    const control = createPostModelControl({ titlePrefix: 'online' });
     const { getPostList, postAdapter } = createPostModel(control);
     function Page() {
-      const { data, fetchNextPage } = useInfiniteFetch(
-        getPostList(),
-        model => postAdapter.tryReadPagination(model, ''),
-        { revalidateOnReconnect: true }
-      );
+      const accessor = getPostList();
+      const { data } = useAccessor(accessor, model => postAdapter.tryReadPagination(model, ''), {
+        revalidateOnReconnect: true,
+      });
 
       return (
         <div>
           items: {data?.items.map(item => item.title).join(' ')}
-          <button onClick={() => fetchNextPage()}>next</button>
+          <button onClick={() => accessor.fetchNext()}>next</button>
         </div>
       );
     }
@@ -32,19 +31,18 @@ describe('useInfiniteFetch revalidateOnReconnect', () => {
   });
 
   test('should not revalidate when network reconnect if revalidateOnReconnect is set to false', async () => {
-    const control = getPostModelControl({ titlePrefix: 'online' });
+    const control = createPostModelControl({ titlePrefix: 'online' });
     const { getPostList, postAdapter } = createPostModel(control);
     function Page() {
-      const { data, fetchNextPage } = useInfiniteFetch(
-        getPostList(),
-        model => postAdapter.tryReadPagination(model, ''),
-        { revalidateOnReconnect: false }
-      );
+      const accessor = getPostList();
+      const { data } = useAccessor(accessor, model => postAdapter.tryReadPagination(model, ''), {
+        revalidateOnReconnect: false,
+      });
 
       return (
         <div>
           items: {data?.items.map(item => item.title).join(' ')}
-          <button onClick={() => fetchNextPage()}>next</button>
+          <button onClick={() => accessor.fetchNext()}>next</button>
         </div>
       );
     }
