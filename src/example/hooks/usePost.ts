@@ -1,5 +1,5 @@
 import { getPostById } from '../model';
-import { useFetch } from '../../lib';
+import { useAccessor } from '../../lib';
 import type { FetchOptions } from '../../lib/hooks/types';
 
 interface Props extends FetchOptions {
@@ -7,7 +7,7 @@ interface Props extends FetchOptions {
 }
 
 export function usePost({ id, ...options }: Props) {
-  const { data } = useFetch(
+  const { data } = useAccessor(
     getPostById(id),
     model => {
       return model.entityRecord[id];

@@ -1,15 +1,12 @@
 import { getCurrentTime } from '../utils';
-import type { ModelSubscribe } from './ModelAccessor';
-import { ModelAccessor } from './ModelAccessor';
+import type { ModelSubscribe } from './Accessor';
+import { Accessor } from './Accessor';
 import type { InfiniteAction } from './types';
 import type { Draft } from 'immer';
 
 type Task = 'validate' | 'next' | 'idle';
 
-export class InfiniteModelAccessor<M, Arg = any, RD = any, E = unknown> extends ModelAccessor<
-  M,
-  E
-> {
+export class InfiniteAccessor<M, Arg = any, RD = any, E = unknown> extends Accessor<M, E> {
   private action: InfiniteAction<M, Arg, RD>;
   private arg: Arg;
   private updateModel: (cb: (draft: Draft<M>) => void) => void;
@@ -21,18 +18,21 @@ export class InfiniteModelAccessor<M, Arg = any, RD = any, E = unknown> extends 
    */
   private rejectFetching: (() => void) | null = null;
   private currentTask: Task = 'idle';
+  private notifyModel: () => void;
 
   constructor(
     arg: Arg,
     action: InfiniteAction<M, Arg, RD>,
     updateModel: (cb: (draft: Draft<M>) => void) => void,
     getModel: () => M,
-    modelSubscribe: ModelSubscribe
+    modelSubscribe: ModelSubscribe,
+    notifyModel: () => void
   ) {
     super(getModel, modelSubscribe);
     this.arg = arg;
     this.action = action;
     this.updateModel = updateModel;
+    this.notifyModel = notifyModel;
   }
 
   /**
@@ -55,7 +55,7 @@ export class InfiniteModelAccessor<M, Arg = any, RD = any, E = unknown> extends 
 
   private updateData = (data: RD[]) => {
     this.data = data;
-    this.notifyDataListeners();
+    this.notifyModel();
   };
 
   /**

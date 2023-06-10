@@ -2,215 +2,157 @@
 
 RSM (React Server Model) is a server state management library that emphasizes developer control over data. It allows for customized data structures and adapters to handle data updates effectively. With an intuitive API, developers can directly access and manipulate their data structures. RSM also provides hooks like `useFetch` and `useInfiniteFetch` for easy server data retrieval and synchronization. It offers a flexible approach for developers who desire more control and customization in managing server state in their React applications.
 
-## TOC
-
-- [Getting Started](#getting-started)
-- [Concept](#concept)
-- [Why Not Just Using SWR](#why-not-just-using-swr)
-- [The Motivation](#the-motivation)
+- [React Server Model](#react-server-model)
+  - [Getting Started](#getting-started)
+  - [Development Motivation](#development-motivation)
+    - [Why not use SWR or React Query?](#why-not-use-swr-or-react-query)
+    - [Goals to achieve](#goals-to-achieve)
 
 ## Getting Started
 
-In React Server Model, you need to define the shape of your data yourself. We take care of handling deduplication, revalidation, and other data fetching optimizations. However, it is up to you to decide how to update your data after fetching it.
+In RSM (React Server Model), you need to create a separate model with different type of data structure for each data. For example, you can create a pagination model for posts and a dictionary model for user settings. Let's take posts as an example.
 
-### Model
-
-We refer to different data shapes as a "model." In my company, we have data such as posts, comments, and forums. Defining the structure of these different data shapes, such as pagination, can be considered a model.
+First, create the post model:
 
 ```typescript
-import { createPaginationAdapter, createModel } from 'react-server-model';
-
-const postAdapter = createPaginationAdapter({});
-const postModel = createModel(postAdapter.initialModel);
+export const postAdapter = createPaginationAdapter({});
+export const postModel = createModel(postAdapter.initialModel);
 ```
 
-Defining a model is straightforward. You simply use `createModel` and pass in the initial value.
+RSM provides the `createPaginationAdapter` function to quickly create a pagination model. This function returns an object that includes the initial model and various pagination operations.
 
-> `createPaginationAdapter` is a utility function provided by us to quickly create a pagination model. However, you can also define your custom pagination model.
-
-### Action
-
-Once you have created a model, you can start defining actions.
+After creating the model, you need to define different accessors. Accessors play a crucial role in fetching server data and synchronizing it with the model.
 
 ```typescript
-const getPostById = postModel.defineAction<number, Post>('normal', {
-  fetchData: async id => {
-    const data = await getPostFromServer(id);
-    return data; // the type of data is `Post`
-  },
-  syncModel: (model, { data, arg }) => {
-    postAdapter.upsertOne(model, data);
-  },
-});
-
-const getPostList = postModel.defineAction<{ filter: string }, Post[]>('infinite', {
-  fetchData: async ({ layout }, { pageIndex, previousData }) => {
-    // If the previous API returns an empty array, stop fetching.
-    if (previousData?.length === 0) return null;
-    const data = await getPostListFromServer({ filter, page: pageIndex });
+export const getPostById = postModel.defineAccessor<number, Post>('normal', {
+  fetchData: async arg => {
+    const data = await getPostApi({ id: arg });
     return data;
   },
-  syncModel: (model, { data, arg, pageIndex }) => {
-    // arg -> {filter}
-    // You can use any function to generate the pagination key.
-    // We use `JSON.stringify` for simplicity here.
-    const paginationKey = JSON.stringify(arg);
-    if (pageIndex === 0) {
-      postAdapter.replacePagination(model, paginationKey, data);
-    } else {
-      postAdapter.appendPagination(model, paginationKey, data);
-    }
+  syncModel: (model, payload) => {
+    postAdapter.upsertOne(model, payload.data);
   },
+});
+
+export const getPostList = postModel.defineAccessor<void, { items: Post[]; nextKey: string }>(
+  'infinite',
+  {
+    fetchData: async (_arg, { pageIndex, previousData }) => {
+      if (previousData?.items.length === 0) return null; // there is no more data to fetch
+      const data = await getPostListApi({ pageIndex, nextKey: previousData?.nextKey });
+      return data;
+    },
+    syncModel: (model, payload) => {
+      const paginationKey = 'all';
+      postAdapter.appendPagination(model, paginationKey, payload.data.items);
+      if (payload.data.items.length === 0) {
+        postAdapter.setNoMore(model, paginationKey, true);
+      }
+    },
+  }
+);
+```
+
+We use `defineAccessor` to define an accessor. First, we determine whether the accessor is `'normal'` or `'infinite'`. `'infinite'` accessors are typically used for implementing infinite scrolling, while `'normal'` accessors are sufficient for most cases. Next, we define `fetchData` and `syncModel`. `fetchData` is the function used by the accessor to handle requests, and `syncModel` synchronizes the data obtained from `fetchData` with the model. It's where you decide how to update the model with the data.
+
+`defineAccessor` returns an accessor creator function. Apart from using `useAccessor` (which we'll discuss later), you can also directly utilize the accessor to revalidate data:
+
+```typescript
+const accessor = getPostById(0);
+accessor.revalidate();
+```
+
+For `'infinite'` accessors, there is an additional `fetchNext` function to fetch the next page of pagination:
+
+```typescript
+const accessor = getPostList();
+accessor.fetchNext();
+```
+
+RSM provides the `useAccessor` hook, which automatically calls `revalidate`. You can also enable or disable various settings for the accessor within this hook, such as `revalidateOnFocus` and `pollingInterval`.
+
+```typescript
+export function usePost(id: number, revalidateOnFocus: boolean) {
+  const accessor = getPostById(id);
+  const { data, error, isFetching } = useAccessor(
+    accessor,
+    model => postAdapter.tryReadOne(model, id),
+    {
+      revalidateOnFocus,
+    }
+  );
+  const isLoading = typeof data === 'undefined' && isFetching;
+
+  return { data, error, isLoading, revalidate: () => accessor.revalidate() };
+}
+```
+
+The first argument of `useAccessor` is the accessor, and the second argument determines how to read the corresponding data from the model. In the above example, `postAdapter.tryReadOne` reads the data for the corresponding ID from the model and returns `undefined` if the data hasn't been obtained yet. The last argument is for setting the accessor's options.
+
+You can safely call `useAccessor` for the same accessor in multiple places without triggering multiple requests because the accessor handles deduplication internally.
+
+Finally, let's discuss model mutation. Let's assume we need to create a comment, and after successfully creating it, we want to increment the `totalCommentCount` of the corresponding post:
+
+```typescript
+async function createComment(postId: number, content: string) {
+  const newComment = await createCommentApi({ postId, content });
+  // other logic with `newComment`
+  postModel.mutate(model => {
+    postAdapter.readOne(model, postId).totalCommentCount += 1;
+  });
+}
+```
+
+Mutating the model is straightforward, and thanks to RSM's use of Immer, you can mutate the model without worrying about immutability. Feel free to mutate it directly.
+
+## Development Motivation
+
+In my company, we use Redux with async thunk to manage server state. While Redux brings many benefits with centralized state management, it also comes with some drawbacks. For example, combining all reducers into a single store leads to excessively large initial JavaScript files. Additionally, even with Redux Toolkit, we still need to write a lot of repetitive code. As a result, senior engineers in the company have been considering replacing Redux, but so far, we haven't found a suitable package.
+
+### Why not use SWR or React Query?
+
+Actually, we have tried incorporating both SWR and React Query into our internal console-type websites, and colleagues find React Query to be more user-friendly than SWR. Although React Query performs well in console-type products, most colleagues believe it is not quite suitable for our main product website.
+
+Our product is a user forum that receives a large number of user visits every day. Here's an example that colleagues think React Query is not suitable for our product: when a user creates a new comment, we want the corresponding post's `totalCommentCount` to increase by one. From the perspective of React Query, we should execute the following code after creating a comment:
+
+```typescript
+queryClient.invalidateQueries({ queryKey: ['posts', 'get', postId] });
+```
+
+This way, React Query will automatically request the new post in the background and update the corresponding post. However, considering that our post response is quite large, fetching the entire post just for updating `totalCommentCount` seems wasteful. You might think we can do it this way instead:
+
+```typescript
+queryClient.setQueryData(['posts', 'get', postId], oldPost => {
+  const totalCommentCount = oldPost.totalCommentCount + 1;
+  return { ...oldPost, totalCommentCount };
 });
 ```
 
-When defining an action, you need to provide two necessary parameters: `fetchData` and `syncModel`. `fetchData` describes how this action fetches data from the server, and `syncModel` determines how the data is synchronized into your model after fetching.
-
-You may have noticed that the first parameter of `defineAction` has two possible values. When implementing infinite scrolling, using `'infinite'` is a better choice. Otherwise, for most cases, `'normal'` should suffice.
-
-### `useFetch` and `useInfiniteFetch`
-
-After defining actions, you can use `useFetch` or `useInfiniteFetch` in a custom hook to fetch data from the server. Use `useFetch` for `'normal'` actions and `useInfiniteFetch` for `'infinite'` actions.
+But there's a problem with this approach. When the user goes back to the post list, the totalCommentCount on the list won't update because the queryKey is different. This may appear odd to observant users. Of course, we can add more code like this:
 
 ```typescript
-import { useFetch, useInfiniteFetch } from 'react-server-model';
-
-export function usePost(id: number) {
-  const result = useFetch(getPostById(id), model => {
-    return postAdapter.readOne(model, id);
-  });
-  return result; // {data, error, isFetching}
-}
-
-export function usePostList(filter: string) {
-  const result = useInfiniteFetch(
-    getPostList({ filter }),
-
-    model => {
-      const key = JSON.stringify({ filter });
-      return postAdapter.readPagination(model, key);
-    }
-  );
-  return result; // { data, error, isFetching, fetchNextPage}
-}
+queryClient.setQueryData(['posts', 'list'], oldPosts => {
+  const oldPost = oldPosts.find(post => post.id === postId);
+  if (!post) return oldPosts;
+  const totalCommentCount = oldPost.totalCommentCount + 1;
+  const newPost = { ...oldPost, totalCommentCount };
+  const oldPostIndex = oldPosts.indexOf(oldPost);
+  const newPosts = [...oldPosts];
+  newPosts.splice(oldPostIndex, 1, newPost);
+  return newPosts;
+});
 ```
 
-The first parameter of `useFetch` and `useInfiniteFetch` is the return value of the previously defined action. The second parameter determines how to display the corresponding model data. These hooks will automatically handle the request initiation and data synchronization into your model, as defined in the actions.
-
-You can use these custom hooks anywhere in your code, and you don't need to worry about duplicate requests because we handle that for you.
-
-### Mutation
-
-Finally, let's discuss model mutation. In many cases, besides fetching data from the server, we also have user interactions that update data. For example, if a user creates a new post and we want to display it in the list with the filter set to "all," we can use the `mutate` method:
+This way, we take into account the scenario of updating the list. But is it really that simple? Our list can have various forms, such as "popular," "latest," and different forums with their own lists. The queryKey might look like this:
 
 ```typescript
-export function createPost(title: string, content: string) {
-  const res = await createPostApi({ title, content });
-  postModel.mutate(model => {
-    postAdapter.appendPagination(model, 'all', [res]);
-  });
-}
+const allPopular = ['posts', 'list', 'popular', 'all'];
+const allLatest = [('posts', 'list', 'latest', 'all')];
+const forumPopular = [('posts', 'list', 'popular', forumId)];
+const forumLatest = [('posts', 'list', 'latest', forumId)];
 ```
 
-That's it! Using `mutate`, you can directly update your model. Subsequently, the `useFetch` and `useInfiniteFetch` hooks of the corresponding actions will check if the data you want to display has changed and trigger a rerender if necessary.
-
-## Concept
-
-The greatest advantage of using RSM is that you can customize the data structure for each data. For example, pagination might be the most suitable data structure for comments, while a dictionary might be preferred based on user settings. It depends on how you intend to use the data.
-
-The core concept of RSM is to create an adapter for your data structure to handle various data updates (similar to the provided `createPaginationAdapter`). All operations that modify the data are performed through the adapter, making the code more concise and reducing code duplication.
-
-RSM provides an intuitive API that allows direct access to your data structure, and you can expect all data to be updated according to your adapter. This is particularly useful when your data has high dependencies. For example, when you add a comment to post 1, you would expect the `totalCommentCount` of post 1 to increase. In this case, you can simply write:
-
-```javascript
-async function createComment(postId, content) {
-  const response = await createCommentApi(postId, content);
-  // handle other logic with the response
-  postModel.mutate(model => {
-    const post = postAdapter.readOne(model, postId);
-    if (post) post.totalCommentCount += 1;
-  });
-}
-```
-
-As you can see, updating the state using `postModel` and `postAdapter` is straightforward, and you can integrate this code into any function, not just hooks or components.
-
-In addition, RSM provides two hooks, `useFetch` and `useInfiniteFetch`, which help you fetch server data and synchronize it with your data structure. Using these hooks eliminates the need to worry about deduplication, revalidation, and other concerns, as RSM takes care of them.
-
-The main goal of RSM is to give you a high level of control over your data, while deduplication, revalidation, and similar features are secondary. If you don't require such a high level of control over your data, React Query or SWR might be more suitable choices.
-
-## Why not just using SWR
-
-The core idea of SWR is to keep the server state as up-to-date as possible. However, in our company with a large user base, we prefer to make requests only when necessary.
-
-Consider a scenario is when a user adds a comment. We want to either 1. place the comment at the top of the comment list if the user chooses to view the most popular comments or 2. place it at the bottom of the comment list if the user chooses to view comments from oldest to newest. In this situation, we don't want to revalidate the entire comment list because the API's response may not include the user's comment (especially when the user is viewing the most popular comments, the newly added comment is unlikely to become popular).
-
-However, we also have use cases where we need the latest data, such as notifications. Although SWR is a great choice in this scenario, it doesn't meet the requirements mentioned earlier. To maintain consistency in our tech stack, we want to avoid using different libraries in different situations. For example, using SWR for fetching notifications but using another library for the article list.
-
-And that's why I developed this library. Unlike the core idea of SWR, my goal is not to keep the server state as up-to-date as possible, but to provide developers with more control over when to update the data.
-
-## The Motivation
-
-I use Redux for state management in my work. One of the advantages of Redux is that it centralizes all the states, and we can use actions to update them. For example, when a user creates a comment, we expect the `post.totalCommentCount` to increase.
-
-However, this convenience comes with some drawbacks, with the biggest one being code splitting. Since Redux centralizes all the code in the store, it results in a large initial JavaScript bundle size.
-
-Some of my colleagues have tried incorporating SWR into our internal systems to manage server state. While SWR requires much less code compared to Redux, some team members find it less user-friendly because we are accustomed to mutating the required state in Redux (especially when using `useSWRInfinite`).
-
-Below is a comparison of Redux and SWR from my perspective in terms of their advantages and disadvantages.
-
-### Modifying Data
-
-Let's take adding a comment as an example. When we add a comment, we want the corresponding post's `totalCommentCount` to increase by 1. In Redux, we would write it like this:
-
-```javascript
-// in comment/action.ts
-export const createComment = createAsyncThunk(
-    'comment/create',
-    async (ctx, payload) => {
-        return api.post('/api/createComment')
-    }
-)
-
-// in post/slice.ts
-export const postSlice = createSlice({
-    name: 'post',
-    // some configuration
-    extraReducers: builder => {
-        builder.addCase(createComment.fulfilled, (state, action) => {
-            state.data[action.payload.postId].totalCommentCount += 1;
-        })
-    }
-})
-
-// in an arbitrary component
-function Component() {
-    const dispatch = useDispatch();
-
-    const handleCreateComment = () => {
-        dispatch(createComment("comment"))
-    }
-
-    return (
-        //
-    )
-}
-```
-
-For SWR, the code would look like this:
-
-```javascript
-export async function createComment() {
-  const newComment = await api.post('/api/createComment');
-  mutate(`/api/posts/${newComment.postId}`, post => {
-    if (post) {
-      return { ...post, totalCommentCount: post.totalCommentCount + 1 };
-    }
-  });
-}
-```
-
-It seems that the code in SWR is much more concise. Now let's extend this example further. After adding a comment, we also want to add that comment to the list of comments. The API response format for fetching the comment list is as follows:
+If we also consider all these scenarios, it might bring us even more mental burden than using Redux, not to mention some API responses have this format:
 
 ```json
 {
@@ -219,117 +161,18 @@ It seems that the code in SWR is much more concise. Now let's extend this exampl
 }
 ```
 
-If we were to write it in Redux, we would need to add some additional code to the comment slice:
+If we have to mutate the data using the methods mentioned above, it would be a disaster. Moreover, [it goes against the practical way React Query recommends us to use](https://tkdodo.eu/blog/practical-react-query#dont-use-the-querycache-as-a-local-state-manager). While React Query fits well with console-type websites, unfortunately, it seems less suitable for our main website.
 
-```javascript
-export const commentSlice = createSlice({
-  name: 'comment',
-  // some configuration
-  extraReducers: builder => {
-    // other reducers
-    builder.addCase(createComment.fulfilled, (state, action) => {
-      const key = getKey(action.meta.arg);
-      commentAdapter.appendPagination(state, key, [action.payload.items]);
-      commentAdapter.setNextKey(state, key, action.payload.nextKey);
-    });
-  },
-});
-```
+So, what makes React Query unsuitable for our main website? I believe it's the level of control over the data. React Query focuses on managing server state for us, which means we don't have as much control over the data compared to using Redux. When using Redux, updating a post would automatically update the corresponding post in the list. However, when using Redux, it's not as straightforward as using `useQuery` to retrieve the data. We need to write a lot of actions and reducers, and if we want to add features like deduplication and revalidation, the amount of code to write increases even more. Clearly, Redux is not the optimal choice.
 
-> Here, `commentAdapter` is created by an utility function `createPaginationAdapter` implemented by my company, which facilitates state updates. It is not imported from RTK.
+Since we haven't found a suitable package for our use case, why not develop our own? This brings up the issue of maintainability. If we create a tool that only we use, then the responsibility of maintaining it falls solely on us. Lack of community support is a significant concern for senior colleagues.
 
-However, if we were using SWR:
+As a junior developer, I have always been interested in state management problems. Therefore, I want to try developing my own tool that meets the company's needs as my side project. Of course, I also hope this tool can help other developers who are struggling with managing server state.
 
-```javascript
-export async function createComment() {
-  // --- snip ---
-  mutate(unstable_serialize(getCommentPageKey()), resArray => {
-    if (!resArray) return;
-    const last = resArray.at(-1);
-    if (!last) return;
-    const newItems = [...last.items, newComment];
-    const newArray = [...resArray.slice(0, -1), { items: newItems, nextKey: last.nextKey }];
+### Goals to achieve
 
-    return newArray;
-  });
-}
-```
+First and foremost, it is essential to empower users to have full control over their data. Unlike React Query, where server state management is handled for us, all data writes will be user-defined. Although this may require users to write more code, I believe it is a necessary trade-off, and compared to Redux, the amount of code to write is relatively less.
 
-Compared to SWR, I believe the Redux approach is more intuitive. However, this advantage is also due to the use of the `createPaginationAdapter` utility function.
+Another crucial point is to provide a concise and user-friendly hook, similar to `useQuery`, that allows developers to call it from any component without worrying about duplicate requests. Additionally, features like polling and revalidation are also important.
 
-### Retrieving Data
-
-Continuing with the example of the comment list, in SWR we would write it like this:
-
-```javascript
-export function useCommentList() {
-  const { data, setSize } = useSWRInfinite((pageIndex, previousData) => {
-    if (previousData && !previousData.nextKey) return null;
-    const nextKey = previouseData.nextKey;
-
-    return appendUrlParams('/api/commentList', { nextKey, pageIndex });
-  });
-
-  const commentList = useMemo(() => {
-    if (!data) return;
-
-    [];
-
-    return data.map(({ items }) => items).flat();
-  }, [data]);
-
-  const fetchNextPage = useCallback(() => {
-    return setSize(prev => prev + 1);
-  }, [setSize]);
-
-  return { commentList, fetchNextPage };
-}
-```
-
-In Redux, we would write it like this:
-
-```javascript
-export function useCommentList() {
-  const dispatch = useDispatch();
-  const commentList = useSelector(state => selectCommentList(state));
-
-  useEffect(() => {
-    dispatch(getCommentList({ next: false }));
-  }, [dispatch]);
-
-  const fetchNextPage = useCallback(() => {
-    dispatch(getCommentList({ next: true }));
-  }, [dispatch]);
-
-  return { commentList, fetchNextPage };
-}
-```
-
-Although the two approaches return the same result, the user experience is quite different. Since SWR automatically fetches the data, we don't need to use `useEffect` to fetch the data like we do in Redux. However, due to the specific format of the API response, we need to handle the `data` returned by `useSWR` separately.
-
-Additionally, SWR also handles deduplication and revalidation automatically, which Redux does not provide out of the box. If we want to implement these functionalities in Redux, we would need to write more code.
-
-However, Redux also has other advantages. The main advantage in data retrieval is centralized data management. Taking the post list as an example, suppose we fetch a post list (IDs 1 to 10) from the API. When a user wants to click and view post with ID 1, we can directly retrieve the data from the store. If we want to ensure the data is up-to-date, we can quietly fetch the data in the background. However, with SWR, since the cache is recorded by key, when a user clicks to navigate to another page, they will see a loading screen first and then the post content when the data returns.
-
-### Conclusion
-
-To summarize the advantages and disadvantages of Redux:
-
-Advantages: Centralized data management, customization of data shape, intuitive data mutation.
-
-Disadvantages: Requires writing a lot of additional code, all code is centralized in the store, difficult code splitting.
-
-Now let's look at SWR:
-
-Advantages: Automatic deduplication and revalidation.
-
-Disadvantages: Data is not centrally managed, inability to customize returned data.
-
-Based on the above, my motivation for developing React Server Model is to create a package that combines the advantages of both Redux and SWR while minimizing their disadvantages.
-
-## The features I need to achieve
-
-- Automatic deduplication and revalidation
-- Customization of data shape
-- Easier and more intuitive data mutation
-- Ability to achieve code splitting
+If you have any ideas or suggestions regarding this project, please feel free to share them with me. Thank you.

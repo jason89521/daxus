@@ -1,11 +1,11 @@
 import { createDraft, finishDraft } from 'immer';
 import type { Draft } from 'immer';
 import type { InfiniteAction, NormalAction } from './types';
-import { NormalModelAccessor } from './NormalModelAccessor';
-import { InfiniteModelAccessor } from './InfiniteModelAccessor';
+import { NormalAccessor } from './NormalAccessor';
+import { InfiniteAccessor } from './InfiniteAccessor';
 import { stableHash } from '../utils';
 
-type Accessor<M> = NormalModelAccessor<M> | InfiniteModelAccessor<M>;
+type Accessor<M> = NormalAccessor<M> | InfiniteAccessor<M>;
 
 export function createModel<M extends object>(initialModel: M) {
   let prefixCounter = 0;
@@ -40,15 +40,15 @@ export function createModel<M extends object>(initialModel: M) {
     notifyListeners();
   }
 
-  function defineAction<Arg, Data>(
+  function defineAccessor<Arg, Data>(
     type: 'normal',
     action: NormalAction<M, Arg, Data>
-  ): (arg: Arg) => NormalModelAccessor<M, Arg, Data>;
-  function defineAction<Arg, Data>(
+  ): (arg: Arg) => NormalAccessor<M, Arg, Data>;
+  function defineAccessor<Arg, Data>(
     type: 'infinite',
     action: InfiniteAction<M, Arg, Data>
-  ): (arg: Arg) => InfiniteModelAccessor<M, Arg, Data>;
-  function defineAction<Arg, Data>(
+  ): (arg: Arg) => InfiniteAccessor<M, Arg, Data>;
+  function defineAccessor<Arg, Data>(
     type: 'normal' | 'infinite',
     action: NormalAction<M, Arg, Data> | InfiniteAction<M, Arg, Data>
   ) {
@@ -60,12 +60,19 @@ export function createModel<M extends object>(initialModel: M) {
       const accessor = accessors[key];
       if (accessor) return accessor;
       const newAccessor = (() => {
-        const constructorArgs = [arg, action as any, updateModel, getModel, subscribe] as const;
+        const constructorArgs = [
+          arg,
+          action as any,
+          updateModel,
+          getModel,
+          subscribe,
+          notifyListeners,
+        ] as const;
         if (type === 'infinite') {
-          return new InfiniteModelAccessor(...constructorArgs);
+          return new InfiniteAccessor(...constructorArgs);
         }
 
-        return new NormalModelAccessor(...constructorArgs);
+        return new NormalAccessor(...constructorArgs);
       })();
       accessors[key] = newAccessor;
 
@@ -73,5 +80,5 @@ export function createModel<M extends object>(initialModel: M) {
     };
   }
 
-  return { mutate, defineAction, getModel };
+  return { mutate, defineAccessor, getModel };
 }

@@ -1,16 +1,16 @@
 import { act, fireEvent, waitFor } from '@testing-library/react';
-import { useFetch } from '../lib';
-import { createPostModel, getPostModelControl, render, sleep } from './utils';
+import { useAccessor } from '../lib';
+import { createPostModel, createPostModelControl, render, sleep } from './utils';
 import { useState } from 'react';
 
-describe('useFetch pollingInterval', () => {
+describe('useAccessor-normal pollingInterval', () => {
   test('should keep fetching data if pollingInterval is larger than 0, and stop fetching if it is smaller than 0', async () => {
     const onSuccessMock = vi.fn();
-    const control = getPostModelControl({ onSuccessMock });
+    const control = createPostModelControl({ onSuccessMock });
     const { getPostById, postAdapter } = createPostModel(control);
     function Page() {
       const [pollingInterval, setPollingInterval] = useState(10);
-      const { data } = useFetch(getPostById(0), model => postAdapter.tryReadOne(model, 0), {
+      const { data } = useAccessor(getPostById(0), postAdapter.tryReadOneFactory(0), {
         pollingInterval,
       });
 
@@ -33,10 +33,10 @@ describe('useFetch pollingInterval', () => {
 
   test('should change the interval when the hook unmount', async () => {
     const onSuccessMock = vi.fn();
-    const control = getPostModelControl({ onSuccessMock });
+    const control = createPostModelControl({ onSuccessMock });
     const { getPostById, postAdapter } = createPostModel(control);
     function Post({ pollingInterval }: { pollingInterval: number }) {
-      const { data } = useFetch(getPostById(0), model => postAdapter.tryReadOne(model, 0), {
+      const { data } = useAccessor(getPostById(0), postAdapter.tryReadOneFactory(0), {
         pollingInterval,
       });
 
@@ -64,11 +64,11 @@ describe('useFetch pollingInterval', () => {
 
   test('should start polling when pollingInterval changes', async () => {
     const onSuccessMock = vi.fn();
-    const control = getPostModelControl({ onSuccessMock });
+    const control = createPostModelControl({ onSuccessMock });
     const { getPostById, postAdapter } = createPostModel(control);
     function Page() {
       const [pollingInterval, setPollingInterval] = useState(0);
-      const { data } = useFetch(getPostById(0), model => postAdapter.tryReadOne(model, 0), {
+      const { data } = useAccessor(getPostById(0), postAdapter.tryReadOneFactory(0), {
         pollingInterval,
       });
 

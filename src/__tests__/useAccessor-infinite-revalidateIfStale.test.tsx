@@ -1,9 +1,9 @@
 import { screen } from '@testing-library/react';
-import { useInfiniteFetch } from '../lib';
+import { useAccessor } from '../lib';
 import type { PostModelControl } from './types';
 import { createPost, createPostModel, render } from './utils';
 
-describe('useInfiniteFetch revalidateIfStale', async () => {
+describe('useAccessor-infinite revalidateIfStale', async () => {
   test('should revalidate if there is no stale data', async () => {
     const fetchDataMock = vi.fn();
     const control: PostModelControl = {
@@ -11,7 +11,7 @@ describe('useInfiniteFetch revalidateIfStale', async () => {
     };
     const { getPostList, postAdapter } = createPostModel(control);
     function Page() {
-      const { data } = useInfiniteFetch(getPostList(), model =>
+      const { data } = useAccessor(getPostList(), model =>
         postAdapter.tryReadPagination(model, '')
       );
 
@@ -36,7 +36,7 @@ describe('useInfiniteFetch revalidateIfStale', async () => {
     const control: PostModelControl = { fetchDataMock };
     const { getPostList, postAdapter, postModel } = createPostModel(control);
     function Page() {
-      const { data } = useInfiniteFetch(
+      const { data } = useAccessor(
         getPostList(),
         model => postAdapter.tryReadPagination(model, ''),
         { revalidateIfStale: false }

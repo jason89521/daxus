@@ -1,22 +1,21 @@
 import { act, fireEvent, screen } from '@testing-library/react';
-import { useInfiniteFetch } from '../lib';
-import { createPostModel, getPostModelControl, sleep, render } from './utils';
+import { useAccessor } from '../lib';
+import { createPostModel, createPostModelControl, sleep, render } from './utils';
 
-describe('useInfiniteFetch revalidateOnFocus', () => {
+describe('useAccessor-infinite revalidateOnFocus', () => {
   test('should revalidate when window get focused', async () => {
-    const control = getPostModelControl({ titlePrefix: 'focus' });
+    const control = createPostModelControl({ titlePrefix: 'focus' });
     const { getPostList, postAdapter } = createPostModel(control);
     function Page() {
-      const { data, fetchNextPage } = useInfiniteFetch(
-        getPostList(),
-        model => postAdapter.tryReadPagination(model, ''),
-        { revalidateOnFocus: true }
-      );
+      const accessor = getPostList();
+      const { data } = useAccessor(accessor, model => postAdapter.tryReadPagination(model, ''), {
+        revalidateOnFocus: true,
+      });
 
       return (
         <div>
           items: {data?.items.map(item => item.title).join(' ')}
-          <button onClick={() => fetchNextPage()}>next</button>
+          <button onClick={() => accessor.fetchNext()}>next</button>
         </div>
       );
     }
@@ -32,19 +31,18 @@ describe('useInfiniteFetch revalidateOnFocus', () => {
   });
 
   test('should not revalidate when window get focused if revalidateOnFocus is set to false', async () => {
-    const control = getPostModelControl({ titlePrefix: 'focus' });
+    const control = createPostModelControl({ titlePrefix: 'focus' });
     const { getPostList, postAdapter } = createPostModel(control);
     function Page() {
-      const { data, fetchNextPage } = useInfiniteFetch(
-        getPostList(),
-        model => postAdapter.tryReadPagination(model, ''),
-        { revalidateOnFocus: false }
-      );
+      const accessor = getPostList();
+      const { data } = useAccessor(accessor, model => postAdapter.tryReadPagination(model, ''), {
+        revalidateOnFocus: false,
+      });
 
       return (
         <div>
           items: {data?.items.map(item => item.title).join(' ')}
-          <button onClick={() => fetchNextPage()}>next</button>
+          <button onClick={() => accessor.fetchNext()}>next</button>
         </div>
       );
     }
@@ -61,17 +59,16 @@ describe('useInfiniteFetch revalidateOnFocus', () => {
   });
 
   test('should fetch next page if revalidation and fetching next page are triggered concurrently', async () => {
-    const control = getPostModelControl({});
+    const control = createPostModelControl({});
     const { getPostList, postAdapter } = createPostModel(control);
     function Page() {
-      const { data, fetchNextPage } = useInfiniteFetch(getPostList(), model =>
-        postAdapter.tryReadPagination(model, '')
-      );
+      const accessor = getPostList();
+      const { data } = useAccessor(accessor, model => postAdapter.tryReadPagination(model, ''));
 
       return (
         <div>
           items: {data?.items.map(item => item.title).join(' ')}
-          <button onClick={() => fetchNextPage()}>next</button>
+          <button onClick={() => accessor.fetchNext()}>next</button>
         </div>
       );
     }

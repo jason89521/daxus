@@ -1,6 +1,6 @@
 import { getCurrentTime } from '../utils';
-import type { ModelSubscribe } from './ModelAccessor';
-import { ModelAccessor } from './ModelAccessor';
+import type { ModelSubscribe } from './Accessor';
+import { Accessor } from './Accessor';
 import type { NormalAction } from './types';
 import type { Draft } from 'immer';
 
@@ -9,25 +9,25 @@ import type { Draft } from 'immer';
  */
 type FetchResult<D, E> = [D | null, E | null, number];
 
-export class NormalModelAccessor<Model, Arg = any, Data = any, E = unknown> extends ModelAccessor<
-  Model,
-  E
-> {
+export class NormalAccessor<Model, Arg = any, Data = any, E = unknown> extends Accessor<Model, E> {
   private action: NormalAction<Model, Arg, Data, E>;
   private arg: Arg;
   private updateModel: (cb: (model: Draft<Model>) => void) => void;
+  private notifyModel: () => void;
 
   constructor(
     arg: Arg,
     action: NormalAction<Model, Arg, Data>,
     updateModel: (cb: (model: Draft<Model>) => void) => void,
     getModel: () => Model,
-    modelSubscribe: ModelSubscribe
+    modelSubscribe: ModelSubscribe,
+    notifyModel: () => void
   ) {
     super(getModel, modelSubscribe);
     this.action = action;
     this.arg = arg;
     this.updateModel = updateModel;
+    this.notifyModel = notifyModel;
   }
 
   /**
@@ -58,7 +58,7 @@ export class NormalModelAccessor<Model, Arg = any, Data = any, E = unknown> exte
       this.updateStatus({ error });
       this.action.onError?.({ error: error!, arg });
     }
-    this.notifyDataListeners();
+    this.notifyModel();
     this.updateStatus({ isFetching: false });
     this.onFetchingFinish();
   };

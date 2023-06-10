@@ -1,14 +1,15 @@
-import { useInfiniteFetch } from '../lib';
+import { useAccessor } from '../lib';
 import type { PostModelControl } from './types';
 import { createPost, createPostModel, sleep } from './utils';
 import { render, act, screen } from '@testing-library/react';
 
-describe('useInfiniteFetch dedupeInterval', () => {
+describe('useAccessor-infinite dedupeInterval', () => {
   test('should sync model with the data from the latest request', async () => {
     const control: PostModelControl = { sleepTime: 100, titlePrefix: 'with sleep' };
     const { postAdapter, postModel, getPostList } = createPostModel(control);
     function Page() {
-      const { data, fetchNextPage } = useInfiniteFetch(
+      const accessor = getPostList();
+      const { data } = useAccessor(
         getPostList(),
         model => postAdapter.tryReadPagination(model, ''),
         { dedupeInterval: 10 }
@@ -19,7 +20,7 @@ describe('useInfiniteFetch dedupeInterval', () => {
           {data?.items.map(post => {
             return <div>{post.title}</div>;
           })}
-          <button onClick={() => fetchNextPage()}>load more</button>
+          <button onClick={() => accessor.fetchNext()}>load more</button>
         </div>
       );
     }

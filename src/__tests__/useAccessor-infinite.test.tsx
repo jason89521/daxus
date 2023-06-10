@@ -1,20 +1,19 @@
 import { fireEvent, render, screen, act } from '@testing-library/react';
-import { useInfiniteFetch } from '../lib';
+import { useAccessor } from '../lib';
 import { createPost, createPostModel, sleep } from './utils';
 import type { PostModelControl } from './types';
 
-describe('useInfiniteFetch', () => {
+describe('useAccessor-infinite', () => {
   test('should be able to update the cache', async () => {
     const { getPostList, postAdapter } = createPostModel({});
     function Page() {
-      const { data, fetchNextPage } = useInfiniteFetch(getPostList(), model =>
-        postAdapter.tryReadPagination(model, '')
-      );
+      const accessor = getPostList();
+      const { data } = useAccessor(accessor, model => postAdapter.tryReadPagination(model, ''));
 
       return (
         <div>
           items: {data?.items.map(item => item.title)}
-          <button onClick={() => fetchNextPage()}>next</button>
+          <button onClick={() => accessor.fetchNext()}>next</button>
         </div>
       );
     }
@@ -29,14 +28,13 @@ describe('useInfiniteFetch', () => {
   test('should correctly mutate the cached value', async () => {
     const { getPostList, postAdapter, postModel } = createPostModel({});
     function Page() {
-      const { data, fetchNextPage } = useInfiniteFetch(getPostList(), model =>
-        postAdapter.tryReadPagination(model, '')
-      );
+      const accessor = getPostList();
+      const { data } = useAccessor(accessor, model => postAdapter.tryReadPagination(model, ''));
 
       return (
         <div>
           items: {data?.items.map(item => item.title)}
-          <button onClick={() => fetchNextPage()}>next</button>
+          <button onClick={() => accessor.fetchNext()}>next</button>
         </div>
       );
     }
@@ -55,14 +53,13 @@ describe('useInfiniteFetch', () => {
     const control: PostModelControl = { onSuccessMock };
     const { getPostList, postAdapter } = createPostModel(control);
     function Page() {
-      const { data, fetchNextPage } = useInfiniteFetch(getPostList(), model =>
-        postAdapter.tryReadPagination(model, '')
-      );
+      const accessor = getPostList();
+      const { data } = useAccessor(accessor, model => postAdapter.tryReadPagination(model, ''));
 
       return (
         <div>
           items: {data?.items.map(item => item.title)}
-          <button onClick={() => fetchNextPage()}>next</button>
+          <button onClick={() => accessor.fetchNext()}>next</button>
         </div>
       );
     }
@@ -86,16 +83,15 @@ describe('useInfiniteFetch', () => {
     const control: PostModelControl = { onErrorMock, fetchDataError: new Error('error 0') };
     const { getPostList, postAdapter } = createPostModel(control);
     function Page() {
-      const { data, fetchNextPage } = useInfiniteFetch(
-        getPostList(),
-        model => postAdapter.tryReadPagination(model, ''),
-        { retryCount: 0 }
-      );
+      const accessor = getPostList();
+      const { data } = useAccessor(accessor, model => postAdapter.tryReadPagination(model, ''), {
+        retryCount: 0,
+      });
 
       return (
         <div>
           items: {data?.items.map(item => item.title)}
-          <button onClick={() => fetchNextPage()}>next</button>
+          <button onClick={() => accessor.fetchNext()}>next</button>
         </div>
       );
     }

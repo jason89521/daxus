@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { StrictMode } from 'react';
 import { createModel, createPaginationAdapter } from '../lib';
-import type { PostLayout, Post, Func, PostModelControl } from './types';
+import type { PostLayout, Post, PostModelControl } from './types';
 import { render as _render } from '@testing-library/react';
 
 export function sleep(time: number) {
@@ -12,31 +12,10 @@ export function createPost(id: number, layout: PostLayout = 'classic'): Post {
   return { id, layout, title: `title${id}` };
 }
 
-export function createTestItemModel({
-  onSuccess,
-  onError,
-  fetchData = async (arg: number) => {
-    return `${arg}`;
-  },
-}: { onSuccess?: Func; onError?: Func; fetchData?: Func } = {}) {
-  type Model = Record<string, string | undefined>;
-  const testItemModel = createModel<Model>({});
-  const getTestItem = testItemModel.defineAction<number, any>('normal', {
-    fetchData,
-    syncModel: (draft, { arg, data }) => {
-      draft[arg] = data;
-    },
-    onSuccess,
-    onError,
-  });
-
-  return { testItemModel, getTestItem };
-}
-
 export function createPostModel(control: PostModelControl) {
   const postAdapter = createPaginationAdapter<Post>({});
   const postModel = createModel(postAdapter.initialModel);
-  const getPostById = postModel.defineAction('normal', {
+  const getPostById = postModel.defineAccessor('normal', {
     fetchData: async (id: number) => {
       control.fetchDataMock?.();
 
@@ -65,7 +44,7 @@ export function createPostModel(control: PostModelControl) {
     },
   });
 
-  const getPostList = postModel.defineAction<void, Post[]>('infinite', {
+  const getPostList = postModel.defineAccessor<void, Post[]>('infinite', {
     async fetchData(_, { pageIndex }) {
       control.fetchDataMock?.();
 
@@ -101,7 +80,7 @@ export function createPostModel(control: PostModelControl) {
   return { postAdapter, postModel, getPostById, getPostList };
 }
 
-export function getPostModelControl(initialControl: PostModelControl) {
+export function createPostModelControl(initialControl: PostModelControl) {
   return initialControl;
 }
 
