@@ -121,7 +121,7 @@ export class Accessor<M, E> {
     const firstOptionsRef = this.getFirstOptionsRef();
     if (!firstOptionsRef) return defaultOptions;
 
-    return { ...defaultOptions, ...firstOptionsRef.current };
+    return firstOptionsRef.current;
   };
 
   protected getRetryCount = () => {
