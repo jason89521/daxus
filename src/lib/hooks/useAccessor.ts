@@ -1,7 +1,7 @@
 import { useCallback, useContext, useEffect, useMemo, useRef, useSyncExternalStore } from 'react';
 import type { InfiniteAccessor, NormalAccessor, Status } from '../model';
 import { isUndefined, noop, objectKeys, stableHash } from '../utils';
-import type { FetchOptions } from './types';
+import type { FetchOptions, RequiredFetchOptions } from './types';
 import { useUpdatedRef } from './useUpdatedRef';
 import { isNull } from '../utils/isNull';
 import { accessorOptionsContext } from '../contexts';
@@ -38,7 +38,7 @@ export function useAccessor<M, D, E = unknown>(
   } = options;
   const defaultOptions = useContext(accessorOptionsContext);
   const stateDeps = useRef<StateDeps>({}).current;
-  const optionsRef = useUpdatedRef<Required<FetchOptions<D>>>({ ...defaultOptions, ...options });
+  const optionsRef = useUpdatedRef<RequiredFetchOptions<D>>({ ...defaultOptions, ...options });
   const getStatus = useCallback(() => {
     if (isNull(accessor)) return defaultStatus;
     return accessor.getStatus();

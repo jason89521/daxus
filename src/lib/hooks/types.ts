@@ -9,7 +9,7 @@ export interface FetchOptions<S = any> {
   pollingInterval?: number;
 }
 
-export type RequiredFetchOptions = Required<FetchOptions>;
+export type RequiredFetchOptions<S = unknown> = Required<FetchOptions<S>>;
 
 export interface HookReturn<D, E> {
   readonly data: D;
