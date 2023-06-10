@@ -24,7 +24,7 @@ type RetryTimeoutMeta = {
 
 type OptionsRef = MutableRefObject<FetchOptions>;
 
-export class ModelAccessor<M, E> {
+export class Accessor<M, E> {
   protected status: Status<E> = { isFetching: false, error: null };
   protected statusListeners: ((prev: Status, current: Status) => void)[] = [];
   protected dataListeners: (() => void)[] = [];

@@ -8,7 +8,7 @@ const initialModel = postAdapter.initialModel;
 
 export const postModel = createModel(initialModel);
 
-export const getPostById = postModel.defineAction('normal', {
+export const getPostById = postModel.defineAccessor('normal', {
   fetchData: async (id: number) => {
     const data = await getPostByIdRequest(id);
     return data;
@@ -26,7 +26,7 @@ export const getPostById = postModel.defineAction('normal', {
   },
 });
 
-export const getPostList = postModel.defineAction<{ layout: PostLayout }, Post[]>('infinite', {
+export const getPostList = postModel.defineAccessor<{ layout: PostLayout }, Post[]>('infinite', {
   fetchData: async ({ layout }, { pageIndex, previousData }) => {
     if (previousData?.length === 0) return null;
     const data = await getPostListRequest({ layout, page: pageIndex });

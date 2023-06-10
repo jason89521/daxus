@@ -22,7 +22,7 @@ Defining a model is straightforward. You simply use `createModel` and pass in th
 Once you have created a model, you can start defining actions.
 
 ```typescript
-const getPostById = postModel.defineAction<number, Post>('normal', {
+const getPostById = postModel.defineAccessor<number, Post>('normal', {
   fetchData: async id => {
     const data = await getPostFromServer(id);
     return data; // the type of data is `Post`
@@ -32,7 +32,7 @@ const getPostById = postModel.defineAction<number, Post>('normal', {
   },
 });
 
-const getPostList = postModel.defineAction<{ filter: string }, Post[]>('infinite', {
+const getPostList = postModel.defineAccessor<{ filter: string }, Post[]>('infinite', {
   fetchData: async ({ layout }, { pageIndex, previousData }) => {
     // If the previous API returns an empty array, stop fetching.
     if (previousData?.length === 0) return null;
@@ -55,7 +55,7 @@ const getPostList = postModel.defineAction<{ filter: string }, Post[]>('infinite
 
 When defining an action, you need to provide two necessary parameters: `fetchData` and `syncModel`. `fetchData` describes how this action fetches data from the server, and `syncModel` determines how the data is synchronized into your model after fetching.
 
-You may have noticed that the first parameter of `defineAction` has two possible values. When implementing infinite scrolling, using `'infinite'` is a better choice. Otherwise, for most cases, `'normal'` should suffice.
+You may have noticed that the first parameter of `defineAccessor` has two possible values. When implementing infinite scrolling, using `'infinite'` is a better choice. Otherwise, for most cases, `'normal'` should suffice.
 
 ## `useFetch` and `useInfiniteFetch`
 

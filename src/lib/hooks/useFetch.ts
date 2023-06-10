@@ -1,19 +1,19 @@
-import type { NormalModelAccessor } from '../model';
+import type { NormalAccessor } from '../model';
 import { useModelAccessor } from './useModelAccessor';
 import type { FetchOptions, HookReturn } from './types';
 
 export function useFetch<M, Arg, RD, D = any, E = unknown>(
-  accessor: NormalModelAccessor<M, Arg, RD, E>,
+  accessor: NormalAccessor<M, Arg, RD, E>,
   getSnapshot: (model: M) => D,
   options?: FetchOptions<D>
 ): HookReturn<D, E>;
 export function useFetch<M, Arg, RD, D = any, E = unknown>(
-  accessor: NormalModelAccessor<M, Arg, RD, E> | null,
+  accessor: NormalAccessor<M, Arg, RD, E> | null,
   getSnapshot: (model: M) => D,
   options?: FetchOptions<D>
 ): HookReturn<D | undefined, E>;
 export function useFetch<M, Arg, RD, D = any, E = unknown>(
-  accessor: NormalModelAccessor<M, Arg, RD, E> | null,
+  accessor: NormalAccessor<M, Arg, RD, E> | null,
   getSnapshot: (model: M) => D,
   options: FetchOptions = {}
 ) {

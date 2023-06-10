@@ -6,14 +6,14 @@
 const model = createModel(initialModel);
 ```
 
-### `model.defineAction`
+### `model.defineAccessor`
 
 There are two types of actions that can be defined: `'normal'` and `'infinite'`, and they require slightly different implementation details.
 
 For `'normal'` action:
 
 ```ts
-const accessorCreator = model.defineAction('normal', {
+const accessorCreator = model.defineAccessor('normal', {
   fetchData = async arg => {
     // the logic of fetching data
   },
@@ -35,7 +35,7 @@ const accessorCreator = model.defineAction('normal', {
 For `'infinite'` action:
 
 ```ts
-const accessorCreator = model.defineAction('infinite', {
+const accessorCreator = model.defineAccessor('infinite', {
   fetchData = async (arg, meta) => {
     // meta -> { previousData, pageIndex }
     // If you return `null` in this function
@@ -56,7 +56,7 @@ const accessorCreator = model.defineAction('infinite', {
 });
 ```
 
-The returned value of `model.defineAction` is an 'accessor creator'. It will be used when you want to use `useFetch` or `useInfiniteFetch`.
+The returned value of `model.defineAccessor` is an 'accessor creator'. It will be used when you want to use `useFetch` or `useInfiniteFetch`.
 
 ### `model.mutate`
 

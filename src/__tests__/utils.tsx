@@ -21,7 +21,7 @@ export function createTestItemModel({
 }: { onSuccess?: Func; onError?: Func; fetchData?: Func } = {}) {
   type Model = Record<string, string | undefined>;
   const testItemModel = createModel<Model>({});
-  const getTestItem = testItemModel.defineAction<number, any>('normal', {
+  const getTestItem = testItemModel.defineAccessor<number, any>('normal', {
     fetchData,
     syncModel: (draft, { arg, data }) => {
       draft[arg] = data;
@@ -36,7 +36,7 @@ export function createTestItemModel({
 export function createPostModel(control: PostModelControl) {
   const postAdapter = createPaginationAdapter<Post>({});
   const postModel = createModel(postAdapter.initialModel);
-  const getPostById = postModel.defineAction('normal', {
+  const getPostById = postModel.defineAccessor('normal', {
     fetchData: async (id: number) => {
       control.fetchDataMock?.();
 
@@ -65,7 +65,7 @@ export function createPostModel(control: PostModelControl) {
     },
   });
 
-  const getPostList = postModel.defineAction<void, Post[]>('infinite', {
+  const getPostList = postModel.defineAccessor<void, Post[]>('infinite', {
     async fetchData(_, { pageIndex }) {
       control.fetchDataMock?.();
 

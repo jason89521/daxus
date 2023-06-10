@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useSyncExternalStore } from 'react';
-import type { InfiniteModelAccessor, NormalModelAccessor, Status } from '../model';
+import type { InfiniteAccessor, NormalAccessor, Status } from '../model';
 import { isUndefined, noop, objectKeys, stableHash } from '../utils';
 import type { FetchOptions } from './types';
 import { useUpdatedRef } from './useUpdatedRef';
 import { isNull } from '../utils/isNull';
 
 type StateDeps = Partial<Record<keyof Status, boolean>>;
-type Accessor<M, E> = NormalModelAccessor<M, any, any, E> | InfiniteModelAccessor<M, any, any, E>;
+type Accessor<M, E> = NormalAccessor<M, any, any, E> | InfiniteAccessor<M, any, any, E>;
 type ReturnValue<D, E> = {
   stateDeps: StateDeps;
   status: Status<E>;

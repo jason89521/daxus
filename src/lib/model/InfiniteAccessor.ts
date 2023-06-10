@@ -1,15 +1,12 @@
 import { getCurrentTime } from '../utils';
-import type { ModelSubscribe } from './ModelAccessor';
-import { ModelAccessor } from './ModelAccessor';
+import type { ModelSubscribe } from './Accessor';
+import { Accessor } from './Accessor';
 import type { InfiniteAction } from './types';
 import type { Draft } from 'immer';
 
 type Task = 'validate' | 'next' | 'idle';
 
-export class InfiniteModelAccessor<M, Arg = any, RD = any, E = unknown> extends ModelAccessor<
-  M,
-  E
-> {
+export class InfiniteAccessor<M, Arg = any, RD = any, E = unknown> extends Accessor<M, E> {
   private action: InfiniteAction<M, Arg, RD>;
   private arg: Arg;
   private updateModel: (cb: (draft: Draft<M>) => void) => void;

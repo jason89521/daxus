@@ -7,7 +7,7 @@ export function PostList() {
   const [layout, setLayout] = useState<PostLayout>('classic');
   const key = JSON.stringify({ layout });
   const { data, fetchNextPage } = useInfiniteFetch(getPostList({ layout }), model => {
-    return postAdapter.readPagination(model, key);
+    return postAdapter.tryReadPagination(model, key);
   });
 
   const loadMore = () => {
