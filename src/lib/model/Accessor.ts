@@ -27,7 +27,6 @@ type OptionsRef = MutableRefObject<FetchOptions>;
 export class Accessor<M, E> {
   protected status: Status<E> = { isFetching: false, error: null };
   protected statusListeners: ((prev: Status, current: Status) => void)[] = [];
-  protected dataListeners: (() => void)[] = [];
   private retryTimeoutMeta: RetryTimeoutMeta | null = null;
   private startAt = 0;
   private modelSubscribe: ModelSubscribe;
@@ -35,14 +34,7 @@ export class Accessor<M, E> {
   private removeOnFocusListener: (() => void) | null = null;
   private removeOnReconnectListener: (() => void) | null = null;
   private pollingTimeoutId: number | undefined;
-  /**
-   * @internal
-   */
   revalidate!: () => void;
-
-  /**
-   * @internal
-   */
   getModel: () => M;
 
   constructor(getModel: () => M, modelSubscribe: ModelSubscribe) {
@@ -108,11 +100,8 @@ export class Accessor<M, E> {
    * @returns
    */
   subscribeData = (listener: () => void) => {
-    this.dataListeners.push(listener);
     const modelUnsubscribe = this.modelSubscribe(listener);
     return () => {
-      const index = this.dataListeners.indexOf(listener);
-      this.dataListeners.splice(index, 1);
       modelUnsubscribe();
     };
   };
@@ -133,10 +122,6 @@ export class Accessor<M, E> {
 
   protected notifyStatusListeners = (newCache: Status) => {
     this.statusListeners.forEach(l => l(this.status, newCache));
-  };
-
-  protected notifyDataListeners = () => {
-    this.dataListeners.forEach(l => l());
   };
 
   protected getOptions = () => {

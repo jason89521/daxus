@@ -60,7 +60,14 @@ export function createModel<M extends object>(initialModel: M) {
       const accessor = accessors[key];
       if (accessor) return accessor;
       const newAccessor = (() => {
-        const constructorArgs = [arg, action as any, updateModel, getModel, subscribe] as const;
+        const constructorArgs = [
+          arg,
+          action as any,
+          updateModel,
+          getModel,
+          subscribe,
+          notifyListeners,
+        ] as const;
         if (type === 'infinite') {
           return new InfiniteAccessor(...constructorArgs);
         }

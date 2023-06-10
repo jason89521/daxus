@@ -18,18 +18,21 @@ export class InfiniteAccessor<M, Arg = any, RD = any, E = unknown> extends Acces
    */
   private rejectFetching: (() => void) | null = null;
   private currentTask: Task = 'idle';
+  private notifyModel: () => void;
 
   constructor(
     arg: Arg,
     action: InfiniteAction<M, Arg, RD>,
     updateModel: (cb: (draft: Draft<M>) => void) => void,
     getModel: () => M,
-    modelSubscribe: ModelSubscribe
+    modelSubscribe: ModelSubscribe,
+    notifyModel: () => void
   ) {
     super(getModel, modelSubscribe);
     this.arg = arg;
     this.action = action;
     this.updateModel = updateModel;
+    this.notifyModel = notifyModel;
   }
 
   /**
@@ -52,7 +55,7 @@ export class InfiniteAccessor<M, Arg = any, RD = any, E = unknown> extends Acces
 
   private updateData = (data: RD[]) => {
     this.data = data;
-    this.notifyDataListeners();
+    this.notifyModel();
   };
 
   /**

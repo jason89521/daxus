@@ -13,18 +13,21 @@ export class NormalAccessor<Model, Arg = any, Data = any, E = unknown> extends A
   private action: NormalAction<Model, Arg, Data, E>;
   private arg: Arg;
   private updateModel: (cb: (model: Draft<Model>) => void) => void;
+  private notifyModel: () => void;
 
   constructor(
     arg: Arg,
     action: NormalAction<Model, Arg, Data>,
     updateModel: (cb: (model: Draft<Model>) => void) => void,
     getModel: () => Model,
-    modelSubscribe: ModelSubscribe
+    modelSubscribe: ModelSubscribe,
+    notifyModel: () => void
   ) {
     super(getModel, modelSubscribe);
     this.action = action;
     this.arg = arg;
     this.updateModel = updateModel;
+    this.notifyModel = notifyModel;
   }
 
   /**
@@ -55,7 +58,7 @@ export class NormalAccessor<Model, Arg = any, Data = any, E = unknown> extends A
       this.updateStatus({ error });
       this.action.onError?.({ error: error!, arg });
     }
-    this.notifyDataListeners();
+    this.notifyModel();
     this.updateStatus({ isFetching: false });
     this.onFetchingFinish();
   };
