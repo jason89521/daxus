@@ -4,12 +4,9 @@ RSM (React Server Model) is a server state management library that emphasizes de
 
 - [React Server Model](#react-server-model)
   - [Getting Started](#getting-started)
-  - [Why not just using SWR](#why-not-just-using-swr)
-  - [The Motivation](#the-motivation)
-    - [Modifying Data](#modifying-data)
-    - [Retrieving Data](#retrieving-data)
-    - [Conclusion](#conclusion)
-  - [The features I need to achieve](#the-features-i-need-to-achieve)
+  - [Development Motivation](#development-motivation)
+    - [Why not use SWR or React Query?](#why-not-use-swr-or-react-query)
+    - [Goals to achieve](#goals-to-achieve)
 
 ## Getting Started
 
@@ -108,78 +105,54 @@ async function createComment(postId: number, content: string) {
 
 Mutating the model is straightforward, and thanks to RSM's use of Immer, you can mutate the model without worrying about immutability. Feel free to mutate it directly.
 
-## Why not just using SWR
+## Development Motivation
 
-The core idea of SWR is to keep the server state as up-to-date as possible. However, in our company with a large user base, we prefer to make requests only when necessary.
+In my company, we use Redux with async thunk to manage server state. While Redux brings many benefits with centralized state management, it also comes with some drawbacks. For example, combining all reducers into a single store leads to excessively large initial JavaScript files. Additionally, even with Redux Toolkit, we still need to write a lot of repetitive code. As a result, senior engineers in the company have been considering replacing Redux, but so far, we haven't found a suitable package.
 
-Consider a scenario is when a user adds a comment. We want to either 1. place the comment at the top of the comment list if the user chooses to view the most popular comments or 2. place it at the bottom of the comment list if the user chooses to view comments from oldest to newest. In this situation, we don't want to revalidate the entire comment list because the API's response may not include the user's comment (especially when the user is viewing the most popular comments, the newly added comment is unlikely to become popular).
+### Why not use SWR or React Query?
 
-However, we also have use cases where we need the latest data, such as notifications. Although SWR is a great choice in this scenario, it doesn't meet the requirements mentioned earlier. To maintain consistency in our tech stack, we want to avoid using different libraries in different situations. For example, using SWR for fetching notifications but using another library for the article list.
+Actually, we have tried incorporating both SWR and React Query into our internal console-type websites, and colleagues find React Query to be more user-friendly than SWR. Although React Query performs well in console-type products, most colleagues believe it is not quite suitable for our main product website.
 
-And that's why I developed this library. Unlike the core idea of SWR, my goal is not to keep the server state as up-to-date as possible, but to provide developers with more control over when to update the data.
+Our product is a user forum that receives a large number of user visits every day. Here's an example that colleagues think React Query is not suitable for our product: when a user creates a new comment, we want the corresponding post's `totalCommentCount` to increase by one. From the perspective of React Query, we should execute the following code after creating a comment:
 
-## The Motivation
-
-I use Redux for state management in my work. One of the advantages of Redux is that it centralizes all the states, and we can use actions to update them. For example, when a user creates a comment, we expect the `post.totalCommentCount` to increase.
-
-However, this convenience comes with some drawbacks, with the biggest one being code splitting. Since Redux centralizes all the code in the store, it results in a large initial JavaScript bundle size.
-
-Some of my colleagues have tried incorporating SWR into our internal systems to manage server state. While SWR requires much less code compared to Redux, some team members find it less user-friendly because we are accustomed to mutating the required state in Redux (especially when using `useSWRInfinite`).
-
-Below is a comparison of Redux and SWR from my perspective in terms of their advantages and disadvantages.
-
-### Modifying Data
-
-Let's take adding a comment as an example. When we add a comment, we want the corresponding post's `totalCommentCount` to increase by 1. In Redux, we would write it like this:
-
-```javascript
-// in comment/action.ts
-export const createComment = createAsyncThunk(
-    'comment/create',
-    async (ctx, payload) => {
-        return api.post('/api/createComment')
-    }
-)
-
-// in post/slice.ts
-export const postSlice = createSlice({
-    name: 'post',
-    // some configuration
-    extraReducers: builder => {
-        builder.addCase(createComment.fulfilled, (state, action) => {
-            state.data[action.payload.postId].totalCommentCount += 1;
-        })
-    }
-})
-
-// in an arbitrary component
-function Component() {
-    const dispatch = useDispatch();
-
-    const handleCreateComment = () => {
-        dispatch(createComment("comment"))
-    }
-
-    return (
-        //
-    )
-}
+```typescript
+queryClient.invalidateQueries({ queryKey: ['posts', 'get', postId] });
 ```
 
-For SWR, the code would look like this:
+This way, React Query will automatically request the new post in the background and update the corresponding post. However, considering that our post response is quite large, fetching the entire post just for updating `totalCommentCount` seems wasteful. You might think we can do it this way instead:
 
-```javascript
-export async function createComment() {
-  const newComment = await api.post('/api/createComment');
-  mutate(`/api/posts/${newComment.postId}`, post => {
-    if (post) {
-      return { ...post, totalCommentCount: post.totalCommentCount + 1 };
-    }
-  });
-}
+```typescript
+queryClient.setQueryData(['posts', 'get', postId], oldPost => {
+  const totalCommentCount = oldPost.totalCommentCount + 1;
+  return { ...oldPost, totalCommentCount };
+});
 ```
 
-It seems that the code in SWR is much more concise. Now let's extend this example further. After adding a comment, we also want to add that comment to the list of comments. The API response format for fetching the comment list is as follows:
+But there's a problem with this approach. When the user goes back to the post list, the totalCommentCount on the list won't update because the queryKey is different. This may appear odd to observant users. Of course, we can add more code like this:
+
+```typescript
+queryClient.setQueryData(['posts', 'list'], oldPosts => {
+  const oldPost = oldPosts.find(post => post.id === postId);
+  if (!post) return oldPosts;
+  const totalCommentCount = oldPost.totalCommentCount + 1;
+  const newPost = { ...oldPost, totalCommentCount };
+  const oldPostIndex = oldPosts.indexOf(oldPost);
+  const newPosts = [...oldPosts];
+  newPosts.splice(oldPostIndex, 1, newPost);
+  return newPosts;
+});
+```
+
+This way, we take into account the scenario of updating the list. But is it really that simple? Our list can have various forms, such as "popular," "latest," and different forums with their own lists. The queryKey might look like this:
+
+```typescript
+const allPopular = ['posts', 'list', 'popular', 'all'];
+const allLatest = [('posts', 'list', 'latest', 'all')];
+const forumPopular = [('posts', 'list', 'popular', forumId)];
+const forumLatest = [('posts', 'list', 'latest', forumId)];
+```
+
+If we also consider all these scenarios, it might bring us even more mental burden than using Redux, not to mention some API responses have this format:
 
 ```json
 {
@@ -188,117 +161,18 @@ It seems that the code in SWR is much more concise. Now let's extend this exampl
 }
 ```
 
-If we were to write it in Redux, we would need to add some additional code to the comment slice:
+If we have to mutate the data using the methods mentioned above, it would be a disaster. Moreover, [it goes against the practical way React Query recommends us to use](https://tkdodo.eu/blog/practical-react-query#dont-use-the-querycache-as-a-local-state-manager). While React Query fits well with console-type websites, unfortunately, it seems less suitable for our main website.
 
-```javascript
-export const commentSlice = createSlice({
-  name: 'comment',
-  // some configuration
-  extraReducers: builder => {
-    // other reducers
-    builder.addCase(createComment.fulfilled, (state, action) => {
-      const key = getKey(action.meta.arg);
-      commentAdapter.appendPagination(state, key, [action.payload.items]);
-      commentAdapter.setNextKey(state, key, action.payload.nextKey);
-    });
-  },
-});
-```
+So, what makes React Query unsuitable for our main website? I believe it's the level of control over the data. React Query focuses on managing server state for us, which means we don't have as much control over the data compared to using Redux. When using Redux, updating a post would automatically update the corresponding post in the list. However, when using Redux, it's not as straightforward as using `useQuery` to retrieve the data. We need to write a lot of actions and reducers, and if we want to add features like deduplication and revalidation, the amount of code to write increases even more. Clearly, Redux is not the optimal choice.
 
-> Here, `commentAdapter` is created by an utility function `createPaginationAdapter` implemented by my company, which facilitates state updates. It is not imported from RTK.
+Since we haven't found a suitable package for our use case, why not develop our own? This brings up the issue of maintainability. If we create a tool that only we use, then the responsibility of maintaining it falls solely on us. Lack of community support is a significant concern for senior colleagues.
 
-However, if we were using SWR:
+As a junior developer, I have always been interested in state management problems. Therefore, I want to try developing my own tool that meets the company's needs as my side project. Of course, I also hope this tool can help other developers who are struggling with managing server state.
 
-```javascript
-export async function createComment() {
-  // --- snip ---
-  mutate(unstable_serialize(getCommentPageKey()), resArray => {
-    if (!resArray) return;
-    const last = resArray.at(-1);
-    if (!last) return;
-    const newItems = [...last.items, newComment];
-    const newArray = [...resArray.slice(0, -1), { items: newItems, nextKey: last.nextKey }];
+### Goals to achieve
 
-    return newArray;
-  });
-}
-```
+First and foremost, it is essential to empower users to have full control over their data. Unlike React Query, where server state management is handled for us, all data writes will be user-defined. Although this may require users to write more code, I believe it is a necessary trade-off, and compared to Redux, the amount of code to write is relatively less.
 
-Compared to SWR, I believe the Redux approach is more intuitive. However, this advantage is also due to the use of the `createPaginationAdapter` utility function.
+Another crucial point is to provide a concise and user-friendly hook, similar to `useQuery`, that allows developers to call it from any component without worrying about duplicate requests. Additionally, features like polling and revalidation are also important.
 
-### Retrieving Data
-
-Continuing with the example of the comment list, in SWR we would write it like this:
-
-```javascript
-export function useCommentList() {
-  const { data, setSize } = useSWRInfinite((pageIndex, previousData) => {
-    if (previousData && !previousData.nextKey) return null;
-    const nextKey = previouseData.nextKey;
-
-    return appendUrlParams('/api/commentList', { nextKey, pageIndex });
-  });
-
-  const commentList = useMemo(() => {
-    if (!data) return;
-
-    [];
-
-    return data.map(({ items }) => items).flat();
-  }, [data]);
-
-  const fetchNextPage = useCallback(() => {
-    return setSize(prev => prev + 1);
-  }, [setSize]);
-
-  return { commentList, fetchNextPage };
-}
-```
-
-In Redux, we would write it like this:
-
-```javascript
-export function useCommentList() {
-  const dispatch = useDispatch();
-  const commentList = useSelector(state => selectCommentList(state));
-
-  useEffect(() => {
-    dispatch(getCommentList({ next: false }));
-  }, [dispatch]);
-
-  const fetchNextPage = useCallback(() => {
-    dispatch(getCommentList({ next: true }));
-  }, [dispatch]);
-
-  return { commentList, fetchNextPage };
-}
-```
-
-Although the two approaches return the same result, the user experience is quite different. Since SWR automatically fetches the data, we don't need to use `useEffect` to fetch the data like we do in Redux. However, due to the specific format of the API response, we need to handle the `data` returned by `useSWR` separately.
-
-Additionally, SWR also handles deduplication and revalidation automatically, which Redux does not provide out of the box. If we want to implement these functionalities in Redux, we would need to write more code.
-
-However, Redux also has other advantages. The main advantage in data retrieval is centralized data management. Taking the post list as an example, suppose we fetch a post list (IDs 1 to 10) from the API. When a user wants to click and view post with ID 1, we can directly retrieve the data from the store. If we want to ensure the data is up-to-date, we can quietly fetch the data in the background. However, with SWR, since the cache is recorded by key, when a user clicks to navigate to another page, they will see a loading screen first and then the post content when the data returns.
-
-### Conclusion
-
-To summarize the advantages and disadvantages of Redux:
-
-Advantages: Centralized data management, customization of data shape, intuitive data mutation.
-
-Disadvantages: Requires writing a lot of additional code, all code is centralized in the store, difficult code splitting.
-
-Now let's look at SWR:
-
-Advantages: Automatic deduplication and revalidation.
-
-Disadvantages: Data is not centrally managed, inability to customize returned data.
-
-Based on the above, my motivation for developing React Server Model is to create a package that combines the advantages of both Redux and SWR while minimizing their disadvantages.
-
-## The features I need to achieve
-
-- Automatic deduplication and revalidation
-- Customization of data shape
-- Easier and more intuitive data mutation
-- Ability to achieve code splitting
+If you have any ideas or suggestions regarding this project, please feel free to share them with me. Thank you.
