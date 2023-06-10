@@ -1,14 +1,28 @@
 # React Server Model
 
-RSM (React Server Model) is a server state management library that emphasizes developer control over data. It allows for customized data structures and adapters to handle data updates effectively. With an intuitive API, developers can directly access and manipulate their data structures. RSM also provides hooks like `useFetch` and `useInfiniteFetch` for easy server data retrieval and synchronization. It offers a flexible approach for developers who desire more control and customization in managing server state in their React applications.
+[![npm version][npm-image]][npm-url]
+[![License][license-image]][license-url]
+[![PR's Welcome][pr-welcoming-image]][pr-welcoming-url]
+
+RSM (React Server Model) is a server state management library that emphasizes developer control over data. It allows for customized data structures and adapters to handle data updates effectively. With an intuitive API, developers can directly access and manipulate their data structures. RSM also provides hooks for easy server data retrieval and synchronization. It offers a flexible approach for developers who desire more control and customization in managing server state in their React applications.
 
 - [React Server Model](#react-server-model)
   - [Getting Started](#getting-started)
+    - [Installation](#installation)
+    - [Usage](#usage)
   - [Development Motivation](#development-motivation)
     - [Why not use SWR or React Query?](#why-not-use-swr-or-react-query)
     - [Goals to achieve](#goals-to-achieve)
 
 ## Getting Started
+
+### Installation
+
+```sh
+pnpm add react-server-model
+```
+
+### Usage
 
 In RSM (React Server Model), you need to create a separate model with different type of data structure for each data. For example, you can create a pagination model for posts and a dictionary model for user settings. Let's take posts as an example.
 
@@ -176,3 +190,10 @@ First and foremost, it is essential to empower users to have full control over t
 Another crucial point is to provide a concise and user-friendly hook, similar to `useQuery`, that allows developers to call it from any component without worrying about duplicate requests. Additionally, features like polling and revalidation are also important.
 
 If you have any ideas or suggestions regarding this project, please feel free to share them with me. Thank you.
+
+[npm-image]: https://badge.fury.io/js/react-server-model.svg
+[npm-url]: https://www.npmjs.com/package/react-server-model
+[license-image]: https://img.shields.io/github/license/jason89521/react-server-model?style=flat-square
+[license-url]: https://github.com/jason89521/react-server-model
+[pr-welcoming-image]: https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square
+[pr-welcoming-url]: https://github.com/jason89521/react-server-model/pull/new
