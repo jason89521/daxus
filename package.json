@@ -1,16 +1,22 @@
 {
   "name": "react-server-model",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "files": [
     "dist"
   ],
+  "license": "MIT",
   "keywords": [
     "react",
     "data fetching",
     "auto revalidate",
     "pagination"
   ],
+  "author": {
+    "name": "Yu Xuan",
+    "email": "97ssps30212@gmail.com",
+    "url": "https://github.com/jason89521"
+  },
   "types": "./dist/index.d.ts",
   "module": "./dist/index.js",
   "repository": {
