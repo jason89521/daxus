@@ -13,6 +13,7 @@ RSM (React Server Model) is a server state management library that emphasizes de
   - [Development Motivation](#development-motivation)
     - [Why not use SWR or React Query?](#why-not-use-swr-or-react-query)
     - [Goals to achieve](#goals-to-achieve)
+  - [Design Philosophy](#design-philosophy)
 
 ## Getting Started
 
@@ -190,6 +191,78 @@ First and foremost, it is essential to empower users to have full control over t
 Another crucial point is to provide a concise and user-friendly hook, similar to `useQuery`, that allows developers to call it from any component without worrying about duplicate requests. Additionally, features like polling and revalidation are also important.
 
 If you have any ideas or suggestions regarding this project, please feel free to share them with me. Thank you.
+
+## Design Philosophy
+
+Using Redux has its advantages, especially when it comes to customizing data structures. In our company, pagination is one of the most frequently used data structures for various entities like posts, comments, and forums. To simplify the process of creating paginations, our senior engineer developed a `createPaginationAdapter` function.
+
+The state type returned by `createPaginationAdapter` is defined as follows:
+
+```typescript
+export interface Pagination {
+  noMore: boolean;
+  index: EntityId[];
+  loading: boolean;
+  fetched: boolean;
+  error?: any;
+}
+
+export interface PaginationState<T> {
+  data: Record<EntityId, T | undefined>;
+  paginations: Record<string, Pagination | undefined>;
+}
+```
+
+`PaginationState` consists of two properties: `data` and `paginations`. `data` stores all the entity data, while `paginations` keeps track of the pagination states and the associated IDs.
+
+To illustrate, let's consider the example of managing posts. When retrieving the list of posts without any filters, the API endpoint would look like `/api/posts?filter=all`, and the corresponding pagination key would be `filter=all`. Suppose the API returns the first page of posts with IDs 1 to 5. In this case, `paginations["filter=all"]` would contain the following:
+
+```javascript
+{
+    noMore: false,
+    index: [1, 2, 3, 4, 5],
+    loading: false,
+    fetched: true
+}
+```
+
+The `data` object would store the actual post data:
+
+```javascript
+{
+    1: {
+        // post data
+    },
+    // and so on
+}
+```
+
+To access the pagination for `filter=all`, we can use the object obtained from `createPaginationAdapter`:
+
+```javascript
+const postAdapter = createPaginationAdapter();
+
+function usePost() {
+  const postPagination = useSelector(state =>
+    postAdapter.selectByPagination(state.post, 'filter=all')
+  );
+  return postPagination;
+}
+```
+
+At this point, you might think, "Isn't this similar to RTK's [`createEntityAdapter`](https://redux-toolkit.js.org/api/createEntityAdapter)?" Indeed, there are similarities between the two, but `createPaginationAdapter` is an enhanced version specifically designed for pagination data. Now, let's delve into its most significant advantage.
+
+Do you remember [when React Query fails to meet our needs](#why-not-use-swr-or-react-query)? Yes, it's when we have multiple paginations that might include the same post. React Query cannot handle this scenario effectively, but the pagination adapter perfectly solves this problem. By centralizing all the data in `data` and using `paginations` to collect the associated IDs, any updates to a specific post will automatically reflect in all the paginations containing that post. There won't be any inconsistencies.
+
+So, what is the design philosophy behind RSM?
+
+The answer lies in **customized data structures**.
+
+Every application has unique requirements for data structures. In our company, we designed `PaginationState` to fulfill our needs. RSM's design philosophy empowers developers to define and use data structures tailored to their specific requirements. You only need to invest effort in creating suitable adapters and instructing RSM on how to fetch data and synchronize it with your model. RSM takes care of the rest, including deduplication, revalidation, and more.
+
+However, creating an adapter does require some code, so RSM also strives to provide pre-built adapters that cater to most use cases. If you have any new data structures in mind that RSM doesn't support yet, we welcome your suggestions, and we'll make an effort to implement them.
+
+> Currently, RSM only offers `createPaginationAdapter`, and I haven't thought of other forms of data structures. If you have any ideas, please let me know!
 
 [npm-image]: https://badge.fury.io/js/react-server-model.svg
 [npm-url]: https://www.npmjs.com/package/react-server-model
