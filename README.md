@@ -162,9 +162,9 @@ This way, we take into account the scenario of updating the list. But is it real
 
 ```typescript
 const allPopular = ['posts', 'list', 'popular', 'all'];
-const allLatest = [('posts', 'list', 'latest', 'all')];
-const forumPopular = [('posts', 'list', 'popular', forumId)];
-const forumLatest = [('posts', 'list', 'latest', forumId)];
+const allLatest = ['posts', 'list', 'latest', 'all'];
+const forumPopular = ['posts', 'list', 'popular', forumId];
+const forumLatest = ['posts', 'list', 'latest', forumId];
 ```
 
 If we also consider all these scenarios, it might bring us even more mental burden than using Redux, not to mention some API responses have this format:
