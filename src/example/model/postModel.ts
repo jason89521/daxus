@@ -1,4 +1,4 @@
-import type { Post, PostLayout } from '../types';
+import type { Post, PostLayout } from '../../types';
 import { createModel } from '../../lib';
 import { createPaginationAdapter } from '../../lib';
 import { getPostById as getPostByIdRequest, getPostList as getPostListRequest } from '../request';
