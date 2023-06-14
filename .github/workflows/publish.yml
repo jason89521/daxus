@@ -6,16 +6,14 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
+      - run: corepack enable
       - uses: actions/setup-node@v3
         with:
-          node-version: '18.x'
+          node-version: 18
           registry-url: 'https://registry.npmjs.org'
-      - uses: pnpm/action-setup@v2
-        with:
-          version: '8.5.1'
-          run_install: true
+          cache: 'pnpm'
+      - run: pnpm install
       - name: Publish package on NPM 📦
         run: pnpm run build-lib && npm publish
         env:
