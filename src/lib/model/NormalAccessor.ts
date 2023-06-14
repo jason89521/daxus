@@ -83,7 +83,9 @@ export class NormalAccessor<Model, Arg = any, Data = any, E = unknown> extends A
       // Call reject in order to abort this retry and the revalidate.
       const retryResult = await new Promise<FetchResult<Data, E>>((resolve, reject) => {
         const timeoutId = window.setTimeout(() => {
-          this.internalFetch(remainRetryCount - 1).then(resolve);
+          this.internalFetch(remainRetryCount - 1)
+            .then(resolve)
+            .catch(reject);
         }, this.getRetryInterval());
 
         this.setRetryTimeoutMeta({ timeoutId, reject });

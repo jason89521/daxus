@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, act } from '@testing-library/react';
+import { fireEvent, render, screen, act, waitFor } from '@testing-library/react';
 import { useAccessor } from '../lib';
 import { createPost, createPostModel, createPostModelControl, sleep } from './utils';
 import type { PostModelControl } from './types';
@@ -118,7 +118,7 @@ describe('useAccessor-infinite', () => {
     function Page() {
       const { data } = useAccessor(getPostList(), postAdapter.tryReadPaginationFactory(''), {
         dedupeInterval: 1,
-        retryInterval: 10,
+        retryInterval: 50,
       });
       return <div>items: {data?.items.map(item => item.title)}</div>;
     }
@@ -127,7 +127,6 @@ describe('useAccessor-infinite', () => {
     await act(() => sleep(5));
     // this should not cause an unhandled rejection in test.
     getPostList().revalidate();
-    await act(() => sleep(40));
-    expect(onErrorMock).toHaveBeenCalledOnce();
+    await waitFor(() => expect(onErrorMock).toHaveBeenCalledOnce());
   });
 });

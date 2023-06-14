@@ -1,4 +1,4 @@
-import { screen, fireEvent, act } from '@testing-library/react';
+import { screen, fireEvent, act, waitFor } from '@testing-library/react';
 import { createPostModel, createPostModelControl, sleep, render } from './utils';
 import { useState } from 'react';
 import { useAccessor } from '../lib';
@@ -95,7 +95,6 @@ describe('useAccessor-normal', () => {
     await act(() => sleep(5));
     // this should not cause an unhandled rejection in test.
     getPostById(0).revalidate();
-    await act(() => sleep(40));
-    expect(onErrorMock).toHaveBeenCalledOnce();
+    await waitFor(() => expect(onErrorMock).toHaveBeenCalledOnce());
   });
 });
