@@ -1,7 +1,7 @@
 export type PostLayout = 'classic' | 'image';
 
 export interface Post {
-  id: number;
+  id: string;
   title: string;
   layout: PostLayout;
 }
