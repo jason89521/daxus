@@ -12,9 +12,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - uses: pnpm/action-setup@v2
+       - uses: actions/setup-node@v3
         with:
-          version: '8.5.1'
-          run_install: true
+          node-version: 18
+          cache: "pnpm"
+      - run: pnpm install
       - run: pnpm test
       - run: pnpm build-lib
