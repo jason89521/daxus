@@ -5,9 +5,9 @@ import type { NormalAction } from './types';
 import type { Draft } from 'immer';
 
 /**
- * [`data`, `error`, `the time where the request start at`]
+ * [`data`, `error`]
  */
-type FetchResult<D, E> = [D | null, E | null, number];
+type FetchResult<D, E> = [D | null, E | null];
 
 export class NormalAccessor<Model, Arg = any, Data = any, E = unknown> extends Accessor<Model, E> {
   private action: NormalAction<Model, Arg, Data, E>;
@@ -40,14 +40,14 @@ export class NormalAccessor<Model, Arg = any, Data = any, E = unknown> extends A
     this.onFetchingStart();
     const arg = this.arg;
     try {
-      const [data, error, startAt] = await this.internalFetch(this.getRetryCount());
+      const [data, error] = await this.internalFetch(this.getRetryCount());
 
-      if (this.isExpiredFetching(startAt)) return;
-      this.updateStartAt(startAt);
+      if (this.isExpiredFetching(currentTime)) return;
+      this.updateStartAt(currentTime);
 
       if (data) {
         this.updateModel(draft => {
-          this.action.syncModel(draft, { data, arg, startAt });
+          this.action.syncModel(draft, { data, arg, startAt: currentTime });
         });
         this.updateStatus({ error: null });
         this.action.onSuccess?.({ data, arg });
@@ -70,7 +70,7 @@ export class NormalAccessor<Model, Arg = any, Data = any, E = unknown> extends A
    * @returns
    */
   private internalFetch = async (remainRetryCount: number): Promise<FetchResult<Data, E>> => {
-    const result: FetchResult<Data, E> = [null, null, getCurrentTime()];
+    const result: FetchResult<Data, E> = [null, null];
     const arg = this.arg;
     try {
       const data = await this.action.fetchData(arg);
