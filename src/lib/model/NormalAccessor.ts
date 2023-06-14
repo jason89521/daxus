@@ -39,24 +39,29 @@ export class NormalAccessor<Model, Arg = any, Data = any, E = unknown> extends A
     this.updateStatus({ isFetching: true });
     this.onFetchingStart();
     const arg = this.arg;
-    const [data, error, startAt] = await this.internalFetch(this.getRetryCount());
+    try {
+      const [data, error, startAt] = await this.internalFetch(this.getRetryCount());
 
-    if (this.isExpiredFetching(startAt)) return;
-    this.updateStartAt(startAt);
+      if (this.isExpiredFetching(startAt)) return;
+      this.updateStartAt(startAt);
 
-    if (data) {
-      this.updateModel(draft => {
-        this.action.syncModel(draft, { data, arg, startAt });
-      });
-      this.updateStatus({ error: null });
-      this.action.onSuccess?.({ data, arg });
-    } else {
-      this.updateStatus({ error });
-      this.action.onError?.({ error: error!, arg });
+      if (data) {
+        this.updateModel(draft => {
+          this.action.syncModel(draft, { data, arg, startAt });
+        });
+        this.updateStatus({ error: null });
+        this.action.onSuccess?.({ data, arg });
+      } else {
+        this.updateStatus({ error });
+        this.action.onError?.({ error: error!, arg });
+      }
+      this.notifyModel();
+      this.updateStatus({ isFetching: false });
+      this.onFetchingFinish();
+    } catch (error) {
+      // This error happens when any fetching is aborted.
+      // We don't need to handle this.
     }
-    this.notifyModel();
-    this.updateStatus({ isFetching: false });
-    this.onFetchingFinish();
   };
 
   /**
@@ -77,9 +82,8 @@ export class NormalAccessor<Model, Arg = any, Data = any, E = unknown> extends A
       }
       // Call reject in order to abort this retry and the revalidate.
       const retryResult = await new Promise<FetchResult<Data, E>>((resolve, reject) => {
-        const timeoutId = window.setTimeout(async () => {
-          const r = await this.internalFetch(remainRetryCount - 1);
-          resolve(r);
+        const timeoutId = window.setTimeout(() => {
+          this.internalFetch(remainRetryCount - 1).then(resolve);
         }, this.getRetryInterval());
 
         this.setRetryTimeoutMeta({ timeoutId, reject });

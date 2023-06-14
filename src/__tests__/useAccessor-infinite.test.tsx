@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, act } from '@testing-library/react';
 import { useAccessor } from '../lib';
-import { createPost, createPostModel, sleep } from './utils';
+import { createPost, createPostModel, createPostModelControl, sleep } from './utils';
 import type { PostModelControl } from './types';
 
 describe('useAccessor-infinite', () => {
@@ -109,5 +109,25 @@ describe('useAccessor-infinite', () => {
       error: new Error('error 1'),
       arg: undefined,
     });
+  });
+
+  test('should not cause an unhandled rejection when revalidate', async () => {
+    const onErrorMock = vi.fn();
+    const control = createPostModelControl({ onErrorMock, fetchDataError: new Error('error') });
+    const { getPostList, postAdapter } = createPostModel(control);
+    function Page() {
+      const { data } = useAccessor(getPostList(), postAdapter.tryReadPaginationFactory(''), {
+        dedupeInterval: 1,
+        retryInterval: 10,
+      });
+      return <div>items: {data?.items.map(item => item.title)}</div>;
+    }
+
+    render(<Page />);
+    await act(() => sleep(5));
+    // this should not cause an unhandled rejection in test.
+    getPostList().revalidate();
+    await act(() => sleep(40));
+    expect(onErrorMock).toHaveBeenCalledOnce();
   });
 });

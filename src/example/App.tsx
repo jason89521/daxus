@@ -33,12 +33,17 @@ function App() {
     else setPostId(postId + 1);
   };
 
+  const revalidate = () => {
+    getPostById(postId).revalidate();
+  };
+
   return (
     <div>
       <button onClick={changePostId}>Change post id</button>
       {/* <UpdateButton id={postId} /> */}
       <button onClick={() => setShow(!show)}>hide / show first post</button>
-      {show && <Post revalidateOnFocus={false} id={postId} pollingInterval={1000} />}
+      <button onClick={revalidate}>revalidate current post</button>
+      {show && <Post revalidateOnFocus={false} id={postId} />}
       <Post id={postId} pollingInterval={0} />
       <PostList />
     </div>
