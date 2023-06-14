@@ -216,12 +216,11 @@ export class Accessor<M, E> {
   };
 
   /**
-   * @internal
-   * @returns
+   * Reject the current error retry and clear the error retry timeout.
    */
-  private abortRetry() {
+  private abortRetry = (): void => {
     if (!this.retryTimeoutMeta) return;
     clearTimeout(this.retryTimeoutMeta.timeoutId);
     this.retryTimeoutMeta.reject();
-  }
+  };
 }

@@ -1,5 +1,5 @@
-import { render, screen, fireEvent, act } from '@testing-library/react';
-import { createPostModel, createPostModelControl, sleep } from './utils';
+import { screen, fireEvent, act, waitFor } from '@testing-library/react';
+import { createPostModel, createPostModelControl, sleep, render } from './utils';
 import { useState } from 'react';
 import { useAccessor } from '../lib';
 
@@ -77,5 +77,24 @@ describe('useAccessor-normal', () => {
     fireEvent.click(screen.getByText('data:'));
     await act(() => sleep(35));
     expect(onErrorMock).toHaveBeenCalledTimes(2);
+  });
+
+  test('should hide the aborting error when any retry is aborted', async () => {
+    const onErrorMock = vi.fn();
+    const control = createPostModelControl({ onErrorMock, fetchDataError: new Error('error') });
+    const { getPostById, postAdapter } = createPostModel(control);
+    function Page() {
+      const { data } = useAccessor(getPostById(0), postAdapter.tryReadOneFactory(0), {
+        dedupeInterval: 1,
+        retryInterval: 10,
+      });
+      return <div>data: {data?.title}</div>;
+    }
+
+    render(<Page />);
+    await act(() => sleep(5));
+    // this should not cause an unhandled rejection in test.
+    getPostById(0).revalidate();
+    await waitFor(() => expect(onErrorMock).toHaveBeenCalledOnce());
   });
 });
