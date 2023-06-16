@@ -1,14 +1,14 @@
 import { act, render } from '@testing-library/react';
 import { useAccessor, useHydrate } from '../lib';
 import type { Post } from './types';
-import { createPost, createPostModel, createPostModelControl, sleep } from './utils';
+import { createPost, createPostModel, createControl, sleep } from './utils';
 import { renderToString } from 'react-dom/server';
 
 describe('useHydrate', () => {
   test('should hydrate successfully', async () => {
     const onSuccessMock = vi.fn();
     const updateMock = vi.fn();
-    const control = createPostModelControl({ onSuccessMock });
+    const control = createControl({ onSuccessMock });
     const { getPostById, postAdapter, postModel } = createPostModel(control);
     function Component({ postId }: { postId: number }) {
       const { data } = useAccessor(getPostById(postId), postAdapter.tryReadOneFactory(postId), {

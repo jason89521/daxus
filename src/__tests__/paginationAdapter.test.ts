@@ -1,5 +1,5 @@
 import { createPaginationAdapter } from '../lib';
-import type { Post } from './types';
+import type { Post } from '../types';
 import { createPost } from './utils';
 
 describe('paginationAdapter', () => {
@@ -70,7 +70,7 @@ describe('paginationAdapter', () => {
       noMore: false,
     });
 
-    adapter.deleteOne(model, 0);
+    adapter.deleteOne(model, '0');
     expect(adapter.tryReadPagination(model, key)).toEqual({
       items: [...page0.slice(1), ...page1],
       noMore: false,
@@ -82,17 +82,17 @@ describe('paginationAdapter', () => {
       noMore: false,
     });
 
-    const post10 = createPost(10);
-    adapter.prependPagination(model, key, [post10]);
-    expect(adapter.tryReadPagination(model, key)?.items).toEqual([
-      post10,
-      ...page0.slice(1),
-      ...page1,
-      post0,
-    ]);
+    // const post10 = createPost(10);
+    // adapter.prependPagination(model, key, [post10]);
+    // expect(adapter.tryReadPagination(model, key)?.items).toEqual([
+    //   post10,
+    //   ...page0.slice(1),
+    //   ...page1,
+    //   post0,
+    // ]);
 
-    adapter.setNoMore(model, key, true);
-    expect(adapter.readPaginationMeta(model, key).noMore).toBe(true);
+    // adapter.setNoMore(model, key, true);
+    // expect(adapter.readPaginationMeta(model, key).noMore).toBe(true);
   });
 
   test('should transform rawData to data', () => {

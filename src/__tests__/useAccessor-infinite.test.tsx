@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, act, waitFor } from '@testing-library/react';
 import { useAccessor } from '../lib';
-import { createPost, createPostModel, createPostModelControl, sleep } from './utils';
+import { createPost, createPostModel, createControl, sleep } from './utils';
 import type { PostModelControl } from './types';
 
 describe('useAccessor-infinite', () => {
@@ -113,7 +113,7 @@ describe('useAccessor-infinite', () => {
 
   test('should not cause an unhandled rejection when revalidate', async () => {
     const onErrorMock = vi.fn();
-    const control = createPostModelControl({ onErrorMock, fetchDataError: new Error('error') });
+    const control = createControl({ onErrorMock, fetchDataError: new Error('error') });
     const { getPostList, postAdapter } = createPostModel(control);
     function Page() {
       const { data } = useAccessor(getPostList(), postAdapter.tryReadPaginationFactory(''), {

@@ -1,10 +1,10 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { useAccessor } from '../lib';
-import { createPostModel, createPostModelControl, sleep } from './utils';
+import { createPostModel, createControl, sleep } from './utils';
 
 describe('useAccessor-normal revalidateOnFocus', () => {
   test('should revalidate when window get focused', async () => {
-    const control = createPostModelControl({});
+    const control = createControl({});
     const { getPostById, postAdapter } = createPostModel(control);
     function Page() {
       const { data } = useAccessor(getPostById(0), postAdapter.tryReadOneFactory(0), {
@@ -26,7 +26,7 @@ describe('useAccessor-normal revalidateOnFocus', () => {
   });
 
   test('should not revalidate when window get focused if revalidateOnFocus is set to false', async () => {
-    const control = createPostModelControl({});
+    const control = createControl({});
     const { getPostById, postAdapter } = createPostModel(control);
     function Page() {
       const { data } = useAccessor(getPostById(0), postAdapter.tryReadOneFactory(0), {

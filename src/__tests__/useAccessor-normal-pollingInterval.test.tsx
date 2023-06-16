@@ -1,12 +1,12 @@
 import { act, fireEvent, waitFor } from '@testing-library/react';
 import { useAccessor } from '../lib';
-import { createPostModel, createPostModelControl, render, sleep } from './utils';
+import { createPostModel, createControl, render, sleep } from './utils';
 import { useState } from 'react';
 
 describe('useAccessor-normal pollingInterval', () => {
   test('should keep fetching data if pollingInterval is larger than 0, and stop fetching if it is smaller than 0', async () => {
     const onSuccessMock = vi.fn();
-    const control = createPostModelControl({ onSuccessMock });
+    const control = createControl({ onSuccessMock });
     const { getPostById, postAdapter } = createPostModel(control);
     function Page() {
       const [pollingInterval, setPollingInterval] = useState(10);
@@ -33,7 +33,7 @@ describe('useAccessor-normal pollingInterval', () => {
 
   test('should change the interval when the hook unmount', async () => {
     const onSuccessMock = vi.fn();
-    const control = createPostModelControl({ onSuccessMock });
+    const control = createControl({ onSuccessMock });
     const { getPostById, postAdapter } = createPostModel(control);
     function Post({ pollingInterval }: { pollingInterval: number }) {
       const { data } = useAccessor(getPostById(0), postAdapter.tryReadOneFactory(0), {
@@ -64,7 +64,7 @@ describe('useAccessor-normal pollingInterval', () => {
 
   test('should start polling when pollingInterval changes', async () => {
     const onSuccessMock = vi.fn();
-    const control = createPostModelControl({ onSuccessMock });
+    const control = createControl({ onSuccessMock });
     const { getPostById, postAdapter } = createPostModel(control);
     function Page() {
       const [pollingInterval, setPollingInterval] = useState(0);

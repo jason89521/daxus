@@ -1,10 +1,10 @@
 import { act, fireEvent, screen } from '@testing-library/react';
 import { useAccessor } from '../lib';
-import { createPostModel, createPostModelControl, sleep, render } from './utils';
+import { createPostModel, createControl, sleep, render } from './utils';
 
 describe('useAccessor-infinite revalidateOnFocus', () => {
   test('should revalidate when window get focused', async () => {
-    const control = createPostModelControl({ titlePrefix: 'focus' });
+    const control = createControl({ titlePrefix: 'focus' });
     const { getPostList, postAdapter } = createPostModel(control);
     function Page() {
       const accessor = getPostList();
@@ -31,7 +31,7 @@ describe('useAccessor-infinite revalidateOnFocus', () => {
   });
 
   test('should not revalidate when window get focused if revalidateOnFocus is set to false', async () => {
-    const control = createPostModelControl({ titlePrefix: 'focus' });
+    const control = createControl({ titlePrefix: 'focus' });
     const { getPostList, postAdapter } = createPostModel(control);
     function Page() {
       const accessor = getPostList();
@@ -59,7 +59,7 @@ describe('useAccessor-infinite revalidateOnFocus', () => {
   });
 
   test('should fetch next page if revalidation and fetching next page are triggered concurrently', async () => {
-    const control = createPostModelControl({});
+    const control = createControl({});
     const { getPostList, postAdapter } = createPostModel(control);
     function Page() {
       const accessor = getPostList();

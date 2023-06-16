@@ -1,10 +1,10 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import { createPostModel, createPostModelControl, sleep } from './utils';
+import { createPostModel, createControl, sleep } from './utils';
 import { useAccessor } from '../lib';
 
 describe('useAccessor-infinite revalidateOnReconnect', () => {
   test('should revalidate when network reconnect', async () => {
-    const control = createPostModelControl({ titlePrefix: 'online' });
+    const control = createControl({ titlePrefix: 'online' });
     const { getPostList, postAdapter } = createPostModel(control);
     function Page() {
       const accessor = getPostList();
@@ -31,7 +31,7 @@ describe('useAccessor-infinite revalidateOnReconnect', () => {
   });
 
   test('should not revalidate when network reconnect if revalidateOnReconnect is set to false', async () => {
-    const control = createPostModelControl({ titlePrefix: 'online' });
+    const control = createControl({ titlePrefix: 'online' });
     const { getPostList, postAdapter } = createPostModel(control);
     function Page() {
       const accessor = getPostList();
