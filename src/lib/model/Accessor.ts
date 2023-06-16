@@ -21,7 +21,7 @@ type FetchPromise<D> = Promise<D | null>;
 export abstract class Accessor<M, D, E> {
   protected status: Status<E> = { isFetching: false, error: null };
   protected statusListeners: ((prev: Status, current: Status) => void)[] = [];
-  public fetchPromise: FetchPromise<D> | null = null;
+  protected fetchPromise: FetchPromise<D> | null = null;
   private retryTimeoutMeta: RetryTimeoutMeta | null = null;
   private startAt = 0;
   private modelSubscribe: ModelSubscribe;
