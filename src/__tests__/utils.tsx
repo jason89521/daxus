@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react';
 import { StrictMode } from 'react';
 import { createModel, createPaginationAdapter } from '../lib';
-import type { PostLayout, Post, PostModelControl } from './types';
+import type { PostModelControl } from './types';
+import type { Post, PostLayout } from '../types';
 import { render as _render } from '@testing-library/react';
 
 export function sleep(time: number) {
@@ -9,7 +10,7 @@ export function sleep(time: number) {
 }
 
 export function createPost(id: number, layout: PostLayout = 'classic'): Post {
-  return { id, layout, title: `title${id}` };
+  return { id: `${id}`, layout, title: `title${id}` };
 }
 
 export function createPostModel(control: PostModelControl) {
@@ -80,7 +81,7 @@ export function createPostModel(control: PostModelControl) {
   return { postAdapter, postModel, getPostById, getPostList };
 }
 
-export function createPostModelControl(initialControl: PostModelControl) {
+export function createControl(initialControl: PostModelControl) {
   return initialControl;
 }
 

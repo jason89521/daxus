@@ -1,11 +1,11 @@
 import { screen, fireEvent, act, waitFor } from '@testing-library/react';
-import { createPostModel, createPostModelControl, sleep, render } from './utils';
+import { createPostModel, createControl, sleep, render } from './utils';
 import { useState } from 'react';
 import { useAccessor } from '../lib';
 
 describe('useAccessor-normal', () => {
   test('should be able to update the cache', async () => {
-    const control = createPostModelControl({});
+    const control = createControl({});
     const { getPostById, postAdapter } = createPostModel(control);
     function Page() {
       const [id, setId] = useState(0);
@@ -22,7 +22,7 @@ describe('useAccessor-normal', () => {
   });
 
   test('should correctly mutate the cached value', async () => {
-    const control = createPostModelControl({});
+    const control = createControl({});
     const { getPostById, postAdapter, postModel } = createPostModel(control);
     function Page() {
       const { data } = useAccessor(getPostById(0), postAdapter.tryReadOneFactory(0));
@@ -38,7 +38,7 @@ describe('useAccessor-normal', () => {
 
   test('should trigger onSuccess', async () => {
     const onSuccessMock = vi.fn();
-    const control = createPostModelControl({ onSuccessMock });
+    const control = createControl({ onSuccessMock });
     const { getPostById, postAdapter } = createPostModel(control);
     function Page() {
       const [id, setId] = useState(0);
@@ -58,7 +58,7 @@ describe('useAccessor-normal', () => {
 
   test('should trigger onError', async () => {
     const onErrorMock = vi.fn();
-    const control = createPostModelControl({ onErrorMock, fetchDataError: new Error('error') });
+    const control = createControl({ onErrorMock, fetchDataError: new Error('error') });
     const { getPostById, postAdapter } = createPostModel(control);
     function Page() {
       const [id, setId] = useState(0);
@@ -81,7 +81,7 @@ describe('useAccessor-normal', () => {
 
   test('should hide the aborting error when any retry is aborted', async () => {
     const onErrorMock = vi.fn();
-    const control = createPostModelControl({ onErrorMock, fetchDataError: new Error('error') });
+    const control = createControl({ onErrorMock, fetchDataError: new Error('error') });
     const { getPostById, postAdapter } = createPostModel(control);
     function Page() {
       const { data } = useAccessor(getPostById(0), postAdapter.tryReadOneFactory(0), {

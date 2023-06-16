@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { createPostModel, createPostModelControl, render, sleep } from './utils';
+import { createPostModel, createControl, render, sleep } from './utils';
 import { useAccessor } from '../lib';
 import { fireEvent, waitFor, act } from '@testing-library/react';
 
 describe('useAccessor-infinite pollingInterval', () => {
   test('should keep revalidating if pollingInterval is larger than 0, and stop if it is smaller than 0', async () => {
     const onSuccessMock = vi.fn();
-    const control = createPostModelControl({ onSuccessMock });
+    const control = createControl({ onSuccessMock });
     const { getPostList, postAdapter } = createPostModel(control);
     function Page() {
       const [pollingInterval, setPollingInterval] = useState(10);
@@ -42,7 +42,7 @@ describe('useAccessor-infinite pollingInterval', () => {
 
   test('should stop polling revalidation if fetchNextPage is invoked', async () => {
     const onSuccessMock = vi.fn();
-    const control = createPostModelControl({ onSuccessMock });
+    const control = createControl({ onSuccessMock });
     const { getPostList, postAdapter } = createPostModel(control);
     function Page() {
       const accessor = getPostList();
