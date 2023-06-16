@@ -17,9 +17,9 @@ RSM (React Server Model) is a server state management library that emphasizes de
 ---
 
 - [Comparison](#comparison)
-- [Getting Started](#getting-started)
-  - [Installation](#installation)
-  - [Usage](#usage)
+- [Installation](#installation)
+- [Simple Example](#simple-example)
+- [Usage](#usage)
 - [Development Motivation](#development-motivation)
   - [Why not use SWR or React Query?](#why-not-use-swr-or-react-query)
   - [Goals to achieve](#goals-to-achieve)
@@ -37,15 +37,54 @@ RSM (React Server Model) is a server state management library that emphasizes de
 | Polling                     |  ✅   |      ✅       |  ✅   |
 | Error retry                 |  ✅   |      ✅       |  ✅   |
 
-## Getting Started
-
-### Installation
+## Installation
 
 ```sh
 pnpm add react-server-model
 ```
 
-### Usage
+```sh
+yarn add react-server-model
+```
+
+```sh
+npm install react-server-model
+```
+
+## Simple Example
+
+```typescript
+export const postAdapter = createPaginationAdapter<Post>();
+export const postModel = createModel(postAdapter.initialModel);
+export const getPostById = post.defineAccessor<number, Post>('normal', {
+  fetchData: async arg => {
+    const data = await getPostApi({ id: arg });
+    return data;
+  },
+  syncModel: (model, payload) => {
+    postAdapter.upsertOne(model, payload.data);
+  },
+});
+
+export function usePost(id: number) {
+  const accessor = getPostById(id);
+  const { data, error, isFetching } = useAccessor(
+    accessor,
+    model => {
+      return postAdapter.tryReadOne(model, id);
+    },
+    {
+      revalidateOnFocus: true,
+    }
+  );
+
+  return { data, error, isFetching, revalidate: () => accessor.revalidate() };
+}
+```
+
+Feel free to put `usePost` in any component, it will dedupe automatically.
+
+## Usage
 
 In RSM (React Server Model), you need to create a separate model with different type of data structure for each data. For example, you can create a pagination model for posts and a dictionary model for user settings. Let's take posts as an example.
 
