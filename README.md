@@ -16,14 +16,13 @@ RSM (React Server Model) is a server state management library that emphasizes de
 
 ---
 
-- [React Server Model](#react-server-model)
-  - [Getting Started](#getting-started)
-    - [Installation](#installation)
-    - [Usage](#usage)
-  - [Development Motivation](#development-motivation)
-    - [Why not use SWR or React Query?](#why-not-use-swr-or-react-query)
-    - [Goals to achieve](#goals-to-achieve)
-  - [Design Philosophy](#design-philosophy)
+- [Getting Started](#getting-started)
+  - [Installation](#installation)
+  - [Usage](#usage)
+- [Development Motivation](#development-motivation)
+  - [Why not use SWR or React Query?](#why-not-use-swr-or-react-query)
+  - [Goals to achieve](#goals-to-achieve)
+- [Design Philosophy](#design-philosophy)
 
 ## Getting Started
 
