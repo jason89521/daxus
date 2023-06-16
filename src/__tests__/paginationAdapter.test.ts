@@ -94,4 +94,34 @@ describe('paginationAdapter', () => {
     adapter.setNoMore(model, key, true);
     expect(adapter.readPaginationMeta(model, key).noMore).toBe(true);
   });
+
+  test('should transform rawData to data', () => {
+    type NewPost = Post & { content: string };
+    const adapter = createPaginationAdapter<NewPost, Post>({
+      transform: rawPost => {
+        return { ...rawPost, content: 'content' };
+      },
+    });
+    const model = adapter.initialModel;
+
+    adapter.createOne(model, createPost(0));
+    expect(adapter.readOne(model, 0)).toEqual({ ...post0, content: 'content' });
+    adapter.deleteOne(model, 0);
+    expect(adapter.tryReadOne(model, 0)).toBeUndefined();
+
+    adapter.upsertOne(model, createPost(0));
+    expect(adapter.readOne(model, 0)).toEqual({ ...post0, content: 'content' });
+    adapter.deleteOne(model, 0);
+    expect(adapter.tryReadOne(model, 0)).toBeUndefined();
+
+    adapter.appendPagination(model, '', [createPost(0)]);
+    expect(adapter.readOne(model, 0)).toEqual({ ...post0, content: 'content' });
+    adapter.deleteOne(model, 0);
+    expect(adapter.tryReadOne(model, 0)).toBeUndefined();
+
+    adapter.prependPagination(model, '', [createPost(0)]);
+    expect(adapter.readOne(model, 0)).toEqual({ ...post0, content: 'content' });
+    adapter.deleteOne(model, 0);
+    expect(adapter.tryReadOne(model, 0)).toBeUndefined();
+  });
 });

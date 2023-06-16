@@ -37,11 +37,13 @@ function createPaginationMeta(): PaginationMeta {
   };
 }
 
-export function createPaginationAdapter<Data>({
+export function createPaginationAdapter<Data, RawData = Data>({
   getId = defaultGetId,
+  transform = rawData => rawData as unknown as Data,
 }: {
   getId?: (data: Data) => Id;
-}) {
+  transform?: (rawData: RawData) => Data;
+} = {}) {
   type Model = PaginationModel<Data>;
 
   /**
@@ -49,7 +51,8 @@ export function createPaginationAdapter<Data>({
    * @param model
    * @param data
    */
-  function createOne(model: Model, data: Data): void {
+  function createOne(model: Model, rawData: RawData): void {
+    const data = transform(rawData);
     const id = getId(data);
     model.entityRecord[id] = data;
   }
@@ -129,7 +132,8 @@ export function createPaginationAdapter<Data>({
    * @param model
    * @param data
    */
-  function upsertOne(model: Model, data: Data) {
+  function upsertOne(model: Model, rawData: RawData) {
+    const data = transform(rawData);
     const id = getId(data);
     const cache = model.entityRecord[id];
     model.entityRecord[id] = { ...cache, ...data };
@@ -140,7 +144,7 @@ export function createPaginationAdapter<Data>({
    * @param model
    * @param data
    */
-  function upsertMany(model: Model, data: Data[]) {
+  function upsertMany(model: Model, data: RawData[]) {
     for (const entity of data) {
       upsertOne(model, entity);
     }
@@ -193,8 +197,9 @@ export function createPaginationAdapter<Data>({
    * @param paginationKey
    * @param data
    */
-  function replacePagination(model: Model, paginationKey: string, data: Data[]) {
-    upsertMany(model, data);
+  function replacePagination(model: Model, paginationKey: string, rawData: RawData[]) {
+    upsertMany(model, rawData);
+    const data = rawData.map(transform);
     const ids = data.map(getId);
     model.paginationMetaRecord[paginationKey] = {
       ids,
@@ -208,9 +213,10 @@ export function createPaginationAdapter<Data>({
    * @param key
    * @param data
    */
-  function appendPagination(model: Model, key: string, data: Data[]) {
-    upsertMany(model, data);
+  function appendPagination(model: Model, key: string, rawData: RawData[]) {
+    upsertMany(model, rawData);
     const meta = tryReadPaginationMeta(model, key) ?? createPaginationMeta();
+    const data = rawData.map(transform);
     const ids = data.map(getId);
     const originalIds = meta.ids;
     const set = new Set([...originalIds, ...ids]);
@@ -224,8 +230,9 @@ export function createPaginationAdapter<Data>({
    * @param key
    * @param data
    */
-  function prependPagination(model: Model, key: string, data: Data[]) {
-    upsertMany(model, data);
+  function prependPagination(model: Model, key: string, rawData: RawData[]) {
+    upsertMany(model, rawData);
+    const data = rawData.map(transform);
     const meta = tryReadPaginationMeta(model, key) ?? createPaginationMeta();
     const ids = data.map(getId);
     const originalIds = meta.ids;
