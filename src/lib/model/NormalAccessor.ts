@@ -9,7 +9,11 @@ import type { Draft } from 'immer';
  */
 type FetchResult<D, E> = [D | null, E | null];
 
-export class NormalAccessor<Model, Arg = any, Data = any, E = unknown> extends Accessor<Model, E> {
+export class NormalAccessor<Model, Arg = any, Data = any, E = unknown> extends Accessor<
+  Model,
+  Data,
+  E
+> {
   private action: NormalAction<Model, Arg, Data, E>;
   private arg: Arg;
   private updateModel: (cb: (model: Draft<Model>) => void) => void;
@@ -30,38 +34,44 @@ export class NormalAccessor<Model, Arg = any, Data = any, E = unknown> extends A
     this.notifyModel = notifyModel;
   }
 
-  revalidate = async () => {
-    const currentTime = getCurrentTime();
+  revalidate = () => {
+    const startAt = getCurrentTime();
 
-    if (!this.canFetch({ currentTime })) return;
-
-    this.updateStartAt(currentTime);
-    this.updateStatus({ isFetching: true });
-    this.onFetchingStart();
-    const arg = this.arg;
-    try {
-      const [data, error] = await this.internalFetch(this.getRetryCount());
-
-      if (this.isExpiredFetching(currentTime)) return;
-      this.updateStartAt(currentTime);
-
-      if (data) {
-        this.updateModel(draft => {
-          this.action.syncModel(draft, { data, arg, startAt: currentTime });
-        });
-        this.updateStatus({ error: null });
-        this.action.onSuccess?.({ data, arg });
-      } else {
-        this.updateStatus({ error });
-        this.action.onError?.({ error: error!, arg });
-      }
-      this.notifyModel();
-      this.updateStatus({ isFetching: false });
-      this.onFetchingFinish();
-    } catch (error) {
-      // This error happens when any fetching is aborted.
-      // We don't need to handle this.
+    if (!this.canFetch({ startAt })) {
+      return this.fetchPromise;
     }
+
+    const fetchPromise = (async () => {
+      try {
+        const arg = this.arg;
+        const [data, error] = await this.internalFetch(this.getRetryCount());
+
+        // expired means that there is an another valid `revalidation` is fetching.
+        if (this.isExpiredFetching(startAt)) return null;
+        this.updateStartAt(startAt);
+
+        if (data) {
+          this.updateModel(draft => {
+            this.action.syncModel(draft, { data, arg, startAt });
+          });
+          this.updateStatus({ error: null });
+          this.action.onSuccess?.({ data, arg });
+        } else {
+          this.updateStatus({ error });
+          this.action.onError?.({ error: error!, arg });
+        }
+        this.notifyModel();
+        this.updateStatus({ isFetching: false });
+        this.onFetchingSuccess();
+        return data;
+      } catch (error) {
+        // This error happens when any fetching is aborted.
+        // We don't need to handle this.
+        return null;
+      }
+    })();
+    this.onFetchingStart({ fetchPromise, startAt });
+    return this.fetchPromise;
   };
 
   /**

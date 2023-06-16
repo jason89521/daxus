@@ -6,11 +6,15 @@ import type { Draft } from 'immer';
 
 type Task = 'validate' | 'next' | 'idle';
 
-export class InfiniteAccessor<M, Arg = any, RD = any, E = unknown> extends Accessor<M, E> {
-  private action: InfiniteAction<M, Arg, RD>;
+export class InfiniteAccessor<M, Arg = any, Data = any, E = unknown> extends Accessor<
+  M,
+  Data[],
+  E
+> {
+  private action: InfiniteAction<M, Arg, Data>;
   private arg: Arg;
   private updateModel: (cb: (draft: Draft<M>) => void) => void;
-  private data: RD[] = [];
+  private data: Data[] = [];
   /**
    * This property is used to reject ant ongoing fetching.
    * It may be invoked when there is a revalidation executing,
@@ -22,7 +26,7 @@ export class InfiniteAccessor<M, Arg = any, RD = any, E = unknown> extends Acces
 
   constructor(
     arg: Arg,
-    action: InfiniteAction<M, Arg, RD>,
+    action: InfiniteAction<M, Arg, Data>,
     updateModel: (cb: (draft: Draft<M>) => void) => void,
     getModel: () => M,
     modelSubscribe: ModelSubscribe,
@@ -35,18 +39,18 @@ export class InfiniteAccessor<M, Arg = any, RD = any, E = unknown> extends Acces
     this.notifyModel = notifyModel;
   }
 
-  revalidate = async () => {
+  revalidate = () => {
     const pageSize = this.pageSize() || 1;
-    this.fetch({ pageSize, pageIndex: 0, task: 'validate' });
+    return this.fetch({ pageSize, pageIndex: 0, task: 'validate' });
   };
 
-  fetchNext = async () => {
+  fetchNext = () => {
     const pageIndex = this.pageSize();
     const pageSize = pageIndex + 1;
-    this.fetch({ pageSize, pageIndex, task: 'next' });
+    return this.fetch({ pageSize, pageIndex, task: 'next' });
   };
 
-  private updateData = (data: RD[]) => {
+  private updateData = (data: Data[]) => {
     this.data = data;
     this.notifyModel();
   };
@@ -61,12 +65,12 @@ export class InfiniteAccessor<M, Arg = any, RD = any, E = unknown> extends Acces
     pageIndex,
     remainRetryCount,
   }: {
-    previousData: RD | null;
+    previousData: Data | null;
     pageIndex: number;
     remainRetryCount: number;
-  }): Promise<[RD | null, E | null]> => {
+  }): Promise<[Data | null, E | null]> => {
     const arg = this.arg;
-    const promise = new Promise<[RD | null, E | null]>((resolve, reject) => {
+    const promise = new Promise<[Data | null, E | null]>((resolve, reject) => {
       this.action
         .fetchData(arg, { previousData, pageIndex })
         .then(value => resolve([value, null]))
@@ -105,8 +109,8 @@ export class InfiniteAccessor<M, Arg = any, RD = any, E = unknown> extends Acces
     pageIndex?: number;
   }) => {
     const dataArray = [...this.data];
-    const result: [RD[], E | null] = [dataArray, null];
-    let previousData: RD | null = dataArray[pageIndex - 1] ?? null;
+    const result: [Data[], E | null] = [dataArray, null];
+    let previousData: Data | null = dataArray[pageIndex - 1] ?? null;
     for (; pageIndex < pageSize; pageIndex++) {
       const [data, error] = await this.fetchPage({
         previousData,
@@ -128,7 +132,7 @@ export class InfiniteAccessor<M, Arg = any, RD = any, E = unknown> extends Acces
     return result;
   };
 
-  private fetch = async ({
+  private fetch = ({
     pageIndex = this.pageSize(),
     pageSize,
     task,
@@ -137,48 +141,52 @@ export class InfiniteAccessor<M, Arg = any, RD = any, E = unknown> extends Acces
     pageSize: number;
     task: Task;
   }) => {
-    const currentTime = getCurrentTime();
-    if (!this.canFetch({ currentTime })) {
+    const startAt = getCurrentTime();
+    if (!this.canFetch({ startAt })) {
       // If the next task is to fetch the next page, and the current task is validate,
       // then abort the current task and start to fetch next page.
       if (!(this.currentTask === 'validate' && task === 'next')) {
-        return;
+        return this.fetchPromise;
       }
     }
 
     this.currentTask = task;
     this.rejectFetching?.();
-    this.updateStartAt(currentTime);
-    this.updateStatus({ isFetching: true });
-    this.onFetchingStart();
-    const arg = this.arg;
-    try {
-      const [data, error] = await this.fetchPages({ pageSize, pageIndex });
+    const fetchPromise = (async () => {
+      try {
+        const arg = this.arg;
+        const [data, error] = await this.fetchPages({ pageSize, pageIndex });
 
-      if (this.isExpiredFetching(currentTime)) return;
+        // expired means that there is an another `fetch` is fetching.
+        if (this.isExpiredFetching(startAt)) return null;
 
-      if (error) {
-        this.updateStatus({ error, isFetching: false });
-        this.action.onError?.({ error, arg });
-      } else {
-        this.flush(data, { start: pageIndex });
-        this.updateData(data);
-        this.updateStatus({ error: null, isFetching: false });
-        this.action.onSuccess?.({ data, arg });
+        if (error) {
+          this.updateStatus({ error, isFetching: false });
+          this.action.onError?.({ error, arg });
+        } else {
+          this.flush(data, { start: pageIndex });
+          this.updateData(data);
+          this.updateStatus({ error: null, isFetching: false });
+          this.action.onSuccess?.({ data, arg });
+        }
+        this.currentTask = 'idle';
+        this.onFetchingSuccess();
+        return data;
+      } catch (error) {
+        // This error happens when any fetching is aborted.
+        // We don't need to handle this.
+        return null;
       }
-      this.currentTask = 'idle';
-      this.onFetchingFinish();
-    } catch (error) {
-      // This error happens when any fetching is aborted.
-      // We don't need to handle this.
-    }
+    })();
+    this.onFetchingStart({ fetchPromise, startAt });
+    return fetchPromise;
   };
 
   /**
    * Sync the data in `data` from the `start` index to the model,
    * and notify the listeners which are listening this accessor.
    */
-  private flush = (data: RD[], { start }: { start: number }) => {
+  private flush = (data: Data[], { start }: { start: number }) => {
     const pageSize = data.length;
     data.forEach((data, pageIndex) => {
       if (pageIndex < start) return;

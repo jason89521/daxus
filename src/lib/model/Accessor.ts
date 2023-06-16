@@ -16,10 +16,12 @@ type RetryTimeoutMeta = {
 
 type Options = Required<FetchOptions>;
 type OptionsRef = MutableRefObject<Options>;
+type FetchPromise<D> = Promise<D | null>;
 
-export class Accessor<M, E> {
+export abstract class Accessor<M, D, E> {
   protected status: Status<E> = { isFetching: false, error: null };
   protected statusListeners: ((prev: Status, current: Status) => void)[] = [];
+  public fetchPromise: FetchPromise<D> | null = null;
   private retryTimeoutMeta: RetryTimeoutMeta | null = null;
   private startAt = 0;
   private modelSubscribe: ModelSubscribe;
@@ -27,7 +29,12 @@ export class Accessor<M, E> {
   private removeOnFocusListener: (() => void) | null = null;
   private removeOnReconnectListener: (() => void) | null = null;
   private pollingTimeoutId: number | undefined;
-  revalidate!: () => void;
+
+  /**
+   * Return the result of the revalidation. It may be `null` if the revalidation is aborted or encounters an error.
+   */
+  abstract revalidate: () => Promise<D | null> | null;
+
   getModel: () => M;
 
   constructor(getModel: () => M, modelSubscribe: ModelSubscribe) {
@@ -79,7 +86,7 @@ export class Accessor<M, E> {
    * @param listener
    * @returns
    */
-  subscribeStatus = (listener: (prev: Status, current: Status) => void) => {
+  public subscribeStatus = (listener: (prev: Status, current: Status) => void) => {
     this.statusListeners.push(listener);
     return () => {
       const index = this.statusListeners.indexOf(listener);
@@ -136,8 +143,8 @@ export class Accessor<M, E> {
     return this.getOptions().retryInterval;
   };
 
-  protected canFetch({ currentTime }: { currentTime: number }) {
-    if (!this.shouldDedupe(currentTime)) return true;
+  protected canFetch({ startAt }: { startAt: number }) {
+    if (!this.shouldDedupe(startAt)) return true;
     if (!this.status.isFetching) return true;
     return false;
   }
@@ -158,16 +165,35 @@ export class Accessor<M, E> {
     this.retryTimeoutMeta = meta;
   }
 
-  protected onFetchingStart = () => {
+  /**
+   * Call this method before fetching start.
+   * This method would:
+   * - clear the polling timeout
+   * - abort the error retry
+   * - update the `fetchPromise`
+   * - update the `startAt`
+   * - update the status with `{ isFetching: true }`
+   */
+  protected onFetchingStart = ({
+    fetchPromise,
+    startAt,
+  }: {
+    fetchPromise: FetchPromise<D>;
+    startAt: number;
+  }) => {
     clearTimeout(this.pollingTimeoutId);
     this.abortRetry();
+    this.fetchPromise = fetchPromise;
+    this.updateStartAt(startAt);
+    this.updateStatus({ isFetching: true });
   };
 
-  protected onFetchingFinish = () => {
+  protected onFetchingSuccess = () => {
     const { pollingInterval } = this.getOptions();
     if (pollingInterval > 0) {
       this.pollingTimeoutId = window.setTimeout(this.invokePollingRevalidation, pollingInterval);
     }
+    this.fetchPromise = null;
   };
 
   private getFirstOptionsRef = () => {
