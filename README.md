@@ -6,14 +6,14 @@
 
 RSM (React Server Model) is a server state management library that emphasizes developer control over data. It allows for customized data structures and adapters to handle data updates effectively. With an intuitive API, developers can directly access and manipulate their data structures. RSM also provides hooks for easy server data retrieval and synchronization. It offers a flexible approach for developers who desire more control and customization in managing server state in their React applications.
 
-✨ Customizable data structure
-✨ Auto deduplication
-✨ Revalidate on Focus
-✨ Revalidate on network reconnection
-✨ Polling support
-✨ Pre-built pagination adapter
-✨ Easy mutation
-✨ Written in Typescript
+- Customizable data structure
+- Auto deduplication
+- Revalidate on Focus
+- Revalidate on network reconnection
+- Polling support
+- Pre-built pagination adapter
+- Easy mutation
+- Written in Typescript
 
 ---
 
