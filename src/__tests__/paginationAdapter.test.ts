@@ -70,7 +70,7 @@ describe('paginationAdapter', () => {
       noMore: false,
     });
 
-    adapter.deleteOne(state, '0');
+    adapter.deleteOne(state, 0);
     expect(adapter.tryReadPagination(state, key)).toEqual({
       items: [...page0.slice(1), ...page1],
       noMore: false,
