@@ -1,4 +1,4 @@
-export interface FetchOptions<S = any> {
+export interface AccessorOptions<S = any> {
   revalidateOnFocus?: boolean;
   revalidateOnReconnect?: boolean;
   revalidateOnMount?: boolean;
@@ -10,7 +10,7 @@ export interface FetchOptions<S = any> {
   pollingInterval?: number;
 }
 
-export type RequiredFetchOptions<S = unknown> = Required<FetchOptions<S>>;
+export type RequiredAccessorOptions<S = unknown> = Required<AccessorOptions<S>>;
 
 export interface HookReturn<D, E> {
   readonly data: D;
