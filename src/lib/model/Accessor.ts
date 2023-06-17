@@ -35,10 +35,10 @@ export abstract class Accessor<M, D, E> {
    */
   abstract revalidate: () => Promise<D | null> | null;
 
-  getModel: () => M;
+  getState: () => M;
 
-  constructor(getModel: () => M, modelSubscribe: ModelSubscribe) {
-    this.getModel = getModel;
+  constructor(getState: () => M, modelSubscribe: ModelSubscribe) {
+    this.getState = getState;
     this.modelSubscribe = modelSubscribe;
   }
 

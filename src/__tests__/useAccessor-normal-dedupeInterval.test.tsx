@@ -3,7 +3,7 @@ import { act, render, screen } from '@testing-library/react';
 import { createPostModel, createControl, sleep } from './utils';
 
 describe('useAccessor-normal dedupeInterval', () => {
-  test('should sync model with the data from the latest request', async () => {
+  test('should sync state with the data from the latest request', async () => {
     const control = createControl({ sleepTime: 100 });
     const { postAdapter, getPostById } = createPostModel(control);
     const accessor = getPostById(0);

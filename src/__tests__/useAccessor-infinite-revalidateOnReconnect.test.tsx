@@ -8,7 +8,7 @@ describe('useAccessor-infinite revalidateOnReconnect', () => {
     const { getPostList, postAdapter } = createPostModel(control);
     function Page() {
       const accessor = getPostList();
-      const { data } = useAccessor(accessor, model => postAdapter.tryReadPagination(model, ''), {
+      const { data } = useAccessor(accessor, state => postAdapter.tryReadPagination(state, ''), {
         revalidateOnReconnect: true,
       });
 
@@ -35,7 +35,7 @@ describe('useAccessor-infinite revalidateOnReconnect', () => {
     const { getPostList, postAdapter } = createPostModel(control);
     function Page() {
       const accessor = getPostList();
-      const { data } = useAccessor(accessor, model => postAdapter.tryReadPagination(model, ''), {
+      const { data } = useAccessor(accessor, state => postAdapter.tryReadPagination(state, ''), {
         revalidateOnReconnect: false,
       });
 

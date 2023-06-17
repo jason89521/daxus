@@ -16,33 +16,27 @@ interface BaseAction<Arg, D, E> {
   onSuccess?: (info: { data: D; arg: Arg }) => void;
 }
 
-export interface NormalAction<Model, Arg = any, Data = any, E = unknown>
+export interface NormalAction<S, Arg = any, Data = any, E = unknown>
   extends BaseAction<Arg, Data, E> {
   fetchData: (arg: Arg) => Promise<Data>;
-  syncModel: (model: Draft<Model>, payload: BasePayload<Arg, Data>) => void;
+  syncState: (draft: Draft<S>, payload: BasePayload<Arg, Data>) => void;
 }
 
-export interface InfiniteAction<Model, Arg = any, Data = any, E = unknown>
+export interface InfiniteAction<S, Arg = any, Data = any, E = unknown>
   extends BaseAction<Arg, Data[], E> {
   fetchData: (
     arg: Arg,
     meta: { previousData: Data | null; pageIndex: number }
   ) => Promise<Data | null>;
-  /**
-   * It is guaranteed that the former data will be passed before the later data.
-   * @param model
-   * @param payload
-   * @returns
-   */
-  syncModel: (
-    model: Draft<Model>,
+  syncState: (
+    draft: Draft<S>,
     payload: { data: Data; arg: Arg; pageSize: number; pageIndex: number }
   ) => void;
 }
 
-export type Action<Model, Arg = any, Data = any> =
-  | NormalAction<Model, Arg, Data>
-  | InfiniteAction<Model, Arg, Data>;
+export type Action<S, Arg = any, Data = any, E = unknown> =
+  | NormalAction<S, Arg, Data, E>
+  | InfiniteAction<S, Arg, Data, E>;
 
 export type ArgFromAction<A extends Action<any>> = Parameters<A['fetchData']>[0];
 

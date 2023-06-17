@@ -7,8 +7,8 @@ export function PostList() {
   const [layout, setLayout] = useState<PostLayout>('classic');
   const key = JSON.stringify({ layout });
   const accessor = getPostList({ layout });
-  const { data } = useAccessor(accessor, model => {
-    return postAdapter.tryReadPagination(model, key);
+  const { data } = useAccessor(accessor, state => {
+    return postAdapter.tryReadPagination(state, key);
   });
 
   const loadMore = () => {

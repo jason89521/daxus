@@ -5,53 +5,53 @@ import { createPost } from './utils';
 describe('paginationAdapter', () => {
   const post0 = createPost(0);
   let adapter = createPaginationAdapter<Post>({});
-  let model = adapter.initialModel;
+  let state = adapter.initialState;
   beforeEach(() => {
     adapter = createPaginationAdapter({});
-    model = adapter.initialModel;
+    state = adapter.initialState;
   });
 
   test('CRUD', () => {
-    expect(adapter.tryReadOne(model, 0)).toBeUndefined();
-    expect(adapter.tryReadOneFactory(0)(model)).toBeUndefined();
-    expect(() => adapter.readOne(model, 0)).toThrowError();
+    expect(adapter.tryReadOne(state, 0)).toBeUndefined();
+    expect(adapter.tryReadOneFactory(0)(state)).toBeUndefined();
+    expect(() => adapter.readOne(state, 0)).toThrowError();
 
-    adapter.createOne(model, { ...post0 });
-    expect(adapter.tryReadOne(model, 0)).toEqual(post0);
-    expect(adapter.tryReadOneFactory(0)(model)).toEqual(post0);
-    expect(adapter.readOne(model, 0)).toEqual(post0);
+    adapter.createOne(state, { ...post0 });
+    expect(adapter.tryReadOne(state, 0)).toEqual(post0);
+    expect(adapter.tryReadOneFactory(0)(state)).toEqual(post0);
+    expect(adapter.readOne(state, 0)).toEqual(post0);
 
-    adapter.updateOne(model, 0, { layout: 'image' });
+    adapter.updateOne(state, 0, { layout: 'image' });
 
-    expect(adapter.tryReadOne(model, 0)).toEqual({ ...post0, layout: 'image' });
-    expect(adapter.tryReadOneFactory(0)(model)).toEqual({ ...post0, layout: 'image' });
-    expect(adapter.readOne(model, 0)).toEqual({ ...post0, layout: 'image' });
+    expect(adapter.tryReadOne(state, 0)).toEqual({ ...post0, layout: 'image' });
+    expect(adapter.tryReadOneFactory(0)(state)).toEqual({ ...post0, layout: 'image' });
+    expect(adapter.readOne(state, 0)).toEqual({ ...post0, layout: 'image' });
 
-    adapter.updateOne(model, 1, { layout: 'classic' });
-    expect(adapter.tryReadOne(model, 1)).toBeUndefined();
-    expect(adapter.tryReadOneFactory(1)(model)).toBeUndefined();
-    expect(() => adapter.readOne(model, 1)).toThrowError();
+    adapter.updateOne(state, 1, { layout: 'classic' });
+    expect(adapter.tryReadOne(state, 1)).toBeUndefined();
+    expect(adapter.tryReadOneFactory(1)(state)).toBeUndefined();
+    expect(() => adapter.readOne(state, 1)).toThrowError();
 
-    adapter.deleteOne(model, 0);
-    expect(adapter.tryReadOne(model, 0)).toBeUndefined();
-    expect(adapter.tryReadOneFactory(0)(model)).toBeUndefined();
-    expect(() => adapter.readOne(model, 1)).toThrowError();
+    adapter.deleteOne(state, 0);
+    expect(adapter.tryReadOne(state, 0)).toBeUndefined();
+    expect(adapter.tryReadOneFactory(0)(state)).toBeUndefined();
+    expect(() => adapter.readOne(state, 1)).toThrowError();
 
     // create a post
     const post1 = createPost(1);
-    adapter.upsertOne(model, { ...post1 });
-    expect(adapter.tryReadOne(model, 1)).toEqual({ ...post1 });
-    expect(adapter.readOne(model, 1)).toEqual({ ...post1 });
+    adapter.upsertOne(state, { ...post1 });
+    expect(adapter.tryReadOne(state, 1)).toEqual({ ...post1 });
+    expect(adapter.readOne(state, 1)).toEqual({ ...post1 });
     // update a post
-    adapter.upsertOne(model, { ...post1, layout: 'image' });
-    expect(adapter.tryReadOne(model, 1)).toEqual({ ...post1, layout: 'image' });
-    expect(adapter.readOne(model, 1)).toEqual({ ...post1, layout: 'image' });
+    adapter.upsertOne(state, { ...post1, layout: 'image' });
+    expect(adapter.tryReadOne(state, 1)).toEqual({ ...post1, layout: 'image' });
+    expect(adapter.readOne(state, 1)).toEqual({ ...post1, layout: 'image' });
   });
 
   test('pagination with CRUD', () => {
     const key = 'testing';
 
-    expect(adapter.tryReadPagination(model, key)).toBeUndefined();
+    expect(adapter.tryReadPagination(state, key)).toBeUndefined();
 
     const [page0, page1] = (() => {
       const data = new Array(10).fill(0).map((_, index) => {
@@ -59,40 +59,40 @@ describe('paginationAdapter', () => {
       });
       return [data.slice(0, 5), data.slice(5)];
     })();
-    adapter.replacePagination(model, key, page0);
-    expect(adapter.tryReadPagination(model, key)).toEqual({
+    adapter.replacePagination(state, key, page0);
+    expect(adapter.tryReadPagination(state, key)).toEqual({
       items: page0,
       noMore: false,
     });
-    adapter.appendPagination(model, key, page1);
-    expect(adapter.tryReadPagination(model, key)).toEqual({
+    adapter.appendPagination(state, key, page1);
+    expect(adapter.tryReadPagination(state, key)).toEqual({
       items: [...page0, ...page1],
       noMore: false,
     });
 
-    adapter.deleteOne(model, '0');
-    expect(adapter.tryReadPagination(model, key)).toEqual({
+    adapter.deleteOne(state, '0');
+    expect(adapter.tryReadPagination(state, key)).toEqual({
       items: [...page0.slice(1), ...page1],
       noMore: false,
     });
 
-    adapter.appendPagination(model, key, [{ ...post0 }]);
-    expect(adapter.tryReadPagination(model, key)).toEqual({
+    adapter.appendPagination(state, key, [{ ...post0 }]);
+    expect(adapter.tryReadPagination(state, key)).toEqual({
       items: [...page0.slice(1), ...page1, post0],
       noMore: false,
     });
 
-    // const post10 = createPost(10);
-    // adapter.prependPagination(model, key, [post10]);
-    // expect(adapter.tryReadPagination(model, key)?.items).toEqual([
-    //   post10,
-    //   ...page0.slice(1),
-    //   ...page1,
-    //   post0,
-    // ]);
+    const post10 = createPost(10);
+    adapter.prependPagination(state, key, [post10]);
+    expect(adapter.tryReadPagination(state, key)?.items).toEqual([
+      post10,
+      ...page0.slice(1),
+      ...page1,
+      post0,
+    ]);
 
-    // adapter.setNoMore(model, key, true);
-    // expect(adapter.readPaginationMeta(model, key).noMore).toBe(true);
+    adapter.setNoMore(state, key, true);
+    expect(adapter.readPaginationMeta(state, key).noMore).toBe(true);
   });
 
   test('should transform rawData to data', () => {
@@ -102,26 +102,26 @@ describe('paginationAdapter', () => {
         return { ...rawPost, content: 'content' };
       },
     });
-    const model = adapter.initialModel;
+    const state = adapter.initialState;
 
-    adapter.createOne(model, createPost(0));
-    expect(adapter.readOne(model, 0)).toEqual({ ...post0, content: 'content' });
-    adapter.deleteOne(model, 0);
-    expect(adapter.tryReadOne(model, 0)).toBeUndefined();
+    adapter.createOne(state, createPost(0));
+    expect(adapter.readOne(state, 0)).toEqual({ ...post0, content: 'content' });
+    adapter.deleteOne(state, 0);
+    expect(adapter.tryReadOne(state, 0)).toBeUndefined();
 
-    adapter.upsertOne(model, createPost(0));
-    expect(adapter.readOne(model, 0)).toEqual({ ...post0, content: 'content' });
-    adapter.deleteOne(model, 0);
-    expect(adapter.tryReadOne(model, 0)).toBeUndefined();
+    adapter.upsertOne(state, createPost(0));
+    expect(adapter.readOne(state, 0)).toEqual({ ...post0, content: 'content' });
+    adapter.deleteOne(state, 0);
+    expect(adapter.tryReadOne(state, 0)).toBeUndefined();
 
-    adapter.appendPagination(model, '', [createPost(0)]);
-    expect(adapter.readOne(model, 0)).toEqual({ ...post0, content: 'content' });
-    adapter.deleteOne(model, 0);
-    expect(adapter.tryReadOne(model, 0)).toBeUndefined();
+    adapter.appendPagination(state, '', [createPost(0)]);
+    expect(adapter.readOne(state, 0)).toEqual({ ...post0, content: 'content' });
+    adapter.deleteOne(state, 0);
+    expect(adapter.tryReadOne(state, 0)).toBeUndefined();
 
-    adapter.prependPagination(model, '', [createPost(0)]);
-    expect(adapter.readOne(model, 0)).toEqual({ ...post0, content: 'content' });
-    adapter.deleteOne(model, 0);
-    expect(adapter.tryReadOne(model, 0)).toBeUndefined();
+    adapter.prependPagination(state, '', [createPost(0)]);
+    expect(adapter.readOne(state, 0)).toEqual({ ...post0, content: 'content' });
+    adapter.deleteOne(state, 0);
+    expect(adapter.tryReadOne(state, 0)).toBeUndefined();
   });
 });

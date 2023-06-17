@@ -32,7 +32,7 @@ describe('useAccessor-normal', () => {
 
     render(<Page />);
     await screen.findByText('title0');
-    act(() => postModel.mutate(model => (postAdapter.readOne(model, 0).title = 'mutated value')));
+    act(() => postModel.mutate(draft => (postAdapter.readOne(draft, 0).title = 'mutated value')));
     await screen.findByText('mutated value');
   });
 

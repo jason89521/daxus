@@ -7,20 +7,20 @@ import { stableHash } from '../utils';
 
 type Accessor<M> = NormalAccessor<M> | InfiniteAccessor<M>;
 
-export function createModel<M extends object>(initialModel: M) {
+export function createModel<S extends object>(initialState: S) {
   let prefixCounter = 0;
-  let model = initialModel;
+  let state = initialState;
   const listeners: (() => void)[] = [];
-  const accessors = {} as Record<string, Accessor<M> | undefined>;
+  const accessors = {} as Record<string, Accessor<S> | undefined>;
 
-  function updateModel(fn: (draft: Draft<M>) => void) {
-    const draft = createDraft(model);
+  function updateState(fn: (draft: Draft<S>) => void) {
+    const draft = createDraft(state);
     fn(draft);
-    model = finishDraft(draft) as M;
+    state = finishDraft(draft) as S;
   }
 
-  function getModel() {
-    return model;
+  function getState() {
+    return state;
   }
 
   function subscribe(listener: () => void) {
@@ -35,22 +35,22 @@ export function createModel<M extends object>(initialModel: M) {
     listeners.forEach(l => l());
   }
 
-  function mutate(fn: (draft: Draft<M>) => void) {
-    updateModel(fn);
+  function mutate(fn: (draft: Draft<S>) => void) {
+    updateState(fn);
     notifyListeners();
   }
 
   function defineAccessor<Arg, Data>(
     type: 'normal',
-    action: NormalAction<M, Arg, Data>
-  ): (arg: Arg) => NormalAccessor<M, Arg, Data>;
+    action: NormalAction<S, Arg, Data>
+  ): (arg: Arg) => NormalAccessor<S, Arg, Data>;
   function defineAccessor<Arg, Data>(
     type: 'infinite',
-    action: InfiniteAction<M, Arg, Data>
-  ): (arg: Arg) => InfiniteAccessor<M, Arg, Data>;
+    action: InfiniteAction<S, Arg, Data>
+  ): (arg: Arg) => InfiniteAccessor<S, Arg, Data>;
   function defineAccessor<Arg, Data>(
     type: 'normal' | 'infinite',
-    action: NormalAction<M, Arg, Data> | InfiniteAction<M, Arg, Data>
+    action: NormalAction<S, Arg, Data> | InfiniteAction<S, Arg, Data>
   ) {
     const prefix = prefixCounter++;
 
@@ -63,8 +63,8 @@ export function createModel<M extends object>(initialModel: M) {
         const constructorArgs = [
           arg,
           action as any,
-          updateModel,
-          getModel,
+          updateState,
+          getState,
           subscribe,
           notifyListeners,
         ] as const;
@@ -80,5 +80,5 @@ export function createModel<M extends object>(initialModel: M) {
     };
   }
 
-  return { mutate, defineAccessor, getModel };
+  return { mutate, defineAccessor, getState };
 }

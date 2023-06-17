@@ -4,14 +4,14 @@ import { createPost, createPostModel, sleep } from './utils';
 import { render, act, screen } from '@testing-library/react';
 
 describe('useAccessor-infinite dedupeInterval', () => {
-  test('should sync model with the data from the latest request', async () => {
+  test('should sync state with the data from the latest request', async () => {
     const control: PostModelControl = { sleepTime: 100, titlePrefix: 'with sleep' };
     const { postAdapter, postModel, getPostList } = createPostModel(control);
     function Page() {
       const accessor = getPostList();
       const { data } = useAccessor(
         getPostList(),
-        model => postAdapter.tryReadPagination(model, ''),
+        state => postAdapter.tryReadPagination(state, ''),
         { dedupeInterval: 10 }
       );
 
@@ -36,11 +36,11 @@ describe('useAccessor-infinite dedupeInterval', () => {
     const post = createPost(0);
     post.title = `${control.titlePrefix} ${post.title}`;
     await screen.findByText(post.title);
-    expect(postAdapter.tryReadPagination(postModel.getModel(), '')?.items).toEqual([post]);
+    expect(postAdapter.tryReadPagination(postModel.getState(), '')?.items).toEqual([post]);
 
-    // The expired request should not update the model
+    // The expired request should not update the state
     await act(() => sleep(100));
     await screen.findByText(post.title);
-    expect(postAdapter.tryReadPagination(postModel.getModel(), '')?.items).toEqual([post]);
+    expect(postAdapter.tryReadPagination(postModel.getState(), '')?.items).toEqual([post]);
   });
 });

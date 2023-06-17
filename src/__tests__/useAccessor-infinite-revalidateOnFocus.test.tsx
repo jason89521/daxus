@@ -8,7 +8,7 @@ describe('useAccessor-infinite revalidateOnFocus', () => {
     const { getPostList, postAdapter } = createPostModel(control);
     function Page() {
       const accessor = getPostList();
-      const { data } = useAccessor(accessor, model => postAdapter.tryReadPagination(model, ''), {
+      const { data } = useAccessor(accessor, state => postAdapter.tryReadPagination(state, ''), {
         revalidateOnFocus: true,
       });
 
@@ -35,7 +35,7 @@ describe('useAccessor-infinite revalidateOnFocus', () => {
     const { getPostList, postAdapter } = createPostModel(control);
     function Page() {
       const accessor = getPostList();
-      const { data } = useAccessor(accessor, model => postAdapter.tryReadPagination(model, ''), {
+      const { data } = useAccessor(accessor, state => postAdapter.tryReadPagination(state, ''), {
         revalidateOnFocus: false,
       });
 
@@ -63,7 +63,7 @@ describe('useAccessor-infinite revalidateOnFocus', () => {
     const { getPostList, postAdapter } = createPostModel(control);
     function Page() {
       const accessor = getPostList();
-      const { data } = useAccessor(accessor, model => postAdapter.tryReadPagination(model, ''));
+      const { data } = useAccessor(accessor, state => postAdapter.tryReadPagination(state, ''));
 
       return (
         <div>
