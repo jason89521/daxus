@@ -1,4 +1,4 @@
-import { Draft } from 'immer';
+import type { Draft } from 'immer';
 import { isNumber, isString } from '../utils';
 import { isNonNullable } from '../utils/isNonNullable';
 
@@ -6,7 +6,7 @@ type Id = string | number;
 
 interface PaginationMeta {
   /** Store the ids for each page index. */
-  ids: Id[];
+  ids: string[];
   noMore: boolean;
 }
 
@@ -16,7 +16,7 @@ interface Pagination<Data> {
 }
 
 interface PaginationState<Data> {
-  entityRecord: Record<Id, Data | undefined>;
+  entityRecord: Record<string, Data | undefined>;
   paginationMetaRecord: Record<string, PaginationMeta | undefined>;
 }
 
@@ -47,6 +47,10 @@ export function createPaginationAdapter<Data, RawData = Data>({
 } = {}) {
   type State = PaginationState<Data>;
 
+  function getStringifiedId(data: Data): string {
+    return `${getId(data)}`;
+  }
+
   /**
    * Add the data to the state.
    * @param draft
@@ -54,7 +58,7 @@ export function createPaginationAdapter<Data, RawData = Data>({
    */
   function createOne(draft: Draft<State>, rawData: RawData): void {
     const data = transform(rawData);
-    const id = getId(data);
+    const id = getStringifiedId(data);
     draft.entityRecord[id] = data as Draft<Data>;
   }
 
@@ -120,9 +124,10 @@ export function createPaginationAdapter<Data, RawData = Data>({
    * @param id
    */
   function deleteOne(draft: Draft<State>, id: Id) {
+    id = `${id}`;
     delete draft.entityRecord[id];
     for (const paginationMeta of Object.values(draft.paginationMetaRecord)) {
-      if (paginationMeta?.ids.includes(id)) {
+      if (paginationMeta?.ids.includes(`${id}`)) {
         paginationMeta.ids = paginationMeta.ids.filter(value => value !== id);
       }
     }
@@ -135,7 +140,7 @@ export function createPaginationAdapter<Data, RawData = Data>({
    */
   function upsertOne(draft: Draft<State>, rawData: RawData) {
     const data = transform(rawData);
-    const id = getId(data);
+    const id = getStringifiedId(data);
     const cache = draft.entityRecord[id];
     draft.entityRecord[id] = { ...cache, ...data } as Draft<Data>;
   }
@@ -201,7 +206,7 @@ export function createPaginationAdapter<Data, RawData = Data>({
   function replacePagination(draft: Draft<State>, paginationKey: string, rawData: RawData[]) {
     upsertMany(draft, rawData);
     const data = rawData.map(transform);
-    const ids = data.map(getId);
+    const ids = data.map(getStringifiedId);
     draft.paginationMetaRecord[paginationKey] = {
       ids,
       noMore: false,
@@ -218,7 +223,7 @@ export function createPaginationAdapter<Data, RawData = Data>({
     upsertMany(draft, rawData);
     const meta = tryReadPaginationMeta(draft as State, key) ?? createPaginationMeta();
     const data = rawData.map(transform);
-    const ids = data.map(getId);
+    const ids = data.map(getStringifiedId);
     const originalIds = meta.ids;
     const set = new Set([...originalIds, ...ids]);
     meta.ids = [...set];
@@ -235,7 +240,7 @@ export function createPaginationAdapter<Data, RawData = Data>({
     upsertMany(draft, rawData);
     const data = rawData.map(transform);
     const meta = tryReadPaginationMeta(draft as State, key) ?? createPaginationMeta();
-    const ids = data.map(getId);
+    const ids = data.map(getStringifiedId);
     const originalIds = meta.ids;
     const set = new Set([...ids, ...originalIds]);
     meta.ids = [...set];
