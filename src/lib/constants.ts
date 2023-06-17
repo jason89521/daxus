@@ -4,6 +4,7 @@ import { isUndefined } from './utils';
 export const defaultOptions: RequiredFetchOptions = {
   retryCount: 3,
   retryInterval: 1000,
+  revalidateOnMount: false,
   revalidateIfStale: false,
   revalidateOnFocus: false,
   revalidateOnReconnect: false,

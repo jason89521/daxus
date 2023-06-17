@@ -1,6 +1,7 @@
 export interface FetchOptions<S = any> {
   revalidateOnFocus?: boolean;
   revalidateOnReconnect?: boolean;
+  revalidateOnMount?: boolean;
   revalidateIfStale?: boolean;
   checkHasStaleData?: (snapshot: S) => boolean;
   retryCount?: number;

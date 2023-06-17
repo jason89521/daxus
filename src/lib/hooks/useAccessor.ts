@@ -31,14 +31,12 @@ export function useAccessor<S, D, E = unknown>(
   getSnapshot: (state: S) => D,
   options: FetchOptions<D> = {}
 ): ReturnValue<D, E> {
-  const {
-    revalidateIfStale = false,
-    checkHasStaleData = (value: unknown) => !isUndefined(value),
-    pollingInterval,
-  } = options;
   const defaultOptions = useContext(accessorOptionsContext);
+  const requiredOptions = { ...defaultOptions, ...options };
+  const { revalidateOnMount, revalidateIfStale, checkHasStaleData, pollingInterval } =
+    requiredOptions;
   const stateDeps = useRef<StateDeps>({}).current;
-  const optionsRef = useUpdatedRef<RequiredFetchOptions<D>>({ ...defaultOptions, ...options });
+  const optionsRef = useUpdatedRef<RequiredFetchOptions<D>>(requiredOptions);
   const getStatus = useCallback(() => {
     if (isNull(accessor)) return defaultStatus;
     return accessor.getStatus();
@@ -89,8 +87,9 @@ export function useAccessor<S, D, E = unknown>(
   const data = useSyncExternalStore(subscribeData, getData, getData);
   const hasStaleData = checkHasStaleData(data);
   const shouldRevalidate = (() => {
-    // Always revalidate if `revalidateIfStale` is `true`.
-    if (revalidateIfStale) return true;
+    // Always revalidate when this hook is mounted.
+    if (revalidateOnMount) return true;
+    if (revalidateIfStale && hasStaleData) return true;
     // If there is no stale data, we should fetch the data.
     if (!hasStaleData) return true;
     // This condition is useful when `pollingInterval` changes.
