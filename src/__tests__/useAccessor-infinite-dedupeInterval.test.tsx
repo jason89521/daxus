@@ -18,7 +18,7 @@ describe('useAccessor-infinite dedupeInterval', () => {
       return (
         <div>
           {data?.items.map(post => {
-            return <div>{post.title}</div>;
+            return <div key={post.id}>{post.title}</div>;
           })}
           <button onClick={() => accessor.fetchNext()}>load more</button>
         </div>
