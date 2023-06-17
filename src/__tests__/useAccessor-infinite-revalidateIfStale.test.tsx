@@ -1,7 +1,7 @@
 import { screen } from '@testing-library/react';
 import { useAccessor } from '../lib';
 import type { PostModelControl } from './types';
-import { createPost, createPostModel, render } from './utils';
+import { createPost, createPostModel, renderWithOptionsProvider } from './utils';
 
 describe('useAccessor-infinite revalidateIfStale', async () => {
   test('should revalidate if there is no stale data', async () => {
@@ -25,7 +25,7 @@ describe('useAccessor-infinite revalidateIfStale', async () => {
       );
     }
 
-    render(<Page />);
+    renderWithOptionsProvider(<Page />);
     screen.getByText('items:');
     await screen.findByText('items: title0');
     expect(fetchDataMock).toHaveBeenCalledTimes(1);
@@ -55,7 +55,7 @@ describe('useAccessor-infinite revalidateIfStale', async () => {
     postModel.mutate(draft => {
       postAdapter.replacePagination(draft, '', [createPost(0)]);
     });
-    render(<Page />);
+    renderWithOptionsProvider(<Page />);
     screen.getByText('items: title0');
     expect(fetchDataMock).toHaveBeenCalledTimes(0);
   });

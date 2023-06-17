@@ -1,6 +1,6 @@
 import { act, fireEvent, screen } from '@testing-library/react';
 import { useAccessor } from '../lib';
-import { createPostModel, createControl, sleep, render } from './utils';
+import { createPostModel, createControl, sleep, renderWithOptionsProvider } from './utils';
 
 describe('useAccessor-infinite revalidateOnFocus', () => {
   test('should revalidate when window get focused', async () => {
@@ -20,7 +20,7 @@ describe('useAccessor-infinite revalidateOnFocus', () => {
       );
     }
 
-    render(<Page />);
+    renderWithOptionsProvider(<Page />);
     screen.getByText('items:');
     await screen.findByText('items: focus title0');
     act(() => (control.titlePrefix = ''));
@@ -47,7 +47,7 @@ describe('useAccessor-infinite revalidateOnFocus', () => {
       );
     }
 
-    render(<Page />);
+    renderWithOptionsProvider(<Page />);
     screen.getByText('items:');
     await screen.findByText('items: focus title0');
     act(() => (control.titlePrefix = ''));
@@ -73,7 +73,7 @@ describe('useAccessor-infinite revalidateOnFocus', () => {
       );
     }
 
-    render(<Page />);
+    renderWithOptionsProvider(<Page />);
     screen.getByText('items:');
     await screen.findByText('items: title0');
     act(() => (control.titlePrefix = 'next'));
