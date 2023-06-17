@@ -4,16 +4,15 @@ import { createPaginationAdapter } from '../../lib';
 import { getPostById as getPostByIdRequest, getPostList as getPostListRequest } from '../request';
 
 export const postAdapter = createPaginationAdapter<Post>({});
-const initialModel = postAdapter.initialModel;
 
-export const postModel = createModel(initialModel);
+export const postModel = createModel(postAdapter.initialState);
 
 export const getPostById = postModel.defineAccessor('normal', {
   fetchData: async (id: number) => {
     const data = await getPostByIdRequest(id);
     return data;
   },
-  syncModel: (draft, { data }) => {
+  syncState: (draft, { data }) => {
     postAdapter.upsertOne(draft, data);
   },
   onError: ({ error, arg }) => {
@@ -32,7 +31,7 @@ export const getPostList = postModel.defineAccessor<{ layout: PostLayout }, Post
     const data = await getPostListRequest({ layout, page: pageIndex });
     return data;
   },
-  syncModel: (draft, { data, arg, pageIndex }) => {
+  syncState: (draft, { data, arg, pageIndex }) => {
     const paginationKey = JSON.stringify(arg);
     if (pageIndex === 0) {
       postAdapter.replacePagination(draft, paginationKey, data);

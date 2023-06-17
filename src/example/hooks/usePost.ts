@@ -9,8 +9,8 @@ interface Props extends FetchOptions {
 export function usePost({ id, ...options }: Props) {
   const { data } = useAccessor(
     getPostById(id),
-    model => {
-      return model.entityRecord[id];
+    state => {
+      return state.entityRecord[id];
     },
     { ...options }
   );

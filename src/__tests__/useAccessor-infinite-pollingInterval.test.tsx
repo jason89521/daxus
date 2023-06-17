@@ -12,7 +12,7 @@ describe('useAccessor-infinite pollingInterval', () => {
       const [pollingInterval, setPollingInterval] = useState(10);
       const { data } = useAccessor(
         getPostList(),
-        model => postAdapter.tryReadPagination(model, ''),
+        state => postAdapter.tryReadPagination(state, ''),
         { pollingInterval }
       );
 
@@ -46,7 +46,7 @@ describe('useAccessor-infinite pollingInterval', () => {
     const { getPostList, postAdapter } = createPostModel(control);
     function Page() {
       const accessor = getPostList();
-      const { data } = useAccessor(accessor, model => postAdapter.tryReadPagination(model, ''), {
+      const { data } = useAccessor(accessor, state => postAdapter.tryReadPagination(state, ''), {
         pollingInterval: 10,
       });
 

@@ -11,8 +11,8 @@ describe('useAccessor-infinite revalidateIfStale', async () => {
     };
     const { getPostList, postAdapter } = createPostModel(control);
     function Page() {
-      const { data } = useAccessor(getPostList(), model =>
-        postAdapter.tryReadPagination(model, '')
+      const { data } = useAccessor(getPostList(), state =>
+        postAdapter.tryReadPagination(state, '')
       );
 
       return (
@@ -38,7 +38,7 @@ describe('useAccessor-infinite revalidateIfStale', async () => {
     function Page() {
       const { data } = useAccessor(
         getPostList(),
-        model => postAdapter.tryReadPagination(model, ''),
+        state => postAdapter.tryReadPagination(state, ''),
         { revalidateIfStale: false }
       );
 
@@ -52,8 +52,8 @@ describe('useAccessor-infinite revalidateIfStale', async () => {
       );
     }
 
-    postModel.mutate(model => {
-      postAdapter.replacePagination(model, '', [createPost(0)]);
+    postModel.mutate(draft => {
+      postAdapter.replacePagination(draft, '', [createPost(0)]);
     });
     render(<Page />);
     screen.getByText('items: title0');

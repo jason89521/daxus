@@ -34,8 +34,8 @@ describe('useAccessor-normal revalidateIfStale', async () => {
       return <div>title: {data?.title}</div>;
     }
 
-    postModel.mutate(model => {
-      postAdapter.createOne(model, createPost(0));
+    postModel.mutate(state => {
+      postAdapter.createOne(state, createPost(0));
     });
     render(<Page />);
     screen.getByText('title: title0');

@@ -7,7 +7,7 @@ import { isNull } from '../utils/isNull';
 import { accessorOptionsContext } from '../contexts';
 
 type StateDeps = Partial<Record<keyof Status | 'data', boolean>>;
-type Accessor<M, E> = NormalAccessor<M, any, any, E> | InfiniteAccessor<M, any, any, E>;
+type Accessor<S, E> = NormalAccessor<S, any, any, E> | InfiniteAccessor<S, any, any, E>;
 type ReturnValue<D, E> = {
   readonly isFetching: boolean;
   readonly error: E;
@@ -16,19 +16,19 @@ type ReturnValue<D, E> = {
 
 const defaultStatus: Status = { isFetching: false, error: null };
 
-export function useAccessor<M, D, E = unknown>(
-  accessor: Accessor<M, E>,
-  getSnapshot: (model: M) => D,
+export function useAccessor<S, D, E = unknown>(
+  accessor: Accessor<S, E>,
+  getSnapshot: (state: S) => D,
   options?: FetchOptions<D>
 ): ReturnValue<D, E>;
-export function useAccessor<M, D, E = unknown>(
-  accessor: Accessor<M, E> | null,
-  getSnapshot: (model: M) => D,
+export function useAccessor<S, D, E = unknown>(
+  accessor: Accessor<S, E> | null,
+  getSnapshot: (state: S) => D,
   options?: FetchOptions<D>
 ): ReturnValue<D | undefined, E>;
-export function useAccessor<M, D, E = unknown>(
-  accessor: Accessor<M, E> | null,
-  getSnapshot: (model: M) => D,
+export function useAccessor<S, D, E = unknown>(
+  accessor: Accessor<S, E> | null,
+  getSnapshot: (state: S) => D,
   options: FetchOptions<D> = {}
 ): ReturnValue<D, E> {
   const {
@@ -68,13 +68,13 @@ export function useAccessor<M, D, E = unknown>(
       return [() => noop, noop];
     }
 
-    let memoizedSnapshot = getSnapshot(accessor.getModel());
+    let memoizedSnapshot = getSnapshot(accessor.getState());
 
     return [
       (listener: () => void) => {
         return accessor.subscribeData(() => {
           if (!stateDeps.data) return;
-          const snapshot = getSnapshot(accessor.getModel());
+          const snapshot = getSnapshot(accessor.getState());
           if (stableHash(snapshot) !== stableHash(memoizedSnapshot)) {
             memoizedSnapshot = snapshot;
             listener();

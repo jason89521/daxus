@@ -15,7 +15,7 @@ export function createPost(id: number, layout: PostLayout = 'classic'): Post {
 
 export function createPostModel(control: PostModelControl) {
   const postAdapter = createPaginationAdapter<Post>({});
-  const postModel = createModel(postAdapter.initialModel);
+  const postModel = createModel(postAdapter.initialState);
   const getPostById = postModel.defineAccessor('normal', {
     fetchData: async (id: number) => {
       control.fetchDataMock?.();
@@ -34,8 +34,8 @@ export function createPostModel(control: PostModelControl) {
       }
       return post;
     },
-    syncModel: (model, { data }) => {
-      postAdapter.createOne(model, data);
+    syncState: (draft, { data }) => {
+      postAdapter.createOne(draft, data);
     },
     onSuccess: info => {
       control.onSuccessMock?.(info);
@@ -62,12 +62,12 @@ export function createPostModel(control: PostModelControl) {
       }
       return [post];
     },
-    syncModel(model, { pageIndex, data }) {
+    syncState(draft, { pageIndex, data }) {
       const paginationKey = '';
       if (pageIndex === 0) {
-        postAdapter.replacePagination(model, paginationKey, data);
+        postAdapter.replacePagination(draft, paginationKey, data);
       } else {
-        postAdapter.appendPagination(model, paginationKey, data);
+        postAdapter.appendPagination(draft, paginationKey, data);
       }
     },
     onSuccess: info => {

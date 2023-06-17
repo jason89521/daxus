@@ -6,14 +6,14 @@ import type { Draft } from 'immer';
 
 type Task = 'validate' | 'next' | 'idle';
 
-export class InfiniteAccessor<M, Arg = any, Data = any, E = unknown> extends Accessor<
-  M,
+export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Accessor<
+  S,
   Data[],
   E
 > {
-  private action: InfiniteAction<M, Arg, Data>;
+  private action: InfiniteAction<S, Arg, Data>;
   private arg: Arg;
-  private updateModel: (cb: (draft: Draft<M>) => void) => void;
+  private updateState: (cb: (draft: Draft<S>) => void) => void;
   private data: Data[] = [];
   /**
    * This property is used to reject ant ongoing fetching.
@@ -26,16 +26,16 @@ export class InfiniteAccessor<M, Arg = any, Data = any, E = unknown> extends Acc
 
   constructor(
     arg: Arg,
-    action: InfiniteAction<M, Arg, Data>,
-    updateModel: (cb: (draft: Draft<M>) => void) => void,
-    getModel: () => M,
+    action: InfiniteAction<S, Arg, Data>,
+    updateState: (cb: (draft: Draft<S>) => void) => void,
+    getState: () => S,
     modelSubscribe: ModelSubscribe,
     notifyModel: () => void
   ) {
-    super(getModel, modelSubscribe);
+    super(getState, modelSubscribe);
     this.arg = arg;
     this.action = action;
-    this.updateModel = updateModel;
+    this.updateState = updateState;
     this.notifyModel = notifyModel;
   }
 
@@ -183,15 +183,15 @@ export class InfiniteAccessor<M, Arg = any, Data = any, E = unknown> extends Acc
   };
 
   /**
-   * Sync the data in `data` from the `start` index to the model,
+   * Sync the data in `data` from the `start` index to the state,
    * and notify the listeners which are listening this accessor.
    */
   private flush = (data: Data[], { start }: { start: number }) => {
     const pageSize = data.length;
     data.forEach((data, pageIndex) => {
       if (pageIndex < start) return;
-      this.updateModel(draft => {
-        this.action.syncModel(draft, {
+      this.updateState(draft => {
+        this.action.syncState(draft, {
           data,
           arg: this.arg,
           pageIndex,

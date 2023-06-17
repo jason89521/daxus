@@ -8,7 +8,7 @@ describe('useAccessor-infinite', () => {
     const { getPostList, postAdapter } = createPostModel({});
     function Page() {
       const accessor = getPostList();
-      const { data } = useAccessor(accessor, model => postAdapter.tryReadPagination(model, ''));
+      const { data } = useAccessor(accessor, state => postAdapter.tryReadPagination(state, ''));
 
       return (
         <div>
@@ -29,7 +29,7 @@ describe('useAccessor-infinite', () => {
     const { getPostList, postAdapter, postModel } = createPostModel({});
     function Page() {
       const accessor = getPostList();
-      const { data } = useAccessor(accessor, model => postAdapter.tryReadPagination(model, ''));
+      const { data } = useAccessor(accessor, state => postAdapter.tryReadPagination(state, ''));
 
       return (
         <div>
@@ -42,7 +42,7 @@ describe('useAccessor-infinite', () => {
     render(<Page />);
     screen.getByText('items:');
     await screen.findByText('items: title0');
-    act(() => postModel.mutate(model => postAdapter.updateOne(model, 0, { title: 'mutated' })));
+    act(() => postModel.mutate(state => postAdapter.updateOne(state, 0, { title: 'mutated' })));
     await screen.findByText('items: mutated');
     fireEvent.click(screen.getByText('next'));
     await screen.findByText('items: mutatedtitle1');
@@ -54,7 +54,7 @@ describe('useAccessor-infinite', () => {
     const { getPostList, postAdapter } = createPostModel(control);
     function Page() {
       const accessor = getPostList();
-      const { data } = useAccessor(accessor, model => postAdapter.tryReadPagination(model, ''));
+      const { data } = useAccessor(accessor, state => postAdapter.tryReadPagination(state, ''));
 
       return (
         <div>
@@ -84,7 +84,7 @@ describe('useAccessor-infinite', () => {
     const { getPostList, postAdapter } = createPostModel(control);
     function Page() {
       const accessor = getPostList();
-      const { data } = useAccessor(accessor, model => postAdapter.tryReadPagination(model, ''), {
+      const { data } = useAccessor(accessor, state => postAdapter.tryReadPagination(state, ''), {
         retryCount: 0,
       });
 
