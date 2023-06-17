@@ -1,5 +1,5 @@
 import { screen, fireEvent, act, waitFor } from '@testing-library/react';
-import { createPostModel, createControl, sleep, render } from './utils';
+import { createPostModel, createControl, sleep, renderWithOptionsProvider } from './utils';
 import { useState } from 'react';
 import { useAccessor } from '../lib';
 
@@ -14,7 +14,7 @@ describe('useAccessor-normal', () => {
       return <div onClick={() => setId(1)}>{data?.title}</div>;
     }
 
-    render(<Page />);
+    renderWithOptionsProvider(<Page />);
     await screen.findByText('title0');
     fireEvent.click(screen.getByText('title0'));
     await act(() => sleep(10));
@@ -30,7 +30,7 @@ describe('useAccessor-normal', () => {
       return <div>{data?.title}</div>;
     }
 
-    render(<Page />);
+    renderWithOptionsProvider(<Page />);
     await screen.findByText('title0');
     act(() => postModel.mutate(draft => (postAdapter.readOne(draft, 0).title = 'mutated value')));
     await screen.findByText('mutated value');
@@ -47,7 +47,7 @@ describe('useAccessor-normal', () => {
       return <div onClick={() => setId(1)}>{data?.title}</div>;
     }
 
-    render(<Page />);
+    renderWithOptionsProvider(<Page />);
     await screen.findByText('title0');
     expect(onSuccessMock).toHaveBeenCalledTimes(1);
 
@@ -69,7 +69,7 @@ describe('useAccessor-normal', () => {
       return <div onClick={() => setId(1)}>data: {data?.title}</div>;
     }
 
-    render(<Page />);
+    renderWithOptionsProvider(<Page />);
     await screen.findByText('data:');
     await act(() => sleep(35));
     expect(onErrorMock).toHaveBeenCalledTimes(1);
@@ -91,7 +91,7 @@ describe('useAccessor-normal', () => {
       return <div>data: {data?.title}</div>;
     }
 
-    render(<Page />);
+    renderWithOptionsProvider(<Page />);
     await act(() => sleep(5));
     // this should not cause an unhandled rejection in test.
     getPostById(0).revalidate();

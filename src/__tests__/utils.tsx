@@ -1,9 +1,9 @@
 import type { ReactNode } from 'react';
-import { StrictMode } from 'react';
-import { createModel, createPaginationAdapter } from '../lib';
+import { AccessorOptionsProvider, createModel, createPaginationAdapter } from '../lib';
 import type { PostModelControl } from './types';
 import type { Post, PostLayout } from '../types';
-import { render as _render } from '@testing-library/react';
+import { render } from '@testing-library/react';
+import type { AccessorOptions } from '../lib/hooks/types';
 
 export function sleep(time: number) {
   return new Promise<void>(resolve => setTimeout(resolve, time));
@@ -85,6 +85,11 @@ export function createControl(initialControl: PostModelControl) {
   return initialControl;
 }
 
-export function render(element: ReactNode) {
-  return _render(<StrictMode>{element}</StrictMode>);
+export function renderWithOptionsProvider(
+  element: ReactNode,
+  { accessorOptions = {} }: { accessorOptions?: AccessorOptions } = {}
+) {
+  return render(
+    <AccessorOptionsProvider value={accessorOptions}>{element}</AccessorOptionsProvider>
+  );
 }

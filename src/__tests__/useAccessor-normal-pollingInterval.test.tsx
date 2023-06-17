@@ -1,6 +1,6 @@
 import { act, fireEvent, waitFor } from '@testing-library/react';
 import { useAccessor } from '../lib';
-import { createPostModel, createControl, render, sleep } from './utils';
+import { createPostModel, createControl, renderWithOptionsProvider, sleep } from './utils';
 import { useState } from 'react';
 
 describe('useAccessor-normal pollingInterval', () => {
@@ -17,7 +17,7 @@ describe('useAccessor-normal pollingInterval', () => {
       return <div onClick={() => setPollingInterval(0)}>title: {data?.title}</div>;
     }
 
-    const { findByText, getByText } = render(<Page />);
+    const { findByText, getByText } = renderWithOptionsProvider(<Page />);
     await findByText('title: title0');
     expect(onSuccessMock).toHaveBeenCalledTimes(1);
     await waitFor(
@@ -54,7 +54,7 @@ describe('useAccessor-normal pollingInterval', () => {
       );
     }
 
-    const { getByText, findAllByText } = render(<Page />);
+    const { getByText, findAllByText } = renderWithOptionsProvider(<Page />);
     await findAllByText('title: title0');
     expect(onSuccessMock).toHaveBeenCalledTimes(1);
     fireEvent.click(getByText('hide'));
@@ -80,7 +80,7 @@ describe('useAccessor-normal pollingInterval', () => {
       );
     }
 
-    const { getByText, findByText } = render(<Page />);
+    const { getByText, findByText } = renderWithOptionsProvider(<Page />);
     await findByText('title: title0');
     expect(onSuccessMock).toHaveBeenCalledOnce();
     await act(() => sleep(100));

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { createPostModel, createControl, render, sleep } from './utils';
+import { createPostModel, createControl, renderWithOptionsProvider, sleep } from './utils';
 import { useAccessor } from '../lib';
 import { fireEvent, waitFor, act } from '@testing-library/react';
 
@@ -26,7 +26,7 @@ describe('useAccessor-infinite pollingInterval', () => {
       );
     }
 
-    const { getByText, findByText } = render(<Page />);
+    const { getByText, findByText } = renderWithOptionsProvider(<Page />);
     await findByText('title0');
     expect(onSuccessMock).toHaveBeenCalledTimes(1);
     await waitFor(
@@ -60,7 +60,7 @@ describe('useAccessor-infinite pollingInterval', () => {
       );
     }
 
-    const { getByText, findByText } = render(<Page />);
+    const { getByText, findByText } = renderWithOptionsProvider(<Page />);
     await findByText('title0');
     expect(onSuccessMock).toHaveBeenCalledTimes(1);
     fireEvent.click(getByText('next'));
