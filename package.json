@@ -27,6 +27,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "build-lib": " rimraf dist && tsc --project tsconfig.lib.json",
+    "lint": "eslint src",
     "preview": "vite preview",
     "dev-server": "json-server --watch db.json",
     "test": "vitest run",
