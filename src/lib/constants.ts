@@ -1,7 +1,7 @@
-import type { RequiredFetchOptions } from './hooks/types';
+import type { RequiredAccessorOptions } from './hooks/types';
 import { isUndefined } from './utils';
 
-export const defaultOptions: RequiredFetchOptions = {
+export const defaultOptions: RequiredAccessorOptions = {
   retryCount: 3,
   retryInterval: 1000,
   revalidateOnMount: false,

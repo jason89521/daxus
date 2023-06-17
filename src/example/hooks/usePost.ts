@@ -1,8 +1,8 @@
 import { getPostById } from '../model';
 import { useAccessor } from '../../lib';
-import type { FetchOptions } from '../../lib/hooks/types';
+import type { AccessorOptions } from '../../lib/hooks/types';
 
-interface Props extends FetchOptions {
+interface Props extends AccessorOptions {
   id: number;
 }
 

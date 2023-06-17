@@ -1,7 +1,7 @@
 import { useCallback, useContext, useEffect, useMemo, useRef, useSyncExternalStore } from 'react';
 import type { InfiniteAccessor, NormalAccessor, Status } from '../model';
 import { isUndefined, noop, objectKeys, stableHash } from '../utils';
-import type { FetchOptions, RequiredFetchOptions } from './types';
+import type { AccessorOptions, RequiredAccessorOptions } from './types';
 import { useUpdatedRef } from './useUpdatedRef';
 import { isNull } from '../utils/isNull';
 import { accessorOptionsContext } from '../contexts';
@@ -19,24 +19,24 @@ const defaultStatus: Status = { isFetching: false, error: null };
 export function useAccessor<S, D, E = unknown>(
   accessor: Accessor<S, E>,
   getSnapshot: (state: S) => D,
-  options?: FetchOptions<D>
+  options?: AccessorOptions<D>
 ): ReturnValue<D, E>;
 export function useAccessor<S, D, E = unknown>(
   accessor: Accessor<S, E> | null,
   getSnapshot: (state: S) => D,
-  options?: FetchOptions<D>
+  options?: AccessorOptions<D>
 ): ReturnValue<D | undefined, E>;
 export function useAccessor<S, D, E = unknown>(
   accessor: Accessor<S, E> | null,
   getSnapshot: (state: S) => D,
-  options: FetchOptions<D> = {}
+  options: AccessorOptions<D> = {}
 ): ReturnValue<D, E> {
   const defaultOptions = useContext(accessorOptionsContext);
   const requiredOptions = { ...defaultOptions, ...options };
   const { revalidateOnMount, revalidateIfStale, checkHasStaleData, pollingInterval } =
     requiredOptions;
   const stateDeps = useRef<StateDeps>({}).current;
-  const optionsRef = useUpdatedRef<RequiredFetchOptions<D>>(requiredOptions);
+  const optionsRef = useUpdatedRef<RequiredAccessorOptions<D>>(requiredOptions);
   const getStatus = useCallback(() => {
     if (isNull(accessor)) return defaultStatus;
     return accessor.getStatus();

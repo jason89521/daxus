@@ -1,5 +1,5 @@
 import { defaultOptions } from '../constants';
-import type { FetchOptions } from '../hooks/types';
+import type { AccessorOptions } from '../hooks/types';
 import type { MutableRefObject } from 'react';
 
 export type Status<E = unknown> = {
@@ -14,7 +14,7 @@ type RetryTimeoutMeta = {
   reject: () => void;
 };
 
-type Options = Required<FetchOptions>;
+type Options = Required<AccessorOptions>;
 type OptionsRef = MutableRefObject<Options>;
 type FetchPromise<D> = Promise<D | null>;
 
@@ -124,7 +124,7 @@ export abstract class Accessor<M, D, E> {
     this.statusListeners.forEach(l => l(this.status, newCache));
   };
 
-  protected getOptions = (): Required<FetchOptions> => {
+  protected getOptions = (): Required<AccessorOptions> => {
     const firstOptionsRef = this.getFirstOptionsRef();
     if (!firstOptionsRef) return defaultOptions;
 

@@ -1,7 +1,7 @@
-import type { FetchOptions } from '../../lib/hooks/types';
+import type { AccessorOptions } from '../../lib/hooks/types';
 import { usePost } from '../hooks';
 
-interface Props extends FetchOptions {
+interface Props extends AccessorOptions {
   id: number;
 }
 
