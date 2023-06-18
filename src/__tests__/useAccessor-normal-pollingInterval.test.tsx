@@ -9,7 +9,7 @@ describe('useAccessor-normal pollingInterval', () => {
     const control = createControl({ onSuccessMock });
     const { getPostById, postAdapter } = createPostModel(control);
     function Page() {
-      const [pollingInterval, setPollingInterval] = useState(10);
+      const [pollingInterval, setPollingInterval] = useState(60);
       const { data } = useAccessor(getPostById(0), postAdapter.tryReadOneFactory(0), {
         pollingInterval,
       });
@@ -48,7 +48,7 @@ describe('useAccessor-normal pollingInterval', () => {
       return (
         <>
           <button onClick={() => setShowFirst(false)}>hide</button>
-          {showFirst && <Post pollingInterval={10} />}
+          {showFirst && <Post pollingInterval={60} />}
           <Post pollingInterval={0} />
         </>
       );
@@ -74,7 +74,7 @@ describe('useAccessor-normal pollingInterval', () => {
 
       return (
         <>
-          <button onClick={() => setPollingInterval(10)}>start polling</button>
+          <button onClick={() => setPollingInterval(60)}>start polling</button>
           <div>title: {data?.title}</div>
         </>
       );

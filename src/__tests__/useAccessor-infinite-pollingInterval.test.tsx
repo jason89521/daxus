@@ -9,7 +9,7 @@ describe('useAccessor-infinite pollingInterval', () => {
     const control = createControl({ onSuccessMock });
     const { getPostList, postAdapter } = createPostModel(control);
     function Page() {
-      const [pollingInterval, setPollingInterval] = useState(10);
+      const [pollingInterval, setPollingInterval] = useState(100);
       const { data } = useAccessor(
         getPostList(),
         state => postAdapter.tryReadPagination(state, ''),
@@ -47,7 +47,7 @@ describe('useAccessor-infinite pollingInterval', () => {
     function Page() {
       const accessor = getPostList();
       const { data } = useAccessor(accessor, state => postAdapter.tryReadPagination(state, ''), {
-        pollingInterval: 10,
+        pollingInterval: 100,
       });
 
       return (
