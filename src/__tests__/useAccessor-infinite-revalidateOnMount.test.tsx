@@ -1,18 +1,20 @@
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import { useAccessor } from '../lib';
 import type { PostModelControl } from './types';
 import { createPost, createPostModel, renderWithOptionsProvider } from './utils';
 
-describe('useAccessor-infinite revalidateIfStale', async () => {
-  test('should revalidate if there is no stale data', async () => {
+describe('useAccessor-infinite revalidateOnMount', () => {
+  test('should always revalidate if revalidateOnMount is true', async () => {
     const fetchDataMock = vi.fn();
     const control: PostModelControl = {
       fetchDataMock,
     };
-    const { getPostList, postAdapter } = createPostModel(control);
+    const { getPostList, postAdapter, postModel } = createPostModel(control);
     function Page() {
-      const { data } = useAccessor(getPostList(), state =>
-        postAdapter.tryReadPagination(state, '')
+      const { data } = useAccessor(
+        getPostList(),
+        state => postAdapter.tryReadPagination(state, ''),
+        { revalidateOnMount: true }
       );
 
       return (
@@ -25,13 +27,20 @@ describe('useAccessor-infinite revalidateIfStale', async () => {
       );
     }
 
+    postModel.mutate(draft => {
+      postAdapter.replacePagination(draft, '', [createPost(0)]);
+    });
     renderWithOptionsProvider(<Page />);
-    screen.getByText('items:');
-    await screen.findByText('items: title0');
-    expect(fetchDataMock).toHaveBeenCalledTimes(1);
+    screen.getByText('items: title0');
+    await waitFor(
+      () => {
+        expect(fetchDataMock).toHaveBeenCalledTimes(1);
+      },
+      { interval: 1 }
+    );
   });
 
-  test('should not revalidate if there is stale data', async () => {
+  test('should not revalidate if there is data and revalidateOnMount is false', async () => {
     const fetchDataMock = vi.fn();
     const control: PostModelControl = { fetchDataMock };
     const { getPostList, postAdapter, postModel } = createPostModel(control);
@@ -39,7 +48,7 @@ describe('useAccessor-infinite revalidateIfStale', async () => {
       const { data } = useAccessor(
         getPostList(),
         state => postAdapter.tryReadPagination(state, ''),
-        { revalidateIfStale: false }
+        { revalidateOnMount: false }
       );
 
       return (
