@@ -65,23 +65,23 @@ export function createPaginationAdapter<Data, RawData = Data>({
   /**
    * Try to read the data with the specified id.
    * If it is not existed, return `undefined`.
-   * @param draft
+   * @param state
    * @param id
    * @returns
    */
-  function tryReadOne(draft: State, id: Id): Data | undefined {
-    return draft.entityRecord[id];
+  function tryReadOne(state: State, id: Id): Data | undefined {
+    return state.entityRecord[id];
   }
 
   /**
    * Returns a function that accept a `state` as a parameter.
-   * It is useful when you are using `useFetch`.
+   * It is useful when you are using `useAccessor`.
    * @param id
    * @returns
    * @example
    *
    * ```ts
-   * useFetch(getPostById(id), postAdapter.tryReadOneFactory(id))
+   * useAccessor(getPostById(id), postAdapter.tryReadOneFactory(id))
    * ```
    */
   function tryReadOneFactory(id: Id): (state: State) => Data | undefined {
@@ -112,7 +112,7 @@ export function createPaginationAdapter<Data, RawData = Data>({
    * @param data
    * @returns
    */
-  function updateOne(draft: Draft<State>, id: Id, data: Partial<Data>) {
+  function updateOne(draft: Draft<State>, id: Id, data: Partial<Data>): void {
     if (!draft.entityRecord[id]) return;
     const cache = draft.entityRecord[id]!;
     draft.entityRecord[id] = { ...cache, ...data };
@@ -123,7 +123,7 @@ export function createPaginationAdapter<Data, RawData = Data>({
    * @param draft
    * @param id
    */
-  function deleteOne(draft: Draft<State>, id: Id) {
+  function deleteOne(draft: Draft<State>, id: Id): void {
     id = `${id}`;
     delete draft.entityRecord[id];
     for (const paginationMeta of Object.values(draft.paginationMetaRecord)) {
@@ -138,7 +138,7 @@ export function createPaginationAdapter<Data, RawData = Data>({
    * @param draft
    * @param data
    */
-  function upsertOne(draft: Draft<State>, rawData: RawData) {
+  function upsertOne(draft: Draft<State>, rawData: RawData): void {
     const data = transform(rawData);
     const id = getStringifiedId(data);
     const cache = draft.entityRecord[id];
@@ -150,7 +150,7 @@ export function createPaginationAdapter<Data, RawData = Data>({
    * @param draft
    * @param data
    */
-  function upsertMany(draft: Draft<State>, data: RawData[]) {
+  function upsertMany(draft: Draft<State>, data: RawData[]): void {
     for (const entity of data) {
       upsertOne(draft, entity);
     }
@@ -172,7 +172,7 @@ export function createPaginationAdapter<Data, RawData = Data>({
 
   /**
    * This function returns a function that accepts a state as the only one parameter.
-   * It is useful when using `useFetch` or `useInfiniteFetch`.
+   * It is useful when using `useAccessor`.
    * @param key
    * @returns
    */
@@ -181,7 +181,7 @@ export function createPaginationAdapter<Data, RawData = Data>({
   }
 
   /**
-   * Read the pagination with the specified key. If it is not existed, throw an error.
+   * Read the pagination meta with the specified key. If it is not existed, throw an error.
    * It is useful when you are sure that the pagination is existed.
    * @param state
    * @param key
@@ -203,7 +203,7 @@ export function createPaginationAdapter<Data, RawData = Data>({
    * @param paginationKey
    * @param data
    */
-  function replacePagination(draft: Draft<State>, paginationKey: string, rawData: RawData[]) {
+  function replacePagination(draft: Draft<State>, paginationKey: string, rawData: RawData[]): void {
     upsertMany(draft, rawData);
     const data = rawData.map(transform);
     const ids = data.map(getStringifiedId);
@@ -219,7 +219,7 @@ export function createPaginationAdapter<Data, RawData = Data>({
    * @param key
    * @param data
    */
-  function appendPagination(draft: Draft<State>, key: string, rawData: RawData[]) {
+  function appendPagination(draft: Draft<State>, key: string, rawData: RawData[]): void {
     upsertMany(draft, rawData);
     const meta = tryReadPaginationMeta(draft as State, key) ?? createPaginationMeta();
     const data = rawData.map(transform);
@@ -236,7 +236,7 @@ export function createPaginationAdapter<Data, RawData = Data>({
    * @param key
    * @param data
    */
-  function prependPagination(draft: Draft<State>, key: string, rawData: RawData[]) {
+  function prependPagination(draft: Draft<State>, key: string, rawData: RawData[]): void {
     upsertMany(draft, rawData);
     const data = rawData.map(transform);
     const meta = tryReadPaginationMeta(draft as State, key) ?? createPaginationMeta();
@@ -268,12 +268,12 @@ export function createPaginationAdapter<Data, RawData = Data>({
 
   /**
    * Returns a function that accepts state as the only one parameter.
-   * If is useful when using `useFetch` or `useInfiniteFetch`.
+   * If is useful when using `useAccessor`.
    * @param key
    * @returns
    * @example
    * ```ts
-   * useInfiniteFetch(getPostList(filter), postAdapter.tryReadPaginationFactory(filter));
+   * useAccessor(getPostList(filter), postAdapter.tryReadPaginationFactory(filter));
    * ```
    */
   function tryReadPaginationFactory(key: string): (state: State) => Pagination<Data> | undefined {

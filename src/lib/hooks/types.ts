@@ -1,24 +1,55 @@
 export interface AccessorOptions<S = any> {
+  /**
+   *  Whether the accessor should revalidate data when the user refocuses the page.
+   */
   revalidateOnFocus?: boolean;
+  /**
+   * Whether the accessor should revalidate data when the user reconnects to the network.
+   */
   revalidateOnReconnect?: boolean;
+  /**
+   * Whether it should revalidate when the `accessor` changes.
+   */
   revalidateOnMount?: boolean;
+  /**
+   * Whether it should revalidate when the data, for which the `accessor` is responsible for fetching, is stale.
+   */
   revalidateIfStale?: boolean;
+  /**
+   * A function to determine whether the returned data from the `getSnapshot` function is what you want. If it isn't, then it will revalidate.
+   */
   checkHasData?: (snapshot: S) => boolean;
+  /**
+   * The number of retry attempts for errors.
+   */
   retryCount?: number;
+  /**
+   * The interval in milliseconds between retry attempts for errors.
+   */
   retryInterval?: number;
+  /**
+   * The time span in milliseconds to deduplicate requests with the same accessor.
+   */
   dedupeInterval?: number;
+  /**
+   * The interval in milliseconds for polling data. If the value is less than or equal to 0, polling is disabled.
+   */
   pollingInterval?: number;
 }
 
 export type RequiredAccessorOptions<S = unknown> = Required<AccessorOptions<S>>;
 
-export interface HookReturn<D, E> {
-  readonly data: D;
+export type UseAccessorReturn<D, E> = {
+  /**
+   * Whether the accessor is currently fetching data.
+   */
   readonly isFetching: boolean;
-  readonly error: E | null;
-  revalidate: () => void;
-}
-
-export interface InfiniteHookReturn<D, E> extends HookReturn<D, E> {
-  fetchNextPage: () => void;
-}
+  /**
+   * The error thrown by the `fetchData` defined in the accessor. It is set when all retry attempts fail.
+   */
+  readonly error: E;
+  /**
+   * The data returned by the `getSnapshot` function.
+   */
+  readonly data: D;
+};
