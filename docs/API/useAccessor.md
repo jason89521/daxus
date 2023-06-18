@@ -1,19 +1,5 @@
 # `useAccessor`
 
-## Returns
-
-### `data`
-
-The data returned by the `getSnapshot` function.
-
-### `error`
-
-The error thrown by the `fetchData` defined in the accessor. It is set when all retry attempts fail.
-
-### `isFetching`
-
-A boolean indicating whether the accessor is currently fetching data.
-
 ## Arguments
 
 ### `accessor`
@@ -94,3 +80,17 @@ Note: This option is applied to the first mounted hook.
 The interval in milliseconds for polling data. If the value is less than or equal to 0, polling is disabled. The default value is `0`.
 
 Note: This option is applied to the first mounted hook.
+
+## Returns
+
+### `data`
+
+The data returned by the `getSnapshot` function.
+
+### `error`
+
+The error thrown by the `fetchData` defined in the accessor. It is set when all retry attempts fail.
+
+### `isFetching`
+
+A boolean indicating whether the accessor is currently fetching data.
