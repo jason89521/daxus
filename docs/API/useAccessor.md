@@ -1,5 +1,9 @@
 # `useAccessor`
 
+```ts
+const { data, error, isFetching } = useAccessor(accessor, getSnapshot, options);
+```
+
 ## Arguments
 
 ### `accessor`
