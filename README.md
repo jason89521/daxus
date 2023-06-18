@@ -62,7 +62,7 @@ npm install react-server-model
 ```typescript
 export const postAdapter = createPaginationAdapter<Post>();
 export const postModel = createModel(postAdapter.initialModel);
-export const getPostById = post.defineAccessor<number, Post>('normal', {
+export const getPostById = postModel.defineAccessor<number, Post>('normal', {
   fetchData: async arg => {
     const data = await getPostApi({ id: arg });
     return data;
