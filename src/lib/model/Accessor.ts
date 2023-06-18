@@ -1,6 +1,7 @@
 import { defaultOptions } from '../constants';
 import type { AccessorOptions } from '../hooks/types';
 import type { MutableRefObject } from 'react';
+import { isUndefined } from '../utils';
 
 export type Status<E = unknown> = {
   isFetching: boolean;
@@ -18,7 +19,7 @@ type Options = Required<AccessorOptions>;
 type OptionsRef = MutableRefObject<Options>;
 type FetchPromise<D> = Promise<D | null>;
 
-export abstract class Accessor<M, D, E> {
+export abstract class Accessor<S, D, E> {
   protected status: Status<E> = { isFetching: false, error: null };
   protected statusListeners: ((prev: Status, current: Status) => void)[] = [];
   protected fetchPromise: FetchPromise<D> | null = null;
@@ -29,23 +30,25 @@ export abstract class Accessor<M, D, E> {
   private removeOnFocusListener: (() => void) | null = null;
   private removeOnReconnectListener: (() => void) | null = null;
   private pollingTimeoutId: number | undefined;
+  /**
+   * Whether the data, for which the accessor is responsible for fetching, is stale.
+   */
+  private isStale = false;
 
   /**
    * Return the result of the revalidation. It may be `null` if the revalidation is aborted or encounters an error.
    */
   abstract revalidate: () => Promise<D | null> | null;
 
-  getState: () => M;
+  getState: () => S;
 
-  constructor(getState: () => M, modelSubscribe: ModelSubscribe) {
+  constructor(getState: () => S, modelSubscribe: ModelSubscribe) {
     this.getState = getState;
     this.modelSubscribe = modelSubscribe;
   }
 
   /**
    * @internal
-   * @param param0
-   * @returns
    */
   mount = ({ optionsRef }: { optionsRef: OptionsRef }) => {
     this.optionsRefSet.add(optionsRef);
@@ -83,10 +86,8 @@ export abstract class Accessor<M, D, E> {
 
   /**
    * @internal
-   * @param listener
-   * @returns
    */
-  public subscribeStatus = (listener: (prev: Status, current: Status) => void) => {
+  subscribeStatus = (listener: (prev: Status, current: Status) => void) => {
     this.statusListeners.push(listener);
     return () => {
       const index = this.statusListeners.indexOf(listener);
@@ -96,8 +97,6 @@ export abstract class Accessor<M, D, E> {
 
   /**
    * @internal
-   * @param listener
-   * @returns
    */
   subscribeData = (listener: () => void) => {
     const modelUnsubscribe = this.modelSubscribe(listener);
@@ -108,10 +107,28 @@ export abstract class Accessor<M, D, E> {
 
   /**
    * @internal
-   * @returns
    */
   getStatus = () => {
     return this.status;
+  };
+
+  /**
+   * Get whether the data, for which the accessor is responsible for fetching, is stale.
+   * It will be set to `false` after the fetching.
+   */
+  getIsStale = () => {
+    return this.isStale;
+  };
+
+  /**
+   * Set the data, for which the accessor is responsible for fetching, to be stale or not.
+   * If it is `true`, and some mounted components subscribe to this accessor, then the accessor will revalidate the data.
+   */
+  setIsStale = (isStale: boolean) => {
+    this.isStale = isStale;
+    if (this.isStale && this.isMounted()) {
+      this.revalidate();
+    }
   };
 
   protected updateStatus = (partialStatus: Partial<Status<E>>) => {
@@ -194,6 +211,7 @@ export abstract class Accessor<M, D, E> {
       this.pollingTimeoutId = window.setTimeout(this.invokePollingRevalidation, pollingInterval);
     }
     this.fetchPromise = null;
+    this.isStale = false;
   };
 
   private getFirstOptionsRef = () => {
@@ -248,5 +266,12 @@ export abstract class Accessor<M, D, E> {
     if (!this.retryTimeoutMeta) return;
     clearTimeout(this.retryTimeoutMeta.timeoutId);
     this.retryTimeoutMeta.reject();
+  };
+
+  /**
+   * Determine whether this accessor is mounted by check whether there is an options ref.
+   */
+  private isMounted = () => {
+    return !isUndefined(this.getFirstOptionsRef());
   };
 }

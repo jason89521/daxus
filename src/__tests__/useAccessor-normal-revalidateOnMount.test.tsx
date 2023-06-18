@@ -1,34 +1,43 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { useAccessor } from '../lib';
 import type { PostModelControl } from './types';
 import { createPost, createPostModel } from './utils';
 
-describe('useAccessor-normal revalidateIfStale', async () => {
-  test('should revalidate if there is no stale data', async () => {
+describe('useAccessor-normal revalidateOnMount', () => {
+  test('should always revalidate if revalidateOnMount is true', async () => {
     const fetchDataMock = vi.fn();
     const control: PostModelControl = {
       fetchDataMock,
     };
-    const { getPostById, postAdapter } = createPostModel(control);
+    const { getPostById, postAdapter, postModel } = createPostModel(control);
     function Page() {
-      const { data } = useAccessor(getPostById(0), postAdapter.tryReadOneFactory(0));
+      const { data } = useAccessor(getPostById(0), postAdapter.tryReadOneFactory(0), {
+        revalidateOnMount: true,
+      });
 
       return <div>title: {data?.title}</div>;
     }
 
+    postModel.mutate(draft => {
+      postAdapter.createOne(draft, createPost(0));
+    });
     render(<Page />);
-    screen.getByText('title:');
-    await screen.findByText('title: title0');
-    expect(fetchDataMock).toHaveBeenCalledTimes(1);
+    screen.getByText('title: title0');
+    await waitFor(
+      () => {
+        expect(fetchDataMock).toHaveBeenCalledTimes(1);
+      },
+      { interval: 1 }
+    );
   });
 
-  test('should not revalidate if there is stale data', async () => {
+  test('should not revalidate if there is data and revalidateOnMount is false', async () => {
     const fetchDataMock = vi.fn();
     const control: PostModelControl = { fetchDataMock };
     const { getPostById, postAdapter, postModel } = createPostModel(control);
     function Page() {
       const { data } = useAccessor(getPostById(0), postAdapter.tryReadOneFactory(0), {
-        revalidateIfStale: false,
+        revalidateOnMount: false,
       });
 
       return <div>title: {data?.title}</div>;

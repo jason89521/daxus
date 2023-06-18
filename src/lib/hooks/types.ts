@@ -3,7 +3,7 @@ export interface AccessorOptions<S = any> {
   revalidateOnReconnect?: boolean;
   revalidateOnMount?: boolean;
   revalidateIfStale?: boolean;
-  checkHasStaleData?: (snapshot: S) => boolean;
+  checkHasData?: (snapshot: S) => boolean;
   retryCount?: number;
   retryInterval?: number;
   dedupeInterval?: number;

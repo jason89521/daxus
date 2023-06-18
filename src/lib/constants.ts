@@ -10,5 +10,5 @@ export const defaultOptions: RequiredAccessorOptions = {
   revalidateOnReconnect: false,
   dedupeInterval: 2000,
   pollingInterval: 0,
-  checkHasStaleData: value => !isUndefined(value),
+  checkHasData: value => !isUndefined(value),
 };

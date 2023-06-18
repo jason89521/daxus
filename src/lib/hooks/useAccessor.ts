@@ -1,6 +1,6 @@
 import { useCallback, useContext, useEffect, useMemo, useRef, useSyncExternalStore } from 'react';
 import type { InfiniteAccessor, NormalAccessor, Status } from '../model';
-import { isUndefined, noop, objectKeys, stableHash } from '../utils';
+import { noop, objectKeys, stableHash } from '../utils';
 import type { AccessorOptions, RequiredAccessorOptions } from './types';
 import { useUpdatedRef } from './useUpdatedRef';
 import { isNull } from '../utils/isNull';
@@ -33,8 +33,7 @@ export function useAccessor<S, D, E = unknown>(
 ): ReturnValue<D, E> {
   const defaultOptions = useContext(accessorOptionsContext);
   const requiredOptions = { ...defaultOptions, ...options };
-  const { revalidateOnMount, revalidateIfStale, checkHasStaleData, pollingInterval } =
-    requiredOptions;
+  const { revalidateOnMount, revalidateIfStale, checkHasData, pollingInterval } = requiredOptions;
   const stateDeps = useRef<StateDeps>({}).current;
   const optionsRef = useUpdatedRef<RequiredAccessorOptions<D>>(requiredOptions);
   const getStatus = useCallback(() => {
@@ -85,13 +84,14 @@ export function useAccessor<S, D, E = unknown>(
   }, [accessor, stateDeps]);
 
   const data = useSyncExternalStore(subscribeData, getData, getData);
-  const hasStaleData = checkHasStaleData(data);
-  const shouldRevalidate = (() => {
+  const hasData = checkHasData(data);
+  const revalidateWhenAccessorChange = (() => {
     // Always revalidate when this hook is mounted.
     if (revalidateOnMount) return true;
-    if (revalidateIfStale && hasStaleData) return true;
-    // If there is no stale data, we should fetch the data.
-    if (!hasStaleData) return true;
+    // If the data, for which the accessor is responsible for fetching, is stale, then we should revalidate.
+    if (revalidateIfStale && accessor?.getIsStale()) return true;
+    // If there is no data, we should fetch the data.
+    if (!hasData) return true;
     // This condition is useful when `pollingInterval` changes.
     if ((pollingInterval ?? 0) > 0) return true;
 
@@ -103,11 +103,10 @@ export function useAccessor<S, D, E = unknown>(
   }, [accessor, optionsRef]);
 
   useEffect(() => {
-    if (isNull(accessor)) return;
-    if (shouldRevalidate) {
-      accessor.revalidate();
+    if (revalidateWhenAccessorChange) {
+      accessor?.revalidate();
     }
-  }, [accessor, shouldRevalidate]);
+  }, [accessor, revalidateWhenAccessorChange]);
 
   return {
     get data() {
