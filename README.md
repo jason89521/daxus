@@ -3,6 +3,7 @@
 [![npm version][npm-image]][npm-url]
 [![License][license-image]][license-url]
 [![PR's Welcome][pr-welcoming-image]][pr-welcoming-url]
+[![Test coverage][codecov-image]][codecov-url]
 
 RSM (React Server Model) is a server state management library that emphasizes developer control over data. It allows for customized data structures and adapters to handle data updates effectively. With an intuitive API, developers can directly access and manipulate their data structures. RSM also provides hooks for easy server data retrieval and synchronization. It offers a flexible approach for developers who desire more control and customization in managing server state in their React applications.
 
@@ -311,9 +312,16 @@ However, creating an adapter does require some code, so RSM also strives to prov
 
 > Currently, RSM only offers `createPaginationAdapter`, and I haven't thought of other forms of data structures. If you have any ideas, please let me know!
 
+<!-- images -->
+
 [npm-image]: https://badge.fury.io/js/react-server-model.svg
-[npm-url]: https://www.npmjs.com/package/react-server-model
 [license-image]: https://img.shields.io/github/license/jason89521/react-server-model?style=flat-square
-[license-url]: https://github.com/jason89521/react-server-model
 [pr-welcoming-image]: https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square
+[codecov-image]: https://codecov.io/gh/jason89521/react-server-model/branch/main/graph/badge.svg
+
+<!-- link -->
+
+[npm-url]: https://www.npmjs.com/package/react-server-model
+[license-url]: https://github.com/jason89521/react-server-model
 [pr-welcoming-url]: https://github.com/jason89521/react-server-model/pull/new
+[codecov-url]: https://codecov.io/github/jason89521/react-server-model?branch=main
