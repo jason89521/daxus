@@ -51,7 +51,7 @@ function transform(rawData: R): D;
 
 ```typescript
 interface PaginationMeta {
-  ids: string[];
+  ids: Id[];
   noMore: boolean;
 }
 
