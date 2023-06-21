@@ -6,7 +6,7 @@ type Id = string | number;
 
 interface PaginationMeta {
   /** Store the ids for each page index. */
-  ids: string[];
+  ids: Id[];
   noMore: boolean;
 }
 
@@ -47,10 +47,6 @@ export function createPaginationAdapter<Data, RawData = Data>({
 } = {}) {
   type State = PaginationState<Data>;
 
-  function getStringifiedId(data: Data): string {
-    return `${getId(data)}`;
-  }
-
   /**
    * Add the data to the state.
    * @param draft
@@ -58,7 +54,7 @@ export function createPaginationAdapter<Data, RawData = Data>({
    */
   function createOne(draft: Draft<State>, rawData: RawData): void {
     const data = transform(rawData);
-    const id = getStringifiedId(data);
+    const id = getId(data);
     draft.entityRecord[id] = data as Draft<Data>;
   }
 
@@ -124,11 +120,13 @@ export function createPaginationAdapter<Data, RawData = Data>({
    * @param id
    */
   function deleteOne(draft: Draft<State>, id: Id): void {
-    id = `${id}`;
+    const stringifiedId = isNumber(id) ? `${id}` : id;
     delete draft.entityRecord[id];
     for (const paginationMeta of Object.values(draft.paginationMetaRecord)) {
-      if (paginationMeta?.ids.includes(`${id}`)) {
-        paginationMeta.ids = paginationMeta.ids.filter(value => value !== id);
+      if (paginationMeta?.ids.includes(id) || paginationMeta?.ids.includes(stringifiedId)) {
+        paginationMeta.ids = paginationMeta.ids.filter(
+          value => value !== id && value !== stringifiedId
+        );
       }
     }
   }
@@ -140,7 +138,7 @@ export function createPaginationAdapter<Data, RawData = Data>({
    */
   function upsertOne(draft: Draft<State>, rawData: RawData): void {
     const data = transform(rawData);
-    const id = getStringifiedId(data);
+    const id = getId(data);
     const cache = draft.entityRecord[id];
     draft.entityRecord[id] = { ...cache, ...data } as Draft<Data>;
   }
@@ -206,7 +204,7 @@ export function createPaginationAdapter<Data, RawData = Data>({
   function replacePagination(draft: Draft<State>, paginationKey: string, rawData: RawData[]): void {
     upsertMany(draft, rawData);
     const data = rawData.map(transform);
-    const ids = data.map(getStringifiedId);
+    const ids = data.map(getId);
     draft.paginationMetaRecord[paginationKey] = {
       ids,
       noMore: false,
@@ -223,7 +221,7 @@ export function createPaginationAdapter<Data, RawData = Data>({
     upsertMany(draft, rawData);
     const meta = tryReadPaginationMeta(draft as State, key) ?? createPaginationMeta();
     const data = rawData.map(transform);
-    const ids = data.map(getStringifiedId);
+    const ids = data.map(getId);
     const originalIds = meta.ids;
     const set = new Set([...originalIds, ...ids]);
     meta.ids = [...set];
@@ -240,7 +238,7 @@ export function createPaginationAdapter<Data, RawData = Data>({
     upsertMany(draft, rawData);
     const data = rawData.map(transform);
     const meta = tryReadPaginationMeta(draft as State, key) ?? createPaginationMeta();
-    const ids = data.map(getStringifiedId);
+    const ids = data.map(getId);
     const originalIds = meta.ids;
     const set = new Set([...ids, ...originalIds]);
     meta.ids = [...set];
