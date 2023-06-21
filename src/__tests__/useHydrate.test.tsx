@@ -1,6 +1,6 @@
 import { act, render } from '@testing-library/react';
 import { useAccessor, useHydrate } from '../lib';
-import type { Post } from './types';
+import type { Post } from '../types';
 import { createPost, createPostModel, createControl, sleep } from './utils';
 import { renderToString } from 'react-dom/server';
 
@@ -25,7 +25,7 @@ describe('useHydrate', () => {
         });
       });
 
-      return <Component postId={post.id} />;
+      return <Component postId={parseInt(post.id)} />;
     }
 
     let ui = <Page post={createPost(0)} />;
