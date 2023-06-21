@@ -13,12 +13,12 @@ describe('InfiniteAccessor', () => {
     getPostList = model.getPostList;
   });
 
-  test.skip('should return data from revalidate and fetchNext', async () => {
+  test('should return data from revalidate and fetchNext', async () => {
     expect(await getPostList().revalidate()).toEqual([[createPost(0)]]);
     expect(await getPostList().fetchNext()).toEqual([page0, page1]);
   });
 
-  test.skip('should get the same promise if it is a duplicated revalidation', async () => {
+  test('should get the same promise if it is a duplicated revalidation', async () => {
     const [promise1, promise2] = [getPostList().revalidate(), getPostList().revalidate()];
     expect(promise1).toBe(promise2);
   });
@@ -35,7 +35,7 @@ describe('InfiniteAccessor', () => {
     expect(await promise2).toEqual([page0]);
   });
 
-  test.only('should get null if it is aborted when error retry', async () => {
+  test('should get null if it is aborted when error retry', async () => {
     control.fetchDataError = new Error();
     const accessor = getPostList();
     accessor.mount({ optionsRef: { current: { ...defaultOptions, dedupeInterval: 5 } } });
@@ -48,7 +48,7 @@ describe('InfiniteAccessor', () => {
     expect(await promise2).toEqual([page0]);
   });
 
-  test.skip('fetchNext should interrupt revalidate', async () => {
+  test('fetchNext should interrupt revalidate', async () => {
     const accessor = getPostList();
     await accessor.revalidate();
     control.sleepTime = 30;
