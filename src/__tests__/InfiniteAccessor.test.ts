@@ -26,7 +26,7 @@ describe('InfiniteAccessor', () => {
   test('should get null if it is an expired revalidation', async () => {
     control.sleepTime = 30;
     const accessor = getPostList();
-    accessor.mount({ optionsRef: { current: { ...defaultOptions, dedupeInterval: 10 } } });
+    accessor.mount({ optionsRef: { current: { ...defaultOptions, dedupeInterval: 5 } } });
     const promise1 = accessor.revalidate();
     await sleep(10);
     const promise2 = accessor.revalidate();
@@ -38,7 +38,7 @@ describe('InfiniteAccessor', () => {
   test('should get null if it is aborted when error retry', async () => {
     control.fetchDataError = new Error();
     const accessor = getPostList();
-    accessor.mount({ optionsRef: { current: { ...defaultOptions, dedupeInterval: 10 } } });
+    accessor.mount({ optionsRef: { current: { ...defaultOptions, dedupeInterval: 5 } } });
     const promise1 = accessor.revalidate();
     await sleep(10);
     control.fetchDataError = undefined;
