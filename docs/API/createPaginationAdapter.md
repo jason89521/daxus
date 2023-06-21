@@ -61,7 +61,7 @@ interface PaginationState<Data> {
 }
 ```
 
-The initial state of the pagination. Although the `ids` is stored with `string`, the id of your data can be `number` or `string`.
+The initial state of the pagination.
 
 ### `createOne`
 
