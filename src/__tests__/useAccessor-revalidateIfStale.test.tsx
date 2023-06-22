@@ -30,6 +30,16 @@ describe('useAccessor-normal revalidateIfStale', () => {
     await waitFor(() => {
       expect(fetchDataMock).toHaveBeenCalledTimes(2);
     });
+
+    getPostById.setIsStale(true);
+    await waitFor(() => {
+      expect(fetchDataMock).toHaveBeenCalledTimes(3);
+    });
+
+    postModel.setIsStale(true);
+    await waitFor(() => {
+      expect(fetchDataMock).toHaveBeenCalledTimes(4);
+    });
   });
 });
 
@@ -61,6 +71,16 @@ describe('useAccessor-infinite revalidateIfStale', () => {
     accessor.setIsStale(true);
     await waitFor(() => {
       expect(fetchDataMock).toHaveBeenCalledTimes(2);
+    });
+
+    getPostList.setIsStale(true);
+    await waitFor(() => {
+      expect(fetchDataMock).toHaveBeenCalledTimes(3);
+    });
+
+    postModel.setIsStale(true);
+    await waitFor(() => {
+      expect(fetchDataMock).toHaveBeenCalledTimes(4);
     });
   });
 });

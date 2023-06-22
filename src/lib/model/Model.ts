@@ -5,13 +5,25 @@ import { NormalAccessor } from './NormalAccessor';
 import { InfiniteAccessor } from './InfiniteAccessor';
 import { stableHash } from '../utils';
 
-type Accessor<M> = NormalAccessor<M> | InfiniteAccessor<M>;
+interface BaseAccessorCreator {
+  setIsStale(isStale: boolean): void;
+}
+export interface NormalAccessorCreator<S, Arg, Data> extends BaseAccessorCreator {
+  (arg: Arg): NormalAccessor<S, Arg, Data>;
+}
+export interface InfiniteAccessorCreator<S, Arg, Data> extends BaseAccessorCreator {
+  (arg: Arg): InfiniteAccessor<S, Arg, Data>;
+}
 
 export function createModel<S extends object>(initialState: S) {
+  type Accessor<Arg = any, Data = any> =
+    | NormalAccessor<S, Arg, Data>
+    | InfiniteAccessor<S, Arg, Data>;
+
   let prefixCounter = 0;
   let state = initialState;
   const listeners: (() => void)[] = [];
-  const accessors = {} as Record<string, Accessor<S> | undefined>;
+  const accessorRecord = {} as Record<string, Accessor | undefined>;
 
   function updateState(fn: (draft: Draft<S>) => void) {
     const draft = createDraft(state);
@@ -43,22 +55,23 @@ export function createModel<S extends object>(initialState: S) {
   function defineAccessor<Arg, Data>(
     type: 'normal',
     action: NormalAction<S, Arg, Data>
-  ): (arg: Arg) => NormalAccessor<S, Arg, Data>;
+  ): NormalAccessorCreator<S, Arg, Data>;
   function defineAccessor<Arg, Data>(
     type: 'infinite',
     action: InfiniteAction<S, Arg, Data>
-  ): (arg: Arg) => InfiniteAccessor<S, Arg, Data>;
+  ): InfiniteAccessorCreator<S, Arg, Data>;
   function defineAccessor<Arg, Data>(
     type: 'normal' | 'infinite',
     action: NormalAction<S, Arg, Data> | InfiniteAction<S, Arg, Data>
   ) {
     const prefix = prefixCounter++;
-
-    return (arg: Arg) => {
+    const creatorFunc = (arg: Arg) => {
       const hashArg = stableHash(arg);
       const key = `${prefix}/${hashArg}`;
-      const accessor = accessors[key];
-      if (accessor) return accessor;
+      const accessor = accessorRecord[key];
+      if (accessor) {
+        return accessor;
+      }
       const newAccessor = (() => {
         const constructorArgs = [
           arg,
@@ -74,11 +87,27 @@ export function createModel<S extends object>(initialState: S) {
 
         return new NormalAccessor(...constructorArgs);
       })();
-      accessors[key] = newAccessor;
+      accessorRecord[key] = newAccessor;
 
       return newAccessor;
     };
+
+    return Object.assign(creatorFunc, {
+      setIsStale: (isStale: boolean) => {
+        Object.entries(accessorRecord).forEach(([key, accessor]) => {
+          if (key.startsWith(`${prefix}`)) {
+            accessor?.setIsStale(isStale);
+          }
+        });
+      },
+    });
   }
 
-  return { mutate, defineAccessor, getState };
+  function setIsStale(isStale: boolean) {
+    Object.values(accessorRecord).forEach(accessor => {
+      accessor?.setIsStale(isStale);
+    });
+  }
+
+  return { mutate, defineAccessor, getState, setIsStale };
 }

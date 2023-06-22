@@ -38,8 +38,4 @@ export type Action<S, Arg = any, Data = any, E = unknown> =
   | NormalAction<S, Arg, Data, E>
   | InfiniteAction<S, Arg, Data, E>;
 
-export type ArgFromAction<A extends Action<any>> = Parameters<A['fetchData']>[0];
-
-export type RemoteDataFromAction<A extends Action<any>> = Awaited<ReturnType<A['fetchData']>>;
-
 export type Listener = () => void;
