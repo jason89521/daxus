@@ -49,11 +49,15 @@ describe('useAccessor-normal', () => {
 
     renderWithOptionsProvider(<Page />);
     await screen.findByText('title0');
-    expect(onSuccessMock).toHaveBeenCalledTimes(1);
+    await waitFor(() => {
+      expect(onSuccessMock).toHaveBeenCalledTimes(1);
+    });
 
     fireEvent.click(screen.getByText('title0'));
     await act(() => sleep(100));
-    expect(onSuccessMock).toHaveBeenCalledTimes(2);
+    await waitFor(() => {
+      expect(onSuccessMock).toHaveBeenCalledTimes(2);
+    });
   });
 
   test('should trigger onError', async () => {
@@ -71,12 +75,14 @@ describe('useAccessor-normal', () => {
 
     renderWithOptionsProvider(<Page />);
     await screen.findByText('data:');
-    await act(() => sleep(35));
-    expect(onErrorMock).toHaveBeenCalledTimes(1);
+    await waitFor(() => {
+      expect(onErrorMock).toHaveBeenCalledTimes(1);
+    });
 
     fireEvent.click(screen.getByText('data:'));
-    await act(() => sleep(35));
-    expect(onErrorMock).toHaveBeenCalledTimes(2);
+    await waitFor(() => {
+      expect(onErrorMock).toHaveBeenCalledTimes(2);
+    });
   });
 
   test('should hide the aborting error when any retry is aborted', async () => {
