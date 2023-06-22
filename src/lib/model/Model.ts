@@ -5,19 +5,20 @@ import { NormalAccessor } from './NormalAccessor';
 import { InfiniteAccessor } from './InfiniteAccessor';
 import { stableHash } from '../utils';
 
+interface BaseAccessorCreator {
+  setIsStale(isStale: boolean): void;
+}
+export interface NormalAccessorCreator<S, Arg, Data> extends BaseAccessorCreator {
+  (arg: Arg): NormalAccessor<S, Arg, Data>;
+}
+export interface InfiniteAccessorCreator<S, Arg, Data> extends BaseAccessorCreator {
+  (arg: Arg): InfiniteAccessor<S, Arg, Data>;
+}
+
 export function createModel<S extends object>(initialState: S) {
   type Accessor<Arg = any, Data = any> =
     | NormalAccessor<S, Arg, Data>
     | InfiniteAccessor<S, Arg, Data>;
-  interface BaseAccessorCreator {
-    setIsStale(isStale: boolean): void;
-  }
-  interface NormalAccessorCreator<Arg, Data> extends BaseAccessorCreator {
-    (arg: Arg): NormalAccessor<S, Arg, Data>;
-  }
-  interface InfiniteAccessorCreator<Arg, Data> extends BaseAccessorCreator {
-    (arg: Arg): InfiniteAccessor<S, Arg, Data>;
-  }
 
   let prefixCounter = 0;
   let state = initialState;
@@ -54,11 +55,11 @@ export function createModel<S extends object>(initialState: S) {
   function defineAccessor<Arg, Data>(
     type: 'normal',
     action: NormalAction<S, Arg, Data>
-  ): NormalAccessorCreator<Arg, Data>;
+  ): NormalAccessorCreator<S, Arg, Data>;
   function defineAccessor<Arg, Data>(
     type: 'infinite',
     action: InfiniteAction<S, Arg, Data>
-  ): InfiniteAccessorCreator<Arg, Data>;
+  ): InfiniteAccessorCreator<S, Arg, Data>;
   function defineAccessor<Arg, Data>(
     type: 'normal' | 'infinite',
     action: NormalAction<S, Arg, Data> | InfiniteAction<S, Arg, Data>
