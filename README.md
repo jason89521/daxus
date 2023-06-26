@@ -24,6 +24,7 @@ RSM (React Server Model) is a server state management library that emphasizes de
 - [Getting Started](#getting-started)
   - [Accessor with the `useAccessor` hook](#accessor-with-the-useaccessor-hook)
   - [Mutation](#mutation)
+  - [Pagination](#pagination)
   - [`isStale`](#isstale)
 - [API](#api)
 - [Development Motivation](#development-motivation)
@@ -166,6 +167,38 @@ async function createComment(postId: number, content: string) {
   postModel.mutate(draft => {
     postAdapter.readOne(draft, postId).totalCommentCount += 1;
   });
+}
+```
+
+### Pagination
+
+RSM provides the `createPaginationAdapter` to help developers easily handle pagination data. For example, let's say we have two lists of posts: "Popular" and "Latest," both of which include a post with the ID 100. If a user leaves a comment on the post in the "Latest" list, we expect the comment count to increase regardless of whether they are viewing the "Popular" or "Latest" list. However, we also don't want to refetch both lists just for this one post. This is where RSM's pagination data structure comes in handy.
+
+Since pagination uses ID to reference all entities, when any entity updates, all paginations that include this entity will receive the latest data. Developers don't have to worry about inconsistent data across multiple lists.
+
+```typescript
+const getPostList = postModel.defineAccessor<{ layout: string }, Post[]>('infinite', {
+  fetchData: async ({ layout }, { previousData }) => {
+    if (previousData.length === 0) return null; // Reaching end.
+    const data = await getPostListApi({ layout });
+    return data;
+  },
+  syncState: (draft, payload) => {
+    const key = `layout=${payload.arg.layout}`;
+    postAdapter.appendPagination(draft, key, payload.data);
+  },
+});
+
+function usePostList(layout: string) {
+  const accessor = getPostList({ layout });
+  const { data, error, isFetching } = useAccessor(accessor, state => {
+    const key = `layout=${layout}`;
+    // A rerender will be triggered if any entity is updated
+    // Don't worry that the user might see inconsistent results
+    return postAdapter.tryReadPagination(state, key);
+  });
+
+  return { data, error, isFetching, fetchNext: () => accessor.fetchNext() };
 }
 ```
 
