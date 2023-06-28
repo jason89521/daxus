@@ -305,6 +305,17 @@ export function createPaginationAdapter<Data, RawData = Data>({
     }
   }
 
+  /**
+   * Sort the pagination by the `compare` function.
+   */
+  function sortPagination(draft: State, key: string, compare: (a: Data, b: Data) => number) {
+    const meta = tryReadPaginationMeta(draft, key);
+    if (!meta) return;
+    const items = meta.ids.map(id => tryReadOne(draft, id)).filter(isNonNullable);
+    items.sort(compare);
+    meta.ids = items.map(getId);
+  }
+
   return {
     initialState: { entityRecord: {}, paginationMetaRecord: {} } as State,
     createOne,
@@ -324,5 +335,6 @@ export function createPaginationAdapter<Data, RawData = Data>({
     appendPagination,
     prependPagination,
     setNoMore,
+    sortPagination,
   };
 }

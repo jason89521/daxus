@@ -124,4 +124,14 @@ describe('paginationAdapter', () => {
     adapter.deleteOne(state, 0);
     expect(adapter.tryReadOne(state, 0)).toBeUndefined();
   });
+
+  test('should sort the pagination correctly', () => {
+    const key = '';
+    adapter.prependPagination(state, key, [createPost(0), createPost(2), createPost(1)]);
+    adapter.sortPagination(state, key, (a, b) => {
+      return parseInt(a.id) - parseInt(b.id);
+    });
+
+    expect(adapter.readPaginationMeta(state, key).ids).toEqual(['0', '1', '2']);
+  });
 });

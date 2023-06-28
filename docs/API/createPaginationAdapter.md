@@ -203,3 +203,11 @@ Set the `noMore` property in the pagination meta.
 ```ts
 function setNoMore(draft: State, key: string, noMore: boolean): void;
 ```
+
+### `sortPagination`
+
+Sort the pagination by the `compare` function.
+
+```ts
+function sortPagination(draft: State, key: string, compare: (a: Data, b: Data) => number): void;
+```
