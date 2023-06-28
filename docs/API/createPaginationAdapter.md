@@ -68,7 +68,7 @@ The initial state of the pagination.
 Add the data to the state.
 
 ```ts
-function createOne(draft: Draft<State>, rawData: RawData): void;
+function createOne(draft: State, rawData: RawData): void;
 ```
 
 ### `tryReadOne`
@@ -100,7 +100,7 @@ function readOne(state: State, id: Id): Data;
 Update the entity with the new data. If the entity is not existed, do nothing.
 
 ```ts
-function updateOne(draft: Draft<State>, id: Id, data: Partial<Data>): void;
+function updateOne(draft: State, id: Id, data: Partial<Data>): void;
 ```
 
 ### `deleteOne`
@@ -108,7 +108,7 @@ function updateOne(draft: Draft<State>, id: Id, data: Partial<Data>): void;
 Delete the entity with the specified id and remove the data from pagination (if existed).
 
 ```ts
-function deleteOne(draft: Draft<State>, id: Id): void;
+function deleteOne(draft: State, id: Id): void;
 ```
 
 ### `upsertOne`
@@ -116,7 +116,7 @@ function deleteOne(draft: Draft<State>, id: Id): void;
 Update the entity with the data. If the entity is not existed, insert it to the state.
 
 ```ts
-function upsertOne(draft: Draft<State>, rawData: RawData): void;
+function upsertOne(draft: State, rawData: RawData): void;
 ```
 
 ### `tryReadPaginationMeta`
@@ -177,7 +177,7 @@ function readPagination(state: State, key: string): Pagination<Data>;
 Replace the whole pagination with the given data array.
 
 ```ts
-function replacePagination(draft: Draft<State>, paginationKey: string, rawData: RawData[]): void;
+function replacePagination(draft: State, paginationKey: string, rawData: RawData[]): void;
 ```
 
 ### `appendPagination`
@@ -185,7 +185,7 @@ function replacePagination(draft: Draft<State>, paginationKey: string, rawData: 
 Append the data to the pagination. If the pagination is not existed, create one.
 
 ```ts
-function appendPagination(draft: Draft<State>, key: string, rawData: RawData[]): void;
+function appendPagination(draft: State, key: string, rawData: RawData[]): void;
 ```
 
 ### `prependPagination`
@@ -193,7 +193,7 @@ function appendPagination(draft: Draft<State>, key: string, rawData: RawData[]):
 Prepend the data to the pagination. If the pagination is not existed, create one.
 
 ```ts
-function prependPagination(draft: Draft<State>, key: string, rawData: RawData[]): void;
+function prependPagination(draft: State, key: string, rawData: RawData[]): void;
 ```
 
 ### `setNoMore`
@@ -201,5 +201,5 @@ function prependPagination(draft: Draft<State>, key: string, rawData: RawData[])
 Set the `noMore` property in the pagination meta.
 
 ```ts
-function setNoMore(draft: Draft<State>, key: string, noMore: boolean): void;
+function setNoMore(draft: State, key: string, noMore: boolean): void;
 ```
