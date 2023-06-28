@@ -1,6 +1,6 @@
 import { useCallback, useContext, useEffect, useMemo, useRef, useSyncExternalStore } from 'react';
 import type { Accessor, Status } from '../model';
-import { noop, objectKeys, stableHash } from '../utils';
+import { isUndefined, noop, objectKeys, stableHash } from '../utils';
 import type { AccessorOptions, RequiredAccessorOptions, UseAccessorReturn } from './types';
 import { useUpdatedRef } from './useUpdatedRef';
 import { isNull } from '../utils/isNull';
@@ -30,7 +30,7 @@ export function useAccessor<S, D, E = unknown>(
   accessor: Accessor<S, any, E> | null,
   getSnapshot: (state: S) => D,
   options: AccessorOptions<D> = {}
-): UseAccessorReturn<D, E> {
+): UseAccessorReturn<D | undefined, E> {
   const defaultOptions = useContext(accessorOptionsContext);
   const requiredOptions = { ...defaultOptions, ...options };
   const { revalidateOnMount, revalidateIfStale, checkHasData, pollingInterval } = requiredOptions;
@@ -62,7 +62,7 @@ export function useAccessor<S, D, E = unknown>(
 
   const [subscribeData, getData] = useMemo(() => {
     if (isNull(accessor)) {
-      return [() => noop, noop];
+      return [() => noop, noop as () => undefined];
     }
 
     let memoizedSnapshot = getSnapshot(accessor.getState());
@@ -84,7 +84,7 @@ export function useAccessor<S, D, E = unknown>(
   }, [accessor, stateDeps]);
 
   const data = useSyncExternalStore(subscribeData, getData, getData);
-  const hasData = checkHasData(data);
+  const hasData = !isUndefined(data) ? checkHasData(data) : false;
   const revalidateWhenAccessorChange = (() => {
     // Always revalidate when this hook is mounted.
     if (revalidateOnMount) return true;
