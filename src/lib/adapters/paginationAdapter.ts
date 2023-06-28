@@ -1,5 +1,4 @@
-import { isNumber, isString } from '../utils';
-import { isNonNullable } from '../utils/isNonNullable';
+import { isNumber, isString, isNonNullable } from '../utils';
 
 type Id = string | number;
 

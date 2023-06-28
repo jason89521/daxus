@@ -1,9 +1,8 @@
 import { useCallback, useContext, useEffect, useMemo, useRef, useSyncExternalStore } from 'react';
 import type { Accessor, Status } from '../model';
-import { isUndefined, noop, objectKeys, stableHash } from '../utils';
+import { isUndefined, noop, objectKeys, stableHash, isNull } from '../utils';
 import type { AccessorOptions, RequiredAccessorOptions, UseAccessorReturn } from './types';
 import { useUpdatedRef } from './useUpdatedRef';
-import { isNull } from '../utils/isNull';
 import { accessorOptionsContext } from '../contexts';
 
 type StateDeps = Partial<Record<keyof Status | 'data', boolean>>;
