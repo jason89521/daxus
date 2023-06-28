@@ -1,4 +1,3 @@
-import type { Draft } from 'immer';
 import { isNumber, isString } from '../utils';
 import { isNonNullable } from '../utils/isNonNullable';
 
@@ -52,10 +51,10 @@ export function createPaginationAdapter<Data, RawData = Data>({
    * @param draft
    * @param data
    */
-  function createOne(draft: Draft<State>, rawData: RawData): void {
+  function createOne(draft: State, rawData: RawData): void {
     const data = transform(rawData);
     const id = getId(data);
-    draft.entityRecord[id] = data as Draft<Data>;
+    draft.entityRecord[id] = data;
   }
 
   /**
@@ -108,7 +107,7 @@ export function createPaginationAdapter<Data, RawData = Data>({
    * @param data
    * @returns
    */
-  function updateOne(draft: Draft<State>, id: Id, data: Partial<Data>): void {
+  function updateOne(draft: State, id: Id, data: Partial<Data>): void {
     if (!draft.entityRecord[id]) return;
     const cache = draft.entityRecord[id]!;
     draft.entityRecord[id] = { ...cache, ...data };
@@ -119,7 +118,7 @@ export function createPaginationAdapter<Data, RawData = Data>({
    * @param draft
    * @param id
    */
-  function deleteOne(draft: Draft<State>, id: Id): void {
+  function deleteOne(draft: State, id: Id): void {
     const stringifiedId = isNumber(id) ? `${id}` : id;
     delete draft.entityRecord[id];
     for (const paginationMeta of Object.values(draft.paginationMetaRecord)) {
@@ -136,11 +135,11 @@ export function createPaginationAdapter<Data, RawData = Data>({
    * @param draft
    * @param data
    */
-  function upsertOne(draft: Draft<State>, rawData: RawData): void {
+  function upsertOne(draft: State, rawData: RawData): void {
     const data = transform(rawData);
     const id = getId(data);
     const cache = draft.entityRecord[id];
-    draft.entityRecord[id] = { ...cache, ...data } as Draft<Data>;
+    draft.entityRecord[id] = { ...cache, ...data };
   }
 
   /**
@@ -148,13 +147,13 @@ export function createPaginationAdapter<Data, RawData = Data>({
    * @param draft
    * @param data
    */
-  function upsertMany(draft: Draft<State>, data: RawData[]): void {
+  function upsertMany(draft: State, data: RawData[]): void {
     for (const entity of data) {
       upsertOne(draft, entity);
     }
   }
 
-  function updatePaginationMeta(draft: Draft<State>, key: string, meta: PaginationMeta): void {
+  function updatePaginationMeta(draft: State, key: string, meta: PaginationMeta): void {
     draft.paginationMetaRecord[key] = meta;
   }
 
@@ -201,7 +200,7 @@ export function createPaginationAdapter<Data, RawData = Data>({
    * @param paginationKey
    * @param data
    */
-  function replacePagination(draft: Draft<State>, paginationKey: string, rawData: RawData[]): void {
+  function replacePagination(draft: State, paginationKey: string, rawData: RawData[]): void {
     upsertMany(draft, rawData);
     const data = rawData.map(transform);
     const ids = data.map(getId);
@@ -217,9 +216,9 @@ export function createPaginationAdapter<Data, RawData = Data>({
    * @param key
    * @param data
    */
-  function appendPagination(draft: Draft<State>, key: string, rawData: RawData[]): void {
+  function appendPagination(draft: State, key: string, rawData: RawData[]): void {
     upsertMany(draft, rawData);
-    const meta = tryReadPaginationMeta(draft as State, key) ?? createPaginationMeta();
+    const meta = tryReadPaginationMeta(draft, key) ?? createPaginationMeta();
     const data = rawData.map(transform);
     const ids = data.map(getId);
     const originalIds = meta.ids;
@@ -234,10 +233,10 @@ export function createPaginationAdapter<Data, RawData = Data>({
    * @param key
    * @param data
    */
-  function prependPagination(draft: Draft<State>, key: string, rawData: RawData[]): void {
+  function prependPagination(draft: State, key: string, rawData: RawData[]): void {
     upsertMany(draft, rawData);
     const data = rawData.map(transform);
-    const meta = tryReadPaginationMeta(draft as State, key) ?? createPaginationMeta();
+    const meta = tryReadPaginationMeta(draft, key) ?? createPaginationMeta();
     const ids = data.map(getId);
     const originalIds = meta.ids;
     const set = new Set([...ids, ...originalIds]);
@@ -299,11 +298,22 @@ export function createPaginationAdapter<Data, RawData = Data>({
    * @param key
    * @param noMore
    */
-  function setNoMore(draft: Draft<State>, key: string, noMore: boolean): void {
-    const meta = tryReadPaginationMeta(draft as State, key);
+  function setNoMore(draft: State, key: string, noMore: boolean): void {
+    const meta = tryReadPaginationMeta(draft, key);
     if (meta) {
       meta.noMore = noMore;
     }
+  }
+
+  /**
+   * Sort the pagination by the `compare` function.
+   */
+  function sortPagination(draft: State, key: string, compare: (a: Data, b: Data) => number) {
+    const meta = tryReadPaginationMeta(draft, key);
+    if (!meta) return;
+    const items = meta.ids.map(id => tryReadOne(draft, id)).filter(isNonNullable);
+    items.sort(compare);
+    meta.ids = items.map(getId);
   }
 
   return {
@@ -325,5 +335,6 @@ export function createPaginationAdapter<Data, RawData = Data>({
     appendPagination,
     prependPagination,
     setNoMore,
+    sortPagination,
   };
 }
