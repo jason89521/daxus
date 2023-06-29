@@ -47,6 +47,10 @@ export type UseAccessorReturn<S, E, ACC extends Accessor<any, any, E> | null> = 
    */
   readonly isFetching: boolean;
   /**
+   * `true` if the `checkHasData` return `false` and the accessor is fetching data.
+   */
+  readonly isLoading: boolean;
+  /**
    * The error thrown by the `fetchData` defined in the accessor. It is set when all retry attempts fail.
    */
   readonly error: E | null;
