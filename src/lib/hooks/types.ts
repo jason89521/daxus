@@ -1,3 +1,5 @@
+import type { Accessor } from '../model';
+
 export interface AccessorOptions<S = any> {
   /**
    *  Whether the accessor should revalidate data when the user refocuses the page.
@@ -39,7 +41,7 @@ export interface AccessorOptions<S = any> {
 
 export type RequiredAccessorOptions<S = unknown> = Required<AccessorOptions<S>>;
 
-export type UseAccessorReturn<D, E> = {
+export type UseAccessorReturn<S, E, ACC extends Accessor<any, any, E> | null> = {
   /**
    * Whether the accessor is currently fetching data.
    */
@@ -47,9 +49,10 @@ export type UseAccessorReturn<D, E> = {
   /**
    * The error thrown by the `fetchData` defined in the accessor. It is set when all retry attempts fail.
    */
-  readonly error: E;
+  readonly error: E | null;
   /**
-   * The data returned by the `getSnapshot` function.
+   * The snapshot returned by the `getSnapshot` function.
    */
-  readonly data: D;
+  readonly data: S;
+  accessor: ACC;
 };
