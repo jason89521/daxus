@@ -127,6 +127,10 @@ export function useAccessor<S, SS, E = unknown>(
       stateDeps.isFetching = true;
       return status.isFetching;
     },
+    get isLoading() {
+      stateDeps.isFetching = true;
+      return status.isFetching && !hasData;
+    },
     get error() {
       stateDeps.error = true;
       return status.error as E | null;
