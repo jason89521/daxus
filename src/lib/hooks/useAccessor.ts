@@ -1,5 +1,5 @@
 import { useCallback, useContext, useEffect, useMemo, useRef, useSyncExternalStore } from 'react';
-import type { Accessor, Status } from '../model';
+import type { Accessor, InfiniteAccessor, NormalAccessor, Status } from '../model';
 import { isUndefined, noop, objectKeys, stableHash, isNull } from '../utils';
 import type { AccessorOptions, RequiredAccessorOptions, UseAccessorReturn } from './types';
 import { useUpdatedRef } from './useUpdatedRef';
@@ -15,26 +15,37 @@ const defaultStatus: Status = { isFetching: false, error: null };
  * @param getSnapshot A function that accepts the state of the `accessor`'s model and returns the desired data.
  * @param options Additional options for controlling the behavior of the accessor.
  */
-export function useAccessor<S, D, E = unknown>(
-  accessor: Accessor<S, any, E>,
-  getSnapshot: (state: S) => D,
-  options?: AccessorOptions<D>
-): UseAccessorReturn<D, E>;
-export function useAccessor<S, D, E = unknown>(
+
+export function useAccessor<S, Arg, RD, SS, E = unknown>(
+  accessor: NormalAccessor<S, Arg, RD, E>,
+  getSnapshot: (state: S) => SS,
+  options?: AccessorOptions<SS>
+): UseAccessorReturn<SS, E, NormalAccessor<S, Arg, RD, E>>;
+export function useAccessor<S, Arg, RD, SS, E = unknown>(
+  accessor: NormalAccessor<S, Arg, RD, E> | null,
+  getSnapshot: (state: S) => SS,
+  options?: AccessorOptions<SS>
+): UseAccessorReturn<SS | undefined, E, NormalAccessor<S, Arg, RD, E> | null>;
+export function useAccessor<S, Arg, RD, SS, E = unknown>(
+  accessor: InfiniteAccessor<S, Arg, RD, E>,
+  getSnapshot: (state: S) => SS,
+  options?: AccessorOptions<SS>
+): UseAccessorReturn<SS, E, InfiniteAccessor<S, Arg, RD, E>>;
+export function useAccessor<S, Arg, RD, SS, E = unknown>(
+  accessor: InfiniteAccessor<S, Arg, RD, E> | null,
+  getSnapshot: (state: S) => SS,
+  options?: AccessorOptions<SS>
+): UseAccessorReturn<SS | undefined, E, InfiniteAccessor<S, Arg, RD, E> | null>;
+export function useAccessor<S, SS, E = unknown>(
   accessor: Accessor<S, any, E> | null,
-  getSnapshot: (state: S) => D,
-  options?: AccessorOptions<D>
-): UseAccessorReturn<D | undefined, E>;
-export function useAccessor<S, D, E = unknown>(
-  accessor: Accessor<S, any, E> | null,
-  getSnapshot: (state: S) => D,
-  options: AccessorOptions<D> = {}
-): UseAccessorReturn<D | undefined, E> {
+  getSnapshot: (state: S) => SS,
+  options: AccessorOptions<SS> = {}
+): UseAccessorReturn<SS | undefined, E, Accessor<S, any, E> | null> {
   const defaultOptions = useContext(accessorOptionsContext);
   const requiredOptions = { ...defaultOptions, ...options };
   const { revalidateOnMount, revalidateIfStale, checkHasData, pollingInterval } = requiredOptions;
   const stateDeps = useRef<StateDeps>({}).current;
-  const optionsRef = useUpdatedRef<RequiredAccessorOptions<D>>(requiredOptions);
+  const optionsRef = useUpdatedRef<RequiredAccessorOptions<SS>>(requiredOptions);
   const getStatus = useCallback(() => {
     if (isNull(accessor)) return defaultStatus;
     return accessor.getStatus();
@@ -118,7 +129,8 @@ export function useAccessor<S, D, E = unknown>(
     },
     get error() {
       stateDeps.error = true;
-      return status.error as E;
+      return status.error as E | null;
     },
+    accessor,
   };
 }
