@@ -11,4 +11,5 @@ export const defaultOptions: RequiredAccessorOptions = {
   dedupeInterval: 2000,
   pollingInterval: 0,
   checkHasData: value => !isUndefined(value),
+  keepPreviousData: false,
 };
