@@ -7,7 +7,7 @@ import { accessorOptionsContext } from '../contexts';
 
 type StateDeps = Partial<Record<keyof Status | 'data', boolean>>;
 
-const defaultStatus: Status = { isFetching: false, error: null };
+const defaultStatus = { isFetching: false, error: null } satisfies Status;
 
 /**
  * useAccessor hook provides a way to access and manage data fetched by an accessor.
@@ -15,7 +15,6 @@ const defaultStatus: Status = { isFetching: false, error: null };
  * @param getSnapshot A function that accepts the state of the `accessor`'s model and returns the desired data.
  * @param options Additional options for controlling the behavior of the accessor.
  */
-
 export function useAccessor<S, Arg, RD, SS, E = unknown>(
   accessor: NormalAccessor<S, Arg, RD, E>,
   getSnapshot: (state: S) => SS,
@@ -43,12 +42,12 @@ export function useAccessor<S, SS, E = unknown>(
 ): UseAccessorReturn<SS | undefined, E, Accessor<S, any, E> | null> {
   const defaultOptions = useContext(accessorOptionsContext);
   const requiredOptions = { ...defaultOptions, ...options };
-  const { revalidateOnMount, revalidateIfStale, checkHasData, pollingInterval } = requiredOptions;
+  const { revalidateOnMount, revalidateIfStale, checkHasData, pollingInterval, keepPreviousData } =
+    requiredOptions;
   const stateDeps = useRef<StateDeps>({}).current;
   const optionsRef = useUpdatedRef<RequiredAccessorOptions<SS>>(requiredOptions);
   const getStatus = useCallback(() => {
-    if (isNull(accessor)) return defaultStatus;
-    return accessor.getStatus();
+    return accessor?.getStatus() ?? defaultStatus;
   }, [accessor]);
   const status = useSyncExternalStore(
     useCallback(
@@ -95,6 +94,7 @@ export function useAccessor<S, SS, E = unknown>(
 
   const data = useSyncExternalStore(subscribeData, getData, getData);
   const hasData = !isUndefined(data) ? checkHasData(data) : false;
+  const deferredDataRef = useRef(data);
   const revalidateWhenAccessorChange = (() => {
     // Always revalidate when this hook is mounted.
     if (revalidateOnMount) return true;
@@ -118,9 +118,19 @@ export function useAccessor<S, SS, E = unknown>(
     }
   }, [accessor, revalidateWhenAccessorChange]);
 
+  useEffect(() => {
+    if (hasData) {
+      deferredDataRef.current = data;
+    }
+  });
+
   return {
     get data() {
       stateDeps.data = true;
+      if (keepPreviousData) {
+        return hasData ? data : deferredDataRef.current;
+      }
+
       return data;
     },
     get isFetching() {
@@ -133,7 +143,7 @@ export function useAccessor<S, SS, E = unknown>(
     },
     get error() {
       stateDeps.error = true;
-      return status.error as E | null;
+      return status.error;
     },
     accessor,
   };

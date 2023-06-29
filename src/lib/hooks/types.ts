@@ -37,6 +37,10 @@ export interface AccessorOptions<S = any> {
    * The interval in milliseconds for polling data. If the value is less than or equal to 0, polling is disabled.
    */
   pollingInterval?: number;
+  /**
+   * Return the previous data until the new data has been fetched.
+   */
+  keepPreviousData?: boolean;
 }
 
 export type RequiredAccessorOptions<S = unknown> = Required<AccessorOptions<S>>;
