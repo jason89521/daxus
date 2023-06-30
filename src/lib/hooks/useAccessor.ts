@@ -10,7 +10,7 @@ type StateDeps = Partial<Record<keyof Status | 'data', boolean>>;
 const defaultStatus = { isFetching: false, error: null } satisfies Status;
 
 /**
- * useAccessor hook provides a way to access and manage data fetched by an accessor.
+ * `useAccessor` hook provides a way to access and manage data fetched by an accessor.
  * @param accessor The accessor generated from an accessor creator function. It can be `null`. This may be useful when you want conditional fetching.
  * @param getSnapshot A function that accepts the state of the `accessor`'s model and returns the desired data.
  * @param options Additional options for controlling the behavior of the accessor.

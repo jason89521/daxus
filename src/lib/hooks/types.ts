@@ -1,5 +1,8 @@
 import type { Accessor } from '../model';
 
+/**
+ * @param <S> The snapshot of the state.
+ */
 export interface AccessorOptions<S = any> {
   /**
    *  Whether the accessor should revalidate data when the user refocuses the page.
@@ -62,5 +65,8 @@ export type UseAccessorReturn<S, E, ACC extends Accessor<any, any, E> | null> = 
    * The snapshot returned by the `getSnapshot` function.
    */
   readonly data: S;
+  /**
+   * The accessor passed to the `useAccessor`.
+   */
   accessor: ACC;
 };

@@ -1,21 +1,112 @@
 import { isNumber, isString, isNonNullable } from '../utils';
 
-type Id = string | number;
+export type Id = string | number;
 
-interface PaginationMeta {
+export interface PaginationMeta {
   /** Store the ids for each page index. */
   ids: Id[];
   noMore: boolean;
 }
 
-interface Pagination<Data> {
+export interface Pagination<Data> {
   items: Data[];
   noMore: boolean;
 }
 
-interface PaginationState<Data> {
+export interface PaginationState<Data> {
   entityRecord: Record<string, Data | undefined>;
   paginationMetaRecord: Record<string, PaginationMeta | undefined>;
+}
+
+export interface PaginationAdapter<Data, RawData = Data> {
+  initialState: PaginationState<Data>;
+  /**
+   * Add the data to the state.
+   */
+  createOne(draft: PaginationState<Data>, rawData: RawData): void;
+  /**
+   * Try to read the data with the specified id.
+   * If it is not existed, return `undefined`.
+   */
+  tryReadOne(state: PaginationState<Data>, id: Id): Data | undefined;
+  /**
+   * Returns a function that accept a `state` as a parameter.
+   * It is useful when you are using `useAccessor`.
+   */
+  tryReadOneFactory(id: Id): (state: PaginationState<Data>) => Data | undefined;
+  /**
+   * Read the data with the specify id. If the data is not existed, it will throw an error.
+   * This function is useful when you are sure that the data is existed.
+   */
+  readOne(state: PaginationState<Data>, id: Id): Data;
+  /**
+   * Update the entity with the new data. If the entity is not existed, do nothing.
+   */
+  updateOne(draft: PaginationState<Data>, id: Id, data: Partial<Data>): void;
+  /**
+   * Delete the entity with the specified id and remove the data from pagination (if existed).
+   */
+  deleteOne(draft: PaginationState<Data>, id: Id): void;
+  /**
+   * Update the entity with the data. If the entity is not existed, insert it to the state.
+   */
+  upsertOne(draft: PaginationState<Data>, rawData: RawData): void;
+  /**
+   * Try to read the pagination meta. If the meta is not existed, return `undefined`.
+   */
+  tryReadPaginationMeta(state: PaginationState<Data>, key: string): PaginationMeta | undefined;
+  /**
+   * This function returns a function that accepts a state as the only one parameter.
+   * It is useful when using `useAccessor`.
+   */
+  tryReadPaginationMetaFactory(
+    key: string
+  ): (state: PaginationState<Data>) => PaginationMeta | undefined;
+  /**
+   * Read the pagination meta with the specified key. If it is not existed, throw an error.
+   * It is useful when you are sure that the pagination is existed.
+   */
+  readPaginationMeta(state: PaginationState<Data>, key: string): PaginationMeta;
+  /**
+   * Try to read the pagination with the specified key. If it is not existed, return `undefined`.
+   */
+  tryReadPagination(state: PaginationState<Data>, key: string): Pagination<Data> | undefined;
+  /**
+   * Returns a function that accepts state as the only one parameter.
+   * If is useful when using `useAccessor`.
+   */
+  tryReadPaginationFactory(
+    key: string
+  ): (state: PaginationState<Data>) => Pagination<Data> | undefined;
+  /**
+   * Read the pagination with the specified key. If the pagination is not existed, throw an error.
+   * It is useful when you are sure that the pagination is existed.
+   */
+  readPagination(state: PaginationState<Data>, key: string): Pagination<Data>;
+  /**
+   * Replace the whole pagination with the given data array.
+   */
+  replacePagination(draft: PaginationState<Data>, key: string, data: RawData[]): void;
+  /**
+   * Append the data to the pagination. If the pagination is not existed, create one.
+   */
+  appendPagination(draft: PaginationState<Data>, key: string, data: RawData[]): void;
+  /**
+   * Prepend the data to the pagination. If the pagination is not existed, create one.
+   */
+  prependPagination(draft: PaginationState<Data>, key: string, data: RawData[]): void;
+  /**
+   * Set the `noMore` property in the pagination meta.
+   */
+  setNoMore(draft: PaginationState<Data>, key: string, noMore: boolean): void;
+  /**
+   * Sort the pagination by the `compare` function.
+   */
+  sortPagination(
+    draft: PaginationState<Data>,
+    key: string,
+    compare: (a: Data, b: Data) => number
+  ): void;
 }
 
 function defaultGetId(data: unknown): Id {
@@ -42,54 +133,23 @@ export function createPaginationAdapter<Data, RawData = Data>({
 }: {
   getId?: (data: Data) => Id;
   transform?: (rawData: RawData) => Data;
-} = {}) {
+} = {}): PaginationAdapter<Data, RawData> {
   type State = PaginationState<Data>;
 
-  /**
-   * Add the data to the state.
-   * @param draft
-   * @param data
-   */
   function createOne(draft: State, rawData: RawData): void {
     const data = transform(rawData);
     const id = getId(data);
     draft.entityRecord[id] = data;
   }
 
-  /**
-   * Try to read the data with the specified id.
-   * If it is not existed, return `undefined`.
-   * @param state
-   * @param id
-   * @returns
-   */
   function tryReadOne(state: State, id: Id): Data | undefined {
     return state.entityRecord[id];
   }
 
-  /**
-   * Returns a function that accept a `state` as a parameter.
-   * It is useful when you are using `useAccessor`.
-   * @param id
-   * @returns
-   * @example
-   *
-   * ```ts
-   * useAccessor(getPostById(id), postAdapter.tryReadOneFactory(id))
-   * ```
-   */
   function tryReadOneFactory(id: Id): (state: State) => Data | undefined {
     return state => tryReadOne(state, id);
   }
 
-  /**
-   * Read the data with the specify id. If the data is not existed, it will throw an error.
-   * This function is useful when you are sure that the data is existed.
-   *
-   * @param state
-   * @param id
-   * @returns
-   */
   function readOne(state: State, id: Id): Data {
     const entity = state.entityRecord[id];
     if (!entity) {
@@ -99,24 +159,12 @@ export function createPaginationAdapter<Data, RawData = Data>({
     return entity;
   }
 
-  /**
-   * Update the entity with the new data. If the entity is not existed, do nothing.
-   * @param draft
-   * @param id
-   * @param data
-   * @returns
-   */
   function updateOne(draft: State, id: Id, data: Partial<Data>): void {
     if (!draft.entityRecord[id]) return;
     const cache = draft.entityRecord[id]!;
     draft.entityRecord[id] = { ...cache, ...data };
   }
 
-  /**
-   * Delete the entity with the specified id and remove the data from pagination (if existed).
-   * @param draft
-   * @param id
-   */
   function deleteOne(draft: State, id: Id): void {
     const stringifiedId = isNumber(id) ? `${id}` : id;
     delete draft.entityRecord[id];
@@ -129,11 +177,6 @@ export function createPaginationAdapter<Data, RawData = Data>({
     }
   }
 
-  /**
-   * Update the entity with the data. If the entity is not existed, insert it to the state.
-   * @param draft
-   * @param data
-   */
   function upsertOne(draft: State, rawData: RawData): void {
     const data = transform(rawData);
     const id = getId(data);
@@ -156,33 +199,14 @@ export function createPaginationAdapter<Data, RawData = Data>({
     draft.paginationMetaRecord[key] = meta;
   }
 
-  /**
-   * Try to read the pagination meta. If the meta is not existed, return `undefined`.
-   * @param state
-   * @param key
-   * @returns
-   */
   function tryReadPaginationMeta(state: State, key: string): PaginationMeta | undefined {
     return state.paginationMetaRecord[key];
   }
 
-  /**
-   * This function returns a function that accepts a state as the only one parameter.
-   * It is useful when using `useAccessor`.
-   * @param key
-   * @returns
-   */
   function tryReadPaginationMetaFactory(key: string): (state: State) => PaginationMeta | undefined {
     return state => tryReadPaginationMeta(state, key);
   }
 
-  /**
-   * Read the pagination meta with the specified key. If it is not existed, throw an error.
-   * It is useful when you are sure that the pagination is existed.
-   * @param state
-   * @param key
-   * @returns
-   */
   function readPaginationMeta(state: State, key: string): PaginationMeta {
     const meta = tryReadPaginationMeta(state, key);
     if (!meta) {
@@ -193,12 +217,6 @@ export function createPaginationAdapter<Data, RawData = Data>({
     return meta;
   }
 
-  /**
-   * Replace the whole pagination with the given data array.
-   * @param draft
-   * @param paginationKey
-   * @param data
-   */
   function replacePagination(draft: State, paginationKey: string, rawData: RawData[]): void {
     upsertMany(draft, rawData);
     const data = rawData.map(transform);
@@ -209,12 +227,6 @@ export function createPaginationAdapter<Data, RawData = Data>({
     };
   }
 
-  /**
-   * Append the data to the pagination. If the pagination is not existed, create one.
-   * @param draft
-   * @param key
-   * @param data
-   */
   function appendPagination(draft: State, key: string, rawData: RawData[]): void {
     upsertMany(draft, rawData);
     const meta = tryReadPaginationMeta(draft, key) ?? createPaginationMeta();
@@ -226,12 +238,6 @@ export function createPaginationAdapter<Data, RawData = Data>({
     updatePaginationMeta(draft, key, meta);
   }
 
-  /**
-   * Prepend the data to the pagination. If the pagination is not existed, create one.
-   * @param draft
-   * @param key
-   * @param data
-   */
   function prependPagination(draft: State, key: string, rawData: RawData[]): void {
     upsertMany(draft, rawData);
     const data = rawData.map(transform);
@@ -243,12 +249,6 @@ export function createPaginationAdapter<Data, RawData = Data>({
     updatePaginationMeta(draft, key, meta);
   }
 
-  /**
-   * Try to read the pagination with the specified key. If it is not existed, return `undefined`.
-   * @param state
-   * @param key
-   * @returns
-   */
   function tryReadPagination(state: State, key: string): Pagination<Data> | undefined {
     const meta = tryReadPaginationMeta(state, key);
     if (!meta) return;
@@ -262,27 +262,10 @@ export function createPaginationAdapter<Data, RawData = Data>({
     return { items, ...restMeta };
   }
 
-  /**
-   * Returns a function that accepts state as the only one parameter.
-   * If is useful when using `useAccessor`.
-   * @param key
-   * @returns
-   * @example
-   * ```ts
-   * useAccessor(getPostList(filter), postAdapter.tryReadPaginationFactory(filter));
-   * ```
-   */
   function tryReadPaginationFactory(key: string): (state: State) => Pagination<Data> | undefined {
     return state => tryReadPagination(state, key);
   }
 
-  /**
-   * Read the pagination with the specified key. If the pagination is not existed, throw an error.
-   * It is useful when you are sure that the pagination is existed.
-   * @param state
-   * @param key
-   * @returns
-   */
   function readPagination(state: State, key: string): Pagination<Data> {
     const pagination = tryReadPagination(state, key);
     if (!pagination) {
@@ -291,12 +274,6 @@ export function createPaginationAdapter<Data, RawData = Data>({
     return pagination;
   }
 
-  /**
-   * Set the `noMore` property in the pagination meta.
-   * @param draft
-   * @param key
-   * @param noMore
-   */
   function setNoMore(draft: State, key: string, noMore: boolean): void {
     const meta = tryReadPaginationMeta(draft, key);
     if (meta) {
@@ -304,9 +281,6 @@ export function createPaginationAdapter<Data, RawData = Data>({
     }
   }
 
-  /**
-   * Sort the pagination by the `compare` function.
-   */
   function sortPagination(draft: State, key: string, compare: (a: Data, b: Data) => number) {
     const meta = tryReadPaginationMeta(draft, key);
     if (!meta) return;
@@ -316,7 +290,7 @@ export function createPaginationAdapter<Data, RawData = Data>({
   }
 
   return {
-    initialState: { entityRecord: {}, paginationMetaRecord: {} } as State,
+    initialState: { entityRecord: {}, paginationMetaRecord: {} },
     createOne,
     tryReadOne,
     tryReadOneFactory,
