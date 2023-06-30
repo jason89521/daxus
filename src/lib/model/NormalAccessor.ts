@@ -15,6 +15,9 @@ export class NormalAccessor<S, Arg = any, Data = any, E = unknown> extends Acces
   private updateState: (cb: (draft: Draft<S>) => void) => void;
   private notifyModel: () => void;
 
+  /**
+   * @internal
+   */
   constructor(
     arg: Arg,
     action: NormalAction<S, Arg, Data>,
@@ -30,6 +33,10 @@ export class NormalAccessor<S, Arg = any, Data = any, E = unknown> extends Acces
     this.notifyModel = notifyModel;
   }
 
+  /**
+   * Revalidate the data.
+   * @returns The data fetched by the accessor if it is not interrupted. Otherwise returns `null`.
+   */
   revalidate = () => {
     const startAt = getCurrentTime();
 

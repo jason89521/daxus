@@ -17,12 +17,11 @@ type RetryTimeoutMeta = {
 
 type Options = Required<AccessorOptions>;
 type OptionsRef = MutableRefObject<Options>;
-type FetchPromise<D> = Promise<D | null>;
 
 export abstract class Accessor<S, D, E> {
   protected status: Status<E> = { isFetching: false, error: null };
   protected statusListeners: ((prev: Status, current: Status) => void)[] = [];
-  protected fetchPromise: FetchPromise<D> | null = null;
+  protected fetchPromise: Promise<D | null> = Promise.resolve(null);
   private retryTimeoutMeta: RetryTimeoutMeta | null = null;
   private startAt = 0;
   private modelSubscribe: ModelSubscribe;
@@ -40,8 +39,14 @@ export abstract class Accessor<S, D, E> {
    */
   abstract revalidate: () => Promise<D | null> | null;
 
+  /**
+   * Get the state of the corresponding model.
+   */
   getState: () => S;
 
+  /**
+   * @internal
+   */
   constructor(getState: () => S, modelSubscribe: ModelSubscribe) {
     this.getState = getState;
     this.modelSubscribe = modelSubscribe;
@@ -113,16 +118,14 @@ export abstract class Accessor<S, D, E> {
   };
 
   /**
-   * Get whether the data, for which the accessor is responsible for fetching, is stale.
-   * It will be set to `false` after the fetching.
+   * Get whether this accessor is stale or not.
    */
   getIsStale = () => {
     return this.isStale;
   };
 
   /**
-   * Set the data, for which the accessor is responsible for fetching, to be stale or not.
-   * If it is `true`, and some mounted components subscribe to this accessor, then the accessor will revalidate the data.
+   * Set the accessor to be stale.
    */
   setIsStale = (isStale: boolean) => {
     this.isStale = isStale;
@@ -195,7 +198,7 @@ export abstract class Accessor<S, D, E> {
     fetchPromise,
     startAt,
   }: {
-    fetchPromise: FetchPromise<D>;
+    fetchPromise: Promise<D | null>;
     startAt: number;
   }) => {
     clearTimeout(this.pollingTimeoutId);
@@ -210,7 +213,7 @@ export abstract class Accessor<S, D, E> {
     if (pollingInterval > 0) {
       this.pollingTimeoutId = window.setTimeout(this.invokePollingRevalidation, pollingInterval);
     }
-    this.fetchPromise = null;
+    this.fetchPromise = Promise.resolve(null);
     this.isStale = false;
   };
 

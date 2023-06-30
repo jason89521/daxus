@@ -24,6 +24,9 @@ export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Acc
   private currentTask: Task = 'idle';
   private notifyModel: () => void;
 
+  /**
+   * @internal
+   */
   constructor(
     arg: Arg,
     action: InfiniteAction<S, Arg, Data>,
@@ -39,11 +42,19 @@ export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Acc
     this.notifyModel = notifyModel;
   }
 
+  /**
+   * Revalidate the all pages.
+   * @returns The all pages if it is not interrupted by the other revalidation, otherwise returns `null.
+   */
   revalidate = () => {
     const pageSize = this.pageSize() || 1;
     return this.fetch({ pageSize, pageIndex: 0, task: 'validate' });
   };
 
+  /**
+   * Fetch the next page.
+   * @returns The all pages if it is not interrupted by the other revalidation, otherwise returns `null`.
+   */
   fetchNext = () => {
     const pageIndex = this.pageSize();
     const pageSize = pageIndex + 1;
