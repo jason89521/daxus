@@ -3,7 +3,7 @@ import type { Draft } from 'immer';
 import type { InfiniteAction, NormalAction } from './types';
 import { NormalAccessor } from './NormalAccessor';
 import { InfiniteAccessor } from './InfiniteAccessor';
-import { stableHash } from '../utils';
+import { isServer, stableHash } from '../utils';
 
 interface BaseAccessorCreator {
   setIsStale(isStale: boolean): void;
@@ -21,18 +21,33 @@ export function createModel<S extends object>(initialState: S) {
     | InfiniteAccessor<S, Arg, Data>;
 
   let prefixCounter = 0;
-  let state = initialState;
+  const serverStateRecord = new WeakMap<object, S>();
+  let clientState = { ...initialState };
   const listeners: (() => void)[] = [];
   const accessorRecord = {} as Record<string, Accessor | undefined>;
 
-  function updateState(fn: (draft: Draft<S>) => void) {
-    const draft = createDraft(state);
+  function updateState(fn: (draft: Draft<S>) => void, serverStateKey?: object) {
+    if (isServer() && serverStateKey) {
+      const serverState = serverStateRecord.get(serverStateKey) ?? { ...initialState };
+      serverStateRecord.set(serverStateKey, serverState);
+      const draft = createDraft(serverState);
+      fn(draft);
+      serverStateRecord.set(serverStateKey, finishDraft(draft) as S);
+    }
+
+    const draft = createDraft(clientState);
     fn(draft);
-    state = finishDraft(draft) as S;
+    clientState = finishDraft(draft) as S;
   }
 
-  function getState() {
-    return state;
+  function getState(serverStateKey?: object) {
+    if (isServer() && serverStateKey) {
+      const serverState = serverStateRecord.get(serverStateKey) ?? { ...initialState };
+      serverStateRecord.set(serverStateKey, serverState);
+      return serverState;
+    }
+
+    return clientState;
   }
 
   function subscribe(listener: () => void) {
@@ -47,8 +62,8 @@ export function createModel<S extends object>(initialState: S) {
     listeners.forEach(l => l());
   }
 
-  function mutate(fn: (draft: Draft<S>) => void) {
-    updateState(fn);
+  function mutate(fn: (draft: Draft<S>) => void, serverStateKey?: object) {
+    updateState(fn, serverStateKey);
     notifyListeners();
   }
 
