@@ -42,12 +42,12 @@ export abstract class Accessor<S, D, E> {
   /**
    * Get the state of the corresponding model.
    */
-  getState: () => S;
+  getState: (serverStateKey?: object) => S;
 
   /**
    * @internal
    */
-  constructor(getState: () => S, modelSubscribe: ModelSubscribe) {
+  constructor(getState: (serverStateKey?: object) => S, modelSubscribe: ModelSubscribe) {
     this.getState = getState;
     this.modelSubscribe = modelSubscribe;
   }

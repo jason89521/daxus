@@ -2,7 +2,7 @@ import type { InfiniteAction, NormalAction } from './model/types';
 import type { InfiniteAccessorCreator, NormalAccessorCreator } from './model/Model';
 import type { AccessorOptions, UseAccessorReturn } from './hooks/types';
 import type { NormalAccessor, InfiniteAccessor, Accessor } from './model';
-import type { AccessorOptionsProviderProps } from './contexts';
+import type { AccessorOptionsProviderProps, ServerStateKeyProviderProps } from './contexts';
 import type {
   PaginationAdapter,
   Pagination,
@@ -13,7 +13,11 @@ import type {
 import { createModel } from './model';
 import { useAccessor, useHydrate } from './hooks';
 import { createPaginationAdapter } from './adapters';
-import { AccessorOptionsProvider } from './contexts';
+import {
+  AccessorOptionsProvider,
+  ServerStateKeyProvider,
+  useServerStateKeyContext,
+} from './contexts';
 
 export type {
   AccessorOptions,
@@ -21,11 +25,14 @@ export type {
   NormalAccessor,
   InfiniteAccessor,
   Accessor,
-  AccessorOptionsProviderProps,
   InfiniteAccessorCreator,
   NormalAccessorCreator,
   InfiniteAction,
   NormalAction,
+
+  // context
+  AccessorOptionsProviderProps,
+  ServerStateKeyProviderProps,
 
   // adapter
   PaginationAdapter,
@@ -34,4 +41,16 @@ export type {
   PaginationState,
   Id,
 };
-export { createModel, useAccessor, useHydrate, createPaginationAdapter, AccessorOptionsProvider };
+export {
+  createModel,
+  useAccessor,
+  useHydrate,
+
+  // adapter
+  createPaginationAdapter,
+
+  // context
+  AccessorOptionsProvider,
+  ServerStateKeyProvider,
+  useServerStateKeyContext,
+};

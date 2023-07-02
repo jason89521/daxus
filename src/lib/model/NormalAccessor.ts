@@ -22,7 +22,7 @@ export class NormalAccessor<S, Arg = any, Data = any, E = unknown> extends Acces
     arg: Arg,
     action: NormalAction<S, Arg, Data>,
     updateState: (cb: (draft: Draft<S>) => void) => void,
-    getState: () => S,
+    getState: (serverStateKey?: object) => S,
     modelSubscribe: ModelSubscribe,
     notifyModel: () => void
   ) {

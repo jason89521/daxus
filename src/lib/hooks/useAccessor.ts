@@ -3,7 +3,7 @@ import type { Accessor, InfiniteAccessor, NormalAccessor, Status } from '../mode
 import { isUndefined, noop, objectKeys, stableHash, isNull } from '../utils';
 import type { AccessorOptions, RequiredAccessorOptions, UseAccessorReturn } from './types';
 import { useUpdatedRef } from './useUpdatedRef';
-import { accessorOptionsContext } from '../contexts';
+import { accessorOptionsContext, useServerStateKeyContext } from '../contexts';
 
 type StateDeps = Partial<Record<keyof Status | 'data', boolean>>;
 
@@ -40,6 +40,7 @@ export function useAccessor<S, SS, E = unknown>(
   getSnapshot: (state: S) => SS,
   options: AccessorOptions<SS> = {}
 ): UseAccessorReturn<SS | undefined, E, Accessor<S, any, E> | null> {
+  const serverStateKey = useServerStateKeyContext();
   const defaultOptions = useContext(accessorOptionsContext);
   const requiredOptions = { ...defaultOptions, ...options };
   const { revalidateOnMount, revalidateIfStale, checkHasData, pollingInterval, keepPreviousData } =
@@ -74,13 +75,17 @@ export function useAccessor<S, SS, E = unknown>(
       return [() => noop, noop as () => undefined];
     }
 
-    let memoizedSnapshot = getSnapshot(accessor.getState());
+    const getState = () => {
+      return accessor.getState(serverStateKey);
+    };
+
+    let memoizedSnapshot = getSnapshot(getState());
 
     return [
       (listener: () => void) => {
         return accessor.subscribeData(() => {
           if (!stateDeps.data) return;
-          const snapshot = getSnapshot(accessor.getState());
+          const snapshot = getSnapshot(getState());
           if (stableHash(snapshot) !== stableHash(memoizedSnapshot)) {
             memoizedSnapshot = snapshot;
             listener();
@@ -90,7 +95,7 @@ export function useAccessor<S, SS, E = unknown>(
       () => memoizedSnapshot,
     ] as const;
     // We assume the `getSnapshot` is depending on `accessor` so we don't put it in the dependencies array.
-  }, [accessor, stateDeps]);
+  }, [accessor, stateDeps, serverStateKey]);
 
   const data = useSyncExternalStore(subscribeData, getData, getData);
   const hasData = !isUndefined(data) ? checkHasData(data) : false;
