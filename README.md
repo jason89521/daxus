@@ -1,11 +1,11 @@
-# React Server Model
+# Daxus
 
 [![npm version][npm-image]][npm-url]
 [![License][license-image]][license-url]
 [![PR's Welcome][pr-welcoming-image]][pr-welcoming-url]
 [![Test coverage][codecov-image]][codecov-url]
 
-RSM (React Server Model) is a server state management library that emphasizes developer control over data.
+Daxus is a server state management library that emphasizes developer control over data.
 
 - Customizable data structure
 - Auto deduplication
@@ -34,32 +34,32 @@ RSM (React Server Model) is a server state management library that emphasizes de
 
 ## Comparison
 
-|                             | `RSM` | `React Query` | `Redux` |
-| --------------------------- | :---: | :-----------: | :-----: |
-| Customizable data structure |  ✅   |      ❌       |   ✅    |
-| Dedupe                      |  ✅   |      ✅       |   ❌    |
-| Revalidate on focus         |  ✅   |      ✅       |   ❌    |
-| Revalidate on reconnect     |  ✅   |      ✅       |   ❌    |
-| Revalidate if stale         |  ✅   |      ✅       |   ❌    |
-| Polling                     |  ✅   |      ✅       |   ❌    |
-| Error retry                 |  ✅   |      ✅       |   ❌    |
-| Invalidate queries          |  ✅   |      ✅       |   ❌    |
-| Mutation                    |  ✅   |      ✅       |   ✅    |
-| Conditional fetching        |  ✅   |      ✅       |   ❌    |
-| DevTool                     |  ❌   |      ✅       |   ✅    |
+|                             | `Daxus` | `React Query` | `Redux` |
+| --------------------------- | :-----: | :-----------: | :-----: |
+| Customizable data structure |   ✅    |      ❌       |   ✅    |
+| Dedupe                      |   ✅    |      ✅       |   ❌    |
+| Revalidate on focus         |   ✅    |      ✅       |   ❌    |
+| Revalidate on reconnect     |   ✅    |      ✅       |   ❌    |
+| Revalidate if stale         |   ✅    |      ✅       |   ❌    |
+| Polling                     |   ✅    |      ✅       |   ❌    |
+| Error retry                 |   ✅    |      ✅       |   ❌    |
+| Invalidate queries          |   ✅    |      ✅       |   ❌    |
+| Mutation                    |   ✅    |      ✅       |   ✅    |
+| Conditional fetching        |   ✅    |      ✅       |   ❌    |
+| DevTool                     |   ❌    |      ✅       |   ✅    |
 
 ## Installation
 
 ```sh
-pnpm add react-server-model
+pnpm add daxus
 ```
 
 ```sh
-yarn add react-server-model
+yarn add daxus
 ```
 
 ```sh
-npm install react-server-model
+npm install daxus
 ```
 
 ## Simple Example
@@ -111,7 +111,7 @@ export function usePostList(filter: string) {
 
 ## Getting Started
 
-When using RSM, you need to create models for different types of data. Taking our company as an example, the backend data includes posts, comments, forums, and more. You must create separate models for them when using RSM.
+When using Daxus, you need to create models for different types of data. Taking our company as an example, the backend data includes posts, comments, forums, and more. You must create separate models for them when using Daxus.
 
 Different models can use different data structures. For example, posts are suitable for storing data using a pagination data structure, while user settings may not be. You need to create different data structures for your models based on different requirements.
 
@@ -120,11 +120,11 @@ const postAdapter = createPaginationAdapter<Post>();
 const postModel = createModel(postAdapter.initialState);
 ```
 
-> The object returned by `createPaginationAdapter` provides not only the initial state but also various operation functions for handling pagination. This allows developers to manipulate pagination easily. Of course, you can design your own pagination if desired, as RSM gives developers complete control over data.
+> The object returned by `createPaginationAdapter` provides not only the initial state but also various operation functions for handling pagination. This allows developers to manipulate pagination easily. Of course, you can design your own pagination if desired, as Daxus gives developers complete control over data.
 
 ### Accessor with the `useAccessor` hook
 
-After creating the model, you can start defining accessors. Accessors play a significant role in RSM as they help fetch data from the server and synchronize it with your model once the data is obtained. Then, after your model is updated, it notifies the components that use the corresponding model to check if rerendering is necessary.
+After creating the model, you can start defining accessors. Accessors play a significant role in Daxus as they help fetch data from the server and synchronize it with your model once the data is obtained. Then, after your model is updated, it notifies the components that use the corresponding model to check if rerendering is necessary.
 
 ```typescript
 const getPostById = postModel.defineNormalAccessor<number, Post>({
@@ -155,7 +155,7 @@ function usePost(id: number) {
 }
 ```
 
-The second argument of `useAccessor` determines the shape of the `data`. You can think of it as a selector function in Redux. In RSM, we refer to this parameter as `getSnapshot` because it obtains a snapshot of the model's state. If you only want to retrieve the title of a specific post, you can write it like this:
+The second argument of `useAccessor` determines the shape of the `data`. You can think of it as a selector function in Redux. In Daxus, we refer to this parameter as `getSnapshot` because it obtains a snapshot of the model's state. If you only want to retrieve the title of a specific post, you can write it like this:
 
 ```typescript
 function usePostTitle(id: number) {
@@ -174,7 +174,7 @@ In addition to using it with `useAccessor`, accessors themselves have several me
 
 ### Mutation
 
-RSM's model provides the `mutate` method, allowing developers to manually modify data. Since `immer` is used internally, you can directly mutate the data without cumbersome immutable updates.
+Daxus's model provides the `mutate` method, allowing developers to manually modify data. Since `immer` is used internally, you can directly mutate the data without cumbersome immutable updates.
 
 ```typescript
 async function createComment(postId: number, content: string) {
@@ -188,7 +188,7 @@ async function createComment(postId: number, content: string) {
 
 ### Pagination
 
-RSM provides the `createPaginationAdapter` to help developers easily handle pagination data. For example, let's say we have two lists of posts: "Popular" and "Latest," both of which include a post with the ID 100. If a user leaves a comment on the post in the "Latest" list, we expect the comment count to increase regardless of whether they are viewing the "Popular" or "Latest" list. However, we also don't want to refetch both lists just for this one post. This is where RSM's pagination data structure comes in handy.
+Daxus provides the `createPaginationAdapter` to help developers easily handle pagination data. For example, let's say we have two lists of posts: "Popular" and "Latest," both of which include a post with the ID 100. If a user leaves a comment on the post in the "Latest" list, we expect the comment count to increase regardless of whether they are viewing the "Popular" or "Latest" list. However, we also don't want to refetch both lists just for this one post. This is where Daxus's pagination data structure comes in handy.
 
 Since pagination uses ID to reference all entities, when any entity updates, all paginations that include this entity will receive the latest data. Developers don't have to worry about inconsistent data across multiple lists.
 
@@ -220,7 +220,7 @@ function usePostList(layout: string) {
 
 ### `isStale`
 
-If you have used React Query before, you probably know that it can mark data as "stale." When `useQuery` receives stale data, it will automatically trigger a background update for that data. However, since RSM is not aware of how you store data, it doesn't have a built-in mechanism to mark data as stale. Nevertheless, you can mark an accessor as stale in RSM, which informs RSM that the associated data has expired and needs to be fetched again from the server when using `useAccessor`.
+If you have used React Query before, you probably know that it can mark data as "stale." When `useQuery` receives stale data, it will automatically trigger a background update for that data. However, since Daxus is not aware of how you store data, it doesn't have a built-in mechanism to mark data as stale. Nevertheless, you can mark an accessor as stale in Daxus, which informs Daxus that the associated data has expired and needs to be fetched again from the server when using `useAccessor`.
 
 ```ts
 getPostById(0).setIsStale(true); // set a single accessor to be stale
@@ -366,26 +366,26 @@ At this point, you might think, "Isn't this similar to RTK's [`createEntityAdapt
 
 Do you remember [when React Query fails to meet our needs](#why-not-use-swr-or-react-query)? Yes, it's when we have multiple paginations that might include the same post. React Query cannot handle this scenario effectively, but the pagination adapter perfectly solves this problem. By centralizing all the data in `data` and using `paginations` to collect the associated IDs, any updates to a specific post will automatically reflect in all the paginations containing that post. There won't be any inconsistencies.
 
-So, what is the design philosophy behind RSM?
+So, what is the design philosophy behind Daxus?
 
 The answer lies in **customized data structures**.
 
-Every application has unique requirements for data structures. In our company, we designed `PaginationState` to fulfill our needs. RSM's design philosophy empowers developers to define and use data structures tailored to their specific requirements. You only need to invest effort in creating suitable adapters and instructing RSM on how to fetch data and synchronize it with your model. RSM takes care of the rest, including deduplication, revalidation, and more.
+Every application has unique requirements for data structures. In our company, we designed `PaginationState` to fulfill our needs. Daxus's design philosophy empowers developers to define and use data structures tailored to their specific requirements. You only need to invest effort in creating suitable adapters and instructing Daxus on how to fetch data and synchronize it with your model. Daxus takes care of the rest, including deduplication, revalidation, and more.
 
-However, creating an adapter does require some code, so RSM also strives to provide pre-built adapters that cater to most use cases. If you have any new data structures in mind that RSM doesn't support yet, we welcome your suggestions, and we'll make an effort to implement them.
+However, creating an adapter does require some code, so Daxus also strives to provide pre-built adapters that cater to most use cases. If you have any new data structures in mind that Daxus doesn't support yet, we welcome your suggestions, and we'll make an effort to implement them.
 
-> Currently, RSM only offers `createPaginationAdapter`, and I haven't thought of other forms of data structures. If you have any ideas, please let me know!
+> Currently, Daxus only offers `createPaginationAdapter`, and I haven't thought of other forms of data structures. If you have any ideas, please let me know!
 
 <!-- images -->
 
-[npm-image]: https://badge.fury.io/js/react-server-model.svg
-[license-image]: https://img.shields.io/github/license/jason89521/react-server-model?style=flat-square
+[npm-image]: https://badge.fury.io/js/daxus.svg
+[license-image]: https://img.shields.io/github/license/jason89521/daxus?style=flat-square
 [pr-welcoming-image]: https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square
-[codecov-image]: https://codecov.io/gh/jason89521/react-server-model/branch/main/graph/badge.svg
+[codecov-image]: https://codecov.io/gh/jason89521/daxus/branch/main/graph/badge.svg
 
 <!-- link -->
 
-[npm-url]: https://www.npmjs.com/package/react-server-model
-[license-url]: https://github.com/jason89521/react-server-model
-[pr-welcoming-url]: https://github.com/jason89521/react-server-model/pull/new
-[codecov-url]: https://codecov.io/github/jason89521/react-server-model?branch=main
+[npm-url]: https://www.npmjs.com/package/daxus
+[license-url]: https://github.com/jason89521/daxus
+[pr-welcoming-url]: https://github.com/jason89521/daxus/pull/new
+[codecov-url]: https://codecov.io/github/jason89521/daxus?branch=main

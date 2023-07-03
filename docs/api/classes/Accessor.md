@@ -1,4 +1,4 @@
-[react-server-model](../README.md) / Accessor
+[daxus](../README.md) / Accessor
 
 # Class: Accessor<S, D, E\>
 
@@ -53,7 +53,7 @@ Get the state of the corresponding model.
 
 #### Defined in
 
-[model/Accessor.ts:42](https://github.com/jason89521/react-fetch/blob/f9fe784/src/lib/model/Accessor.ts#L42)
+[model/Accessor.ts:42](https://github.com/jason89521/react-fetch/blob/27b98d0/src/lib/model/Accessor.ts#L42)
 
 ___
 
@@ -73,7 +73,7 @@ Return the result of the revalidation. It may be `null` if the revalidation is a
 
 #### Defined in
 
-[model/Accessor.ts:37](https://github.com/jason89521/react-fetch/blob/f9fe784/src/lib/model/Accessor.ts#L37)
+[model/Accessor.ts:37](https://github.com/jason89521/react-fetch/blob/27b98d0/src/lib/model/Accessor.ts#L37)
 
 ## Methods
 
@@ -87,4 +87,4 @@ Return the result of the revalidation. It may be `null` if the revalidation is a
 
 #### Defined in
 
-[model/Accessor.ts:126](https://github.com/jason89521/react-fetch/blob/f9fe784/src/lib/model/Accessor.ts#L126)
+[model/Accessor.ts:126](https://github.com/jason89521/react-fetch/blob/27b98d0/src/lib/model/Accessor.ts#L126)

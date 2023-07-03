@@ -1,4 +1,4 @@
-[react-server-model](../README.md) / NormalAccessorCreator
+[daxus](../README.md) / NormalAccessorCreator
 
 # Interface: NormalAccessorCreator<S, Arg, Data, E\>
 
@@ -35,7 +35,7 @@
 
 #### Defined in
 
-[model/Model.ts:12](https://github.com/jason89521/react-fetch/blob/f9fe784/src/lib/model/Model.ts#L12)
+[model/Model.ts:12](https://github.com/jason89521/react-fetch/blob/27b98d0/src/lib/model/Model.ts#L12)
 
 ## Table of contents
 
@@ -59,4 +59,4 @@ BaseAccessorCreator.invalidate
 
 #### Defined in
 
-[model/Model.ts:9](https://github.com/jason89521/react-fetch/blob/f9fe784/src/lib/model/Model.ts#L9)
+[model/Model.ts:9](https://github.com/jason89521/react-fetch/blob/27b98d0/src/lib/model/Model.ts#L9)

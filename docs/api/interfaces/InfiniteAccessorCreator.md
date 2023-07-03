@@ -1,4 +1,4 @@
-[react-server-model](../README.md) / InfiniteAccessorCreator
+[daxus](../README.md) / InfiniteAccessorCreator
 
 # Interface: InfiniteAccessorCreator<S, Arg, Data, E\>
 
@@ -35,7 +35,7 @@
 
 #### Defined in
 
-[model/Model.ts:15](https://github.com/jason89521/react-fetch/blob/f9fe784/src/lib/model/Model.ts#L15)
+[model/Model.ts:15](https://github.com/jason89521/react-fetch/blob/27b98d0/src/lib/model/Model.ts#L15)
 
 ## Table of contents
 
@@ -59,4 +59,4 @@ BaseAccessorCreator.invalidate
 
 #### Defined in
 
-[model/Model.ts:9](https://github.com/jason89521/react-fetch/blob/f9fe784/src/lib/model/Model.ts#L9)
+[model/Model.ts:9](https://github.com/jason89521/react-fetch/blob/27b98d0/src/lib/model/Model.ts#L9)

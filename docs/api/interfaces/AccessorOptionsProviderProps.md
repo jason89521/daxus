@@ -1,4 +1,4 @@
-[react-server-model](../README.md) / AccessorOptionsProviderProps
+[daxus](../README.md) / AccessorOptionsProviderProps
 
 # Interface: AccessorOptionsProviderProps
 
@@ -17,7 +17,7 @@
 
 #### Defined in
 
-[contexts/AccessorOptionsContext.tsx:10](https://github.com/jason89521/react-fetch/blob/f9fe784/src/lib/contexts/AccessorOptionsContext.tsx#L10)
+[contexts/AccessorOptionsContext.tsx:10](https://github.com/jason89521/react-fetch/blob/27b98d0/src/lib/contexts/AccessorOptionsContext.tsx#L10)
 
 ___
 
@@ -27,4 +27,4 @@ ___
 
 #### Defined in
 
-[contexts/AccessorOptionsContext.tsx:9](https://github.com/jason89521/react-fetch/blob/f9fe784/src/lib/contexts/AccessorOptionsContext.tsx#L9)
+[contexts/AccessorOptionsContext.tsx:9](https://github.com/jason89521/react-fetch/blob/27b98d0/src/lib/contexts/AccessorOptionsContext.tsx#L9)
