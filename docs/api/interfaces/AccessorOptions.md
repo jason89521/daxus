@@ -4,9 +4,9 @@
 
 ## Type parameters
 
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `S` | `any` | The snapshot of the state. |
+| Name | Type  | Description                |
+| :--- | :---- | :------------------------- |
+| `S`  | `any` | The snapshot of the state. |
 
 ## Table of contents
 
@@ -37,9 +37,9 @@ A function to determine whether the returned data from the `getSnapshot` functio
 
 ##### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `snapshot` | `S` |
+| Name       | Type |
+| :--------- | :--- |
+| `snapshot` | `S`  |
 
 ##### Returns
 
@@ -49,7 +49,7 @@ A function to determine whether the returned data from the `getSnapshot` functio
 
 [hooks/types.ts:26](https://github.com/jason89521/react-fetch/blob/450654d/src/lib/hooks/types.ts#L26)
 
-___
+---
 
 ### dedupeInterval
 
@@ -61,7 +61,7 @@ The time span in milliseconds to deduplicate requests with the same accessor.
 
 [hooks/types.ts:38](https://github.com/jason89521/react-fetch/blob/450654d/src/lib/hooks/types.ts#L38)
 
-___
+---
 
 ### keepPreviousData
 
@@ -73,7 +73,7 @@ Return the previous data until the new data has been fetched.
 
 [hooks/types.ts:46](https://github.com/jason89521/react-fetch/blob/450654d/src/lib/hooks/types.ts#L46)
 
-___
+---
 
 ### pollingInterval
 
@@ -85,7 +85,7 @@ The interval in milliseconds for polling data. If the value is less than or equa
 
 [hooks/types.ts:42](https://github.com/jason89521/react-fetch/blob/450654d/src/lib/hooks/types.ts#L42)
 
-___
+---
 
 ### retryCount
 
@@ -97,7 +97,7 @@ The number of retry attempts for errors.
 
 [hooks/types.ts:30](https://github.com/jason89521/react-fetch/blob/450654d/src/lib/hooks/types.ts#L30)
 
-___
+---
 
 ### retryInterval
 
@@ -109,19 +109,19 @@ The interval in milliseconds between retry attempts for errors.
 
 [hooks/types.ts:34](https://github.com/jason89521/react-fetch/blob/450654d/src/lib/hooks/types.ts#L34)
 
-___
+---
 
 ### revalidateIfStale
 
 • `Optional` **revalidateIfStale**: `boolean`
 
-Whether it should revalidate when the data, for which the `accessor` is responsible for fetching, is stale.
+Whether it should revalidate when the accessor is stale.
 
 #### Defined in
 
 [hooks/types.ts:22](https://github.com/jason89521/react-fetch/blob/450654d/src/lib/hooks/types.ts#L22)
 
-___
+---
 
 ### revalidateOnFocus
 
@@ -133,7 +133,7 @@ Whether the accessor should revalidate data when the user refocuses the page.
 
 [hooks/types.ts:10](https://github.com/jason89521/react-fetch/blob/450654d/src/lib/hooks/types.ts#L10)
 
-___
+---
 
 ### revalidateOnMount
 
@@ -145,7 +145,7 @@ Whether it should revalidate when the `accessor` changes.
 
 [hooks/types.ts:18](https://github.com/jason89521/react-fetch/blob/450654d/src/lib/hooks/types.ts#L18)
 
-___
+---
 
 ### revalidateOnReconnect
 

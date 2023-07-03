@@ -103,7 +103,7 @@ export function useAccessor<S, SS, E = unknown>(
   const revalidateWhenAccessorChange = (() => {
     // Always revalidate when this hook is mounted.
     if (revalidateOnMount) return true;
-    // If the data, for which the accessor is responsible for fetching, is stale, then we should revalidate.
+    // If the accessor is stale, then we should revalidate.
     if (revalidateIfStale && accessor?.getIsStale()) return true;
     // If there is no data, we should fetch the data.
     if (!hasData) return true;

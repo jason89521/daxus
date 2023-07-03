@@ -18,7 +18,7 @@ describe('useAccessor-normal revalidateIfStale', () => {
     postModel.mutate(draft => {
       postAdapter.createOne(draft, createPost(0));
     });
-    accessor.setIsStale(true);
+    accessor.invalidate();
 
     const { getByText } = renderWithOptionsProvider(<Page />);
     getByText('title: title0');
@@ -26,17 +26,17 @@ describe('useAccessor-normal revalidateIfStale', () => {
       expect(fetchDataMock).toHaveBeenCalledTimes(1);
     });
 
-    accessor.setIsStale(true);
+    accessor.invalidate();
     await waitFor(() => {
       expect(fetchDataMock).toHaveBeenCalledTimes(2);
     });
 
-    getPostById.setIsStale(true);
+    getPostById.invalidate();
     await waitFor(() => {
       expect(fetchDataMock).toHaveBeenCalledTimes(3);
     });
 
-    postModel.setIsStale(true);
+    postModel.invalidate();
     await waitFor(() => {
       expect(fetchDataMock).toHaveBeenCalledTimes(4);
     });
@@ -60,7 +60,7 @@ describe('useAccessor-infinite revalidateIfStale', () => {
     postModel.mutate(draft => {
       postAdapter.appendPagination(draft, key, [createPost(0)]);
     });
-    accessor.setIsStale(true);
+    accessor.invalidate();
 
     const { getByText } = renderWithOptionsProvider(<Page />);
     getByText('title0');
@@ -68,17 +68,17 @@ describe('useAccessor-infinite revalidateIfStale', () => {
       expect(fetchDataMock).toHaveBeenCalledTimes(1);
     });
 
-    accessor.setIsStale(true);
+    accessor.invalidate();
     await waitFor(() => {
       expect(fetchDataMock).toHaveBeenCalledTimes(2);
     });
 
-    getPostList.setIsStale(true);
+    getPostList.invalidate();
     await waitFor(() => {
       expect(fetchDataMock).toHaveBeenCalledTimes(3);
     });
 
-    postModel.setIsStale(true);
+    postModel.invalidate();
     await waitFor(() => {
       expect(fetchDataMock).toHaveBeenCalledTimes(4);
     });

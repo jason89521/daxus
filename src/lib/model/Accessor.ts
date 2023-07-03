@@ -29,9 +29,6 @@ export abstract class Accessor<S, D, E> {
   private removeOnFocusListener: (() => void) | null = null;
   private removeOnReconnectListener: (() => void) | null = null;
   private pollingTimeoutId: number | undefined;
-  /**
-   * Whether the data, for which the accessor is responsible for fetching, is stale.
-   */
   private isStale = false;
 
   /**
@@ -119,17 +116,16 @@ export abstract class Accessor<S, D, E> {
 
   /**
    * Get whether this accessor is stale or not.
+   *
+   * @internal
    */
   getIsStale = () => {
     return this.isStale;
   };
 
-  /**
-   * Set the accessor to be stale.
-   */
-  setIsStale = (isStale: boolean) => {
-    this.isStale = isStale;
-    if (this.isStale && this.isMounted()) {
+  invalidate = () => {
+    this.isStale = true;
+    if (this.isMounted()) {
       this.revalidate();
     }
   };
