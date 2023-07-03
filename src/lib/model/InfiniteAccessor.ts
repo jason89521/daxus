@@ -31,7 +31,7 @@ export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Acc
     arg: Arg,
     action: InfiniteAction<S, Arg, Data>,
     updateState: (cb: (draft: Draft<S>) => void) => void,
-    getState: () => S,
+    getState: (serverStateKey?: object) => S,
     modelSubscribe: ModelSubscribe,
     notifyModel: () => void
   ) {
