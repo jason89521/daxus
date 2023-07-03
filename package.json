@@ -1,6 +1,6 @@
 {
-  "name": "react-server-model",
-  "version": "0.3.0",
+  "name": "daxus",
+  "version": "0.4.0",
   "type": "module",
   "files": [
     "dist"
@@ -21,7 +21,7 @@
   "module": "./dist/index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/jason89521/react-server-model"
+    "url": "https://github.com/jason89521/daxus"
   },
   "scripts": {
     "dev": "vite",

@@ -1,4 +1,4 @@
-[react-server-model](../README.md) / NormalAccessor
+[daxus](../README.md) / NormalAccessor
 
 # Class: NormalAccessor<S, Arg, Data, E\>
 
@@ -56,7 +56,7 @@ Get the state of the corresponding model.
 
 #### Defined in
 
-[model/Accessor.ts:42](https://github.com/jason89521/react-fetch/blob/f9fe784/src/lib/model/Accessor.ts#L42)
+[model/Accessor.ts:42](https://github.com/jason89521/react-fetch/blob/27b98d0/src/lib/model/Accessor.ts#L42)
 
 ## Methods
 
@@ -74,7 +74,7 @@ Get the state of the corresponding model.
 
 #### Defined in
 
-[model/Accessor.ts:126](https://github.com/jason89521/react-fetch/blob/f9fe784/src/lib/model/Accessor.ts#L126)
+[model/Accessor.ts:126](https://github.com/jason89521/react-fetch/blob/27b98d0/src/lib/model/Accessor.ts#L126)
 
 ___
 
@@ -96,4 +96,4 @@ Accessor.revalidate
 
 #### Defined in
 
-[model/NormalAccessor.ts:40](https://github.com/jason89521/react-fetch/blob/f9fe784/src/lib/model/NormalAccessor.ts#L40)
+[model/NormalAccessor.ts:40](https://github.com/jason89521/react-fetch/blob/27b98d0/src/lib/model/NormalAccessor.ts#L40)
