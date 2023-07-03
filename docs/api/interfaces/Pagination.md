@@ -23,7 +23,7 @@
 
 #### Defined in
 
-[adapters/paginationAdapter.ts:12](https://github.com/jason89521/react-fetch/blob/450654d/src/lib/adapters/paginationAdapter.ts#L12)
+[adapters/paginationAdapter.ts:12](https://github.com/jason89521/react-fetch/blob/f9fe784/src/lib/adapters/paginationAdapter.ts#L12)
 
 ___
 
@@ -33,4 +33,4 @@ ___
 
 #### Defined in
 
-[adapters/paginationAdapter.ts:13](https://github.com/jason89521/react-fetch/blob/450654d/src/lib/adapters/paginationAdapter.ts#L13)
+[adapters/paginationAdapter.ts:13](https://github.com/jason89521/react-fetch/blob/f9fe784/src/lib/adapters/paginationAdapter.ts#L13)

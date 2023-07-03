@@ -17,7 +17,7 @@ export interface AccessorOptions<S = any> {
    */
   revalidateOnMount?: boolean;
   /**
-   * Whether it should revalidate when the data, for which the `accessor` is responsible for fetching, is stale.
+   * Whether it should revalidate when the accessor is stale.
    */
   revalidateIfStale?: boolean;
   /**

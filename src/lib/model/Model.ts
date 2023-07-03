@@ -6,7 +6,7 @@ import { InfiniteAccessor } from './InfiniteAccessor';
 import { isServer, stableHash } from '../utils';
 
 interface BaseAccessorCreator {
-  setIsStale(isStale: boolean): void;
+  invalidate(): void;
 }
 export interface NormalAccessorCreator<S, Arg, Data, E> extends BaseAccessorCreator {
   (arg: Arg): NormalAccessor<S, Arg, Data, E>;
@@ -92,10 +92,10 @@ export function createModel<S extends object>(initialState: S) {
     };
 
     return Object.assign(main, {
-      setIsStale: (isStale: boolean) => {
+      invalidate: () => {
         Object.entries(accessorRecord).forEach(([key, accessor]) => {
           if (key.startsWith(`${prefix}`)) {
-            accessor?.setIsStale(isStale);
+            accessor?.invalidate();
           }
         });
       },
@@ -126,21 +126,21 @@ export function createModel<S extends object>(initialState: S) {
     };
 
     return Object.assign(main, {
-      setIsStale: (isStale: boolean) => {
+      invalidate: () => {
         Object.entries(accessorRecord).forEach(([key, accessor]) => {
           if (key.startsWith(`${prefix}`)) {
-            accessor?.setIsStale(isStale);
+            accessor?.invalidate();
           }
         });
       },
     });
   }
 
-  function setIsStale(isStale: boolean) {
+  function invalidate() {
     Object.values(accessorRecord).forEach(accessor => {
-      accessor?.setIsStale(isStale);
+      accessor?.invalidate();
     });
   }
 
-  return { mutate, defineInfiniteAccessor, defineNormalAccessor, getState, setIsStale };
+  return { mutate, defineInfiniteAccessor, defineNormalAccessor, getState, invalidate };
 }

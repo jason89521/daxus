@@ -35,25 +35,19 @@
 
 #### Defined in
 
-[model/Model.ts:15](https://github.com/jason89521/react-fetch/blob/450654d/src/lib/model/Model.ts#L15)
+[model/Model.ts:15](https://github.com/jason89521/react-fetch/blob/f9fe784/src/lib/model/Model.ts#L15)
 
 ## Table of contents
 
 ### Methods
 
-- [setIsStale](InfiniteAccessorCreator.md#setisstale)
+- [invalidate](InfiniteAccessorCreator.md#invalidate)
 
 ## Methods
 
-### setIsStale
+### invalidate
 
-▸ **setIsStale**(`isStale`): `void`
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `isStale` | `boolean` |
+▸ **invalidate**(): `void`
 
 #### Returns
 
@@ -61,8 +55,8 @@
 
 #### Inherited from
 
-BaseAccessorCreator.setIsStale
+BaseAccessorCreator.invalidate
 
 #### Defined in
 
-[model/Model.ts:9](https://github.com/jason89521/react-fetch/blob/450654d/src/lib/model/Model.ts#L9)
+[model/Model.ts:9](https://github.com/jason89521/react-fetch/blob/f9fe784/src/lib/model/Model.ts#L9)
