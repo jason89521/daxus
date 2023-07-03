@@ -65,6 +65,8 @@ npm install react-server-model
 ## Simple Example
 
 ```typescript
+// You don't have to use createPaginationAdapter specifically.
+// You can use any data structure that meets your requirements.
 export const postAdapter = createPaginationAdapter<Post>();
 export const postModel = createModel(postAdapter.initialState);
 export const getPostById = postModel.defineNormalAccessor<number, Post>({
@@ -90,6 +92,20 @@ export function usePost(id: number) {
   );
 
   return { data, error, isFetching, revalidate: () => accessor.revalidate() };
+}
+
+export const getPostList = postModel.defineInfiniteAccessor<string, Post[]>({
+  fetchData: async filter => {
+    return getPostListApi({ filter });
+  },
+  syncState: (draft, payload) => {
+    postAdapter.appendPagination(draft, filter, payload.data);
+  },
+});
+
+export function usePostList(filter: string) {
+  const accessor = getPostList(filter);
+  return useAccessor(accessor, postAdapter.tryReadPaginationFactory(filter));
 }
 ```
 
