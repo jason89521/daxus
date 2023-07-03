@@ -126,6 +126,7 @@ export function useAccessor<S, SS, E = unknown>(
   useEffect(() => {
     if (hasData) {
       deferredDataRef.current = data;
+      //
     }
   });
 
