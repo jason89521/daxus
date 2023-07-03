@@ -26,21 +26,26 @@
 ### Methods
 
 - [fetchNext](InfiniteAccessor.md#fetchnext)
-- [getIsStale](InfiniteAccessor.md#getisstale)
+- [invalidate](InfiniteAccessor.md#invalidate)
 - [revalidate](InfiniteAccessor.md#revalidate)
-- [setIsStale](InfiniteAccessor.md#setisstale)
 
 ## Properties
 
 ### getState
 
-• **getState**: () => `S`
+• **getState**: (`serverStateKey?`: `object`) => `S`
 
 #### Type declaration
 
-▸ (): `S`
+▸ (`serverStateKey?`): `S`
 
 Get the state of the corresponding model.
+
+##### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `serverStateKey?` | `object` |
 
 ##### Returns
 
@@ -52,7 +57,7 @@ Get the state of the corresponding model.
 
 #### Defined in
 
-[model/Accessor.ts:45](https://github.com/jason89521/react-fetch/blob/450654d/src/lib/model/Accessor.ts#L45)
+[model/Accessor.ts:42](https://github.com/jason89521/react-fetch/blob/f9fe784/src/lib/model/Accessor.ts#L42)
 
 ## Methods
 
@@ -70,27 +75,25 @@ The all pages if it is not interrupted by the other revalidation, otherwise retu
 
 #### Defined in
 
-[model/InfiniteAccessor.ts:58](https://github.com/jason89521/react-fetch/blob/450654d/src/lib/model/InfiniteAccessor.ts#L58)
+[model/InfiniteAccessor.ts:58](https://github.com/jason89521/react-fetch/blob/f9fe784/src/lib/model/InfiniteAccessor.ts#L58)
 
 ___
 
-### getIsStale
+### invalidate
 
-▸ **getIsStale**(): `boolean`
-
-Get whether this accessor is stale or not.
+▸ **invalidate**(): `void`
 
 #### Returns
 
-`boolean`
+`void`
 
 #### Inherited from
 
-[Accessor](Accessor.md).[getIsStale](Accessor.md#getisstale)
+[Accessor](Accessor.md).[invalidate](Accessor.md#invalidate)
 
 #### Defined in
 
-[model/Accessor.ts:123](https://github.com/jason89521/react-fetch/blob/450654d/src/lib/model/Accessor.ts#L123)
+[model/Accessor.ts:126](https://github.com/jason89521/react-fetch/blob/f9fe784/src/lib/model/Accessor.ts#L126)
 
 ___
 
@@ -112,30 +115,4 @@ Accessor.revalidate
 
 #### Defined in
 
-[model/InfiniteAccessor.ts:49](https://github.com/jason89521/react-fetch/blob/450654d/src/lib/model/InfiniteAccessor.ts#L49)
-
-___
-
-### setIsStale
-
-▸ **setIsStale**(`isStale`): `void`
-
-Set the accessor to be stale.
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `isStale` | `boolean` |
-
-#### Returns
-
-`void`
-
-#### Inherited from
-
-[Accessor](Accessor.md).[setIsStale](Accessor.md#setisstale)
-
-#### Defined in
-
-[model/Accessor.ts:130](https://github.com/jason89521/react-fetch/blob/450654d/src/lib/model/Accessor.ts#L130)
+[model/InfiniteAccessor.ts:49](https://github.com/jason89521/react-fetch/blob/f9fe784/src/lib/model/InfiniteAccessor.ts#L49)

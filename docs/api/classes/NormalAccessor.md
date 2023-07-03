@@ -25,21 +25,26 @@
 
 ### Methods
 
-- [getIsStale](NormalAccessor.md#getisstale)
+- [invalidate](NormalAccessor.md#invalidate)
 - [revalidate](NormalAccessor.md#revalidate)
-- [setIsStale](NormalAccessor.md#setisstale)
 
 ## Properties
 
 ### getState
 
-• **getState**: () => `S`
+• **getState**: (`serverStateKey?`: `object`) => `S`
 
 #### Type declaration
 
-▸ (): `S`
+▸ (`serverStateKey?`): `S`
 
 Get the state of the corresponding model.
+
+##### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `serverStateKey?` | `object` |
 
 ##### Returns
 
@@ -51,27 +56,25 @@ Get the state of the corresponding model.
 
 #### Defined in
 
-[model/Accessor.ts:45](https://github.com/jason89521/react-fetch/blob/450654d/src/lib/model/Accessor.ts#L45)
+[model/Accessor.ts:42](https://github.com/jason89521/react-fetch/blob/f9fe784/src/lib/model/Accessor.ts#L42)
 
 ## Methods
 
-### getIsStale
+### invalidate
 
-▸ **getIsStale**(): `boolean`
-
-Get whether this accessor is stale or not.
+▸ **invalidate**(): `void`
 
 #### Returns
 
-`boolean`
+`void`
 
 #### Inherited from
 
-[Accessor](Accessor.md).[getIsStale](Accessor.md#getisstale)
+[Accessor](Accessor.md).[invalidate](Accessor.md#invalidate)
 
 #### Defined in
 
-[model/Accessor.ts:123](https://github.com/jason89521/react-fetch/blob/450654d/src/lib/model/Accessor.ts#L123)
+[model/Accessor.ts:126](https://github.com/jason89521/react-fetch/blob/f9fe784/src/lib/model/Accessor.ts#L126)
 
 ___
 
@@ -93,30 +96,4 @@ Accessor.revalidate
 
 #### Defined in
 
-[model/NormalAccessor.ts:40](https://github.com/jason89521/react-fetch/blob/450654d/src/lib/model/NormalAccessor.ts#L40)
-
-___
-
-### setIsStale
-
-▸ **setIsStale**(`isStale`): `void`
-
-Set the accessor to be stale.
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `isStale` | `boolean` |
-
-#### Returns
-
-`void`
-
-#### Inherited from
-
-[Accessor](Accessor.md).[setIsStale](Accessor.md#setisstale)
-
-#### Defined in
-
-[model/Accessor.ts:130](https://github.com/jason89521/react-fetch/blob/450654d/src/lib/model/Accessor.ts#L130)
+[model/NormalAccessor.ts:40](https://github.com/jason89521/react-fetch/blob/f9fe784/src/lib/model/NormalAccessor.ts#L40)

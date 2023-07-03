@@ -27,20 +27,25 @@
 
 ### Methods
 
-- [getIsStale](Accessor.md#getisstale)
-- [setIsStale](Accessor.md#setisstale)
+- [invalidate](Accessor.md#invalidate)
 
 ## Properties
 
 ### getState
 
-• **getState**: () => `S`
+• **getState**: (`serverStateKey?`: `object`) => `S`
 
 #### Type declaration
 
-▸ (): `S`
+▸ (`serverStateKey?`): `S`
 
 Get the state of the corresponding model.
+
+##### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `serverStateKey?` | `object` |
 
 ##### Returns
 
@@ -48,7 +53,7 @@ Get the state of the corresponding model.
 
 #### Defined in
 
-[model/Accessor.ts:45](https://github.com/jason89521/react-fetch/blob/450654d/src/lib/model/Accessor.ts#L45)
+[model/Accessor.ts:42](https://github.com/jason89521/react-fetch/blob/f9fe784/src/lib/model/Accessor.ts#L42)
 
 ___
 
@@ -68,37 +73,13 @@ Return the result of the revalidation. It may be `null` if the revalidation is a
 
 #### Defined in
 
-[model/Accessor.ts:40](https://github.com/jason89521/react-fetch/blob/450654d/src/lib/model/Accessor.ts#L40)
+[model/Accessor.ts:37](https://github.com/jason89521/react-fetch/blob/f9fe784/src/lib/model/Accessor.ts#L37)
 
 ## Methods
 
-### getIsStale
+### invalidate
 
-▸ **getIsStale**(): `boolean`
-
-Get whether this accessor is stale or not.
-
-#### Returns
-
-`boolean`
-
-#### Defined in
-
-[model/Accessor.ts:123](https://github.com/jason89521/react-fetch/blob/450654d/src/lib/model/Accessor.ts#L123)
-
-___
-
-### setIsStale
-
-▸ **setIsStale**(`isStale`): `void`
-
-Set the accessor to be stale.
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `isStale` | `boolean` |
+▸ **invalidate**(): `void`
 
 #### Returns
 
@@ -106,4 +87,4 @@ Set the accessor to be stale.
 
 #### Defined in
 
-[model/Accessor.ts:130](https://github.com/jason89521/react-fetch/blob/450654d/src/lib/model/Accessor.ts#L130)
+[model/Accessor.ts:126](https://github.com/jason89521/react-fetch/blob/f9fe784/src/lib/model/Accessor.ts#L126)
