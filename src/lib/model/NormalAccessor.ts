@@ -20,7 +20,7 @@ export class NormalAccessor<S, Arg = any, Data = any, E = unknown> extends Acces
    */
   constructor(
     arg: Arg,
-    action: NormalAction<S, Arg, Data>,
+    action: NormalAction<S, Arg, Data, E>,
     updateState: (cb: (draft: Draft<S>) => void) => void,
     getState: () => S,
     modelSubscribe: ModelSubscribe,

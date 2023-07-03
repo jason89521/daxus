@@ -67,7 +67,7 @@ npm install react-server-model
 ```typescript
 export const postAdapter = createPaginationAdapter<Post>();
 export const postModel = createModel(postAdapter.initialState);
-export const getPostById = postModel.defineAccessor<number, Post>('normal', {
+export const getPostById = postModel.defineNormalAccessor<number, Post>({
   fetchData: async arg => {
     const data = await getPostApi({ id: arg });
     return data;
@@ -111,7 +111,7 @@ const postModel = createModel(postAdapter.initialState);
 After creating the model, you can start defining accessors. Accessors play a significant role in RSM as they help fetch data from the server and synchronize it with your model once the data is obtained. Then, after your model is updated, it notifies the components that use the corresponding model to check if rerendering is necessary.
 
 ```typescript
-const getPostById = postModel.defineAccessor<number, Post>('normal', {
+const getPostById = postModel.defineNormalAccessor<number, Post>({
   fetchData: async id => {
     const data = await getPostApi(id);
     return data;
@@ -122,11 +122,11 @@ const getPostById = postModel.defineAccessor<number, Post>('normal', {
 });
 ```
 
-The first argument of the `defineAccessor` method accepts only `'normal'` or `'infinite'`. Typically, you would only use `'infinite'` when implementing infinite loading. In most cases, `'normal'` is sufficient.
+There are two type of the accessors. One is `normal`, the other one is `infinite`. You can use `model.defineNormalAccessor` to define a normal accessor, and use `model.defineInfiniteAccessor` to define an infinite accessor. Typically, you would only use `infinite` when implementing infinite loading. In most cases, `normal` is sufficient.
 
 The second argument is the accessor's **action**. `fetchData` tells the accessor how to fetch data from the server, while `syncState` specifies how to synchronize the obtained data with the model's state.
 
-`defineAccessor` returns an accessor creator function. If you pass the same arguments to it, it will return the same accessor. Next, we will use the accessor created by `defineAccessor` with the `useAccessor` hook.
+`defineNormalAccessor` and `defineInfiniteAccessor` returns an accessor creator function. If you pass the same arguments to it, it will return the same accessor. Next, we will use the accessor created by `defineNormalAccessor` with the `useAccessor` hook.
 
 ```typescript
 function usePost(id: number) {
@@ -177,7 +177,7 @@ RSM provides the `createPaginationAdapter` to help developers easily handle pagi
 Since pagination uses ID to reference all entities, when any entity updates, all paginations that include this entity will receive the latest data. Developers don't have to worry about inconsistent data across multiple lists.
 
 ```typescript
-const getPostList = postModel.defineAccessor<{ layout: string }, Post[]>('infinite', {
+const getPostList = postModel.defineInfiniteAccessor<{ layout: string }, Post[]>({
   fetchData: async ({ layout }, { previousData }) => {
     if (previousData.length === 0) return null; // Reaching end.
     const data = await getPostListApi({ layout });

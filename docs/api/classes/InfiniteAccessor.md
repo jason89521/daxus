@@ -52,7 +52,7 @@ Get the state of the corresponding model.
 
 #### Defined in
 
-[model/Accessor.ts:45](https://github.com/jason89521/react-fetch/blob/1201b7b/src/lib/model/Accessor.ts#L45)
+[model/Accessor.ts:45](https://github.com/jason89521/react-fetch/blob/450654d/src/lib/model/Accessor.ts#L45)
 
 ## Methods
 
@@ -70,7 +70,7 @@ The all pages if it is not interrupted by the other revalidation, otherwise retu
 
 #### Defined in
 
-[model/InfiniteAccessor.ts:58](https://github.com/jason89521/react-fetch/blob/1201b7b/src/lib/model/InfiniteAccessor.ts#L58)
+[model/InfiniteAccessor.ts:58](https://github.com/jason89521/react-fetch/blob/450654d/src/lib/model/InfiniteAccessor.ts#L58)
 
 ___
 
@@ -90,7 +90,7 @@ Get whether this accessor is stale or not.
 
 #### Defined in
 
-[model/Accessor.ts:123](https://github.com/jason89521/react-fetch/blob/1201b7b/src/lib/model/Accessor.ts#L123)
+[model/Accessor.ts:123](https://github.com/jason89521/react-fetch/blob/450654d/src/lib/model/Accessor.ts#L123)
 
 ___
 
@@ -112,7 +112,7 @@ Accessor.revalidate
 
 #### Defined in
 
-[model/InfiniteAccessor.ts:49](https://github.com/jason89521/react-fetch/blob/1201b7b/src/lib/model/InfiniteAccessor.ts#L49)
+[model/InfiniteAccessor.ts:49](https://github.com/jason89521/react-fetch/blob/450654d/src/lib/model/InfiniteAccessor.ts#L49)
 
 ___
 
@@ -138,4 +138,4 @@ Set the accessor to be stale.
 
 #### Defined in
 
-[model/Accessor.ts:130](https://github.com/jason89521/react-fetch/blob/1201b7b/src/lib/model/Accessor.ts#L130)
+[model/Accessor.ts:130](https://github.com/jason89521/react-fetch/blob/450654d/src/lib/model/Accessor.ts#L130)

@@ -11,7 +11,7 @@ export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Acc
   Data[],
   E
 > {
-  private action: InfiniteAction<S, Arg, Data>;
+  private action: InfiniteAction<S, Arg, Data, E>;
   private arg: Arg;
   private updateState: (cb: (draft: Draft<S>) => void) => void;
   private data: Data[] = [];
@@ -29,7 +29,7 @@ export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Acc
    */
   constructor(
     arg: Arg,
-    action: InfiniteAction<S, Arg, Data>,
+    action: InfiniteAction<S, Arg, Data, E>,
     updateState: (cb: (draft: Draft<S>) => void) => void,
     getState: () => S,
     modelSubscribe: ModelSubscribe,
