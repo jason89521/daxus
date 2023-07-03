@@ -51,7 +51,7 @@ Get the state of the corresponding model.
 
 #### Defined in
 
-[model/Accessor.ts:45](https://github.com/jason89521/react-fetch/blob/1201b7b/src/lib/model/Accessor.ts#L45)
+[model/Accessor.ts:45](https://github.com/jason89521/react-fetch/blob/450654d/src/lib/model/Accessor.ts#L45)
 
 ## Methods
 
@@ -71,7 +71,7 @@ Get whether this accessor is stale or not.
 
 #### Defined in
 
-[model/Accessor.ts:123](https://github.com/jason89521/react-fetch/blob/1201b7b/src/lib/model/Accessor.ts#L123)
+[model/Accessor.ts:123](https://github.com/jason89521/react-fetch/blob/450654d/src/lib/model/Accessor.ts#L123)
 
 ___
 
@@ -93,7 +93,7 @@ Accessor.revalidate
 
 #### Defined in
 
-[model/NormalAccessor.ts:40](https://github.com/jason89521/react-fetch/blob/1201b7b/src/lib/model/NormalAccessor.ts#L40)
+[model/NormalAccessor.ts:40](https://github.com/jason89521/react-fetch/blob/450654d/src/lib/model/NormalAccessor.ts#L40)
 
 ___
 
@@ -119,4 +119,4 @@ Set the accessor to be stale.
 
 #### Defined in
 
-[model/Accessor.ts:130](https://github.com/jason89521/react-fetch/blob/1201b7b/src/lib/model/Accessor.ts#L130)
+[model/Accessor.ts:130](https://github.com/jason89521/react-fetch/blob/450654d/src/lib/model/Accessor.ts#L130)

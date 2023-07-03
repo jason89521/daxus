@@ -1,6 +1,6 @@
 [react-server-model](../README.md) / InfiniteAccessorCreator
 
-# Interface: InfiniteAccessorCreator<S, Arg, Data\>
+# Interface: InfiniteAccessorCreator<S, Arg, Data, E\>
 
 ## Type parameters
 
@@ -9,6 +9,7 @@
 | `S` |
 | `Arg` |
 | `Data` |
+| `E` |
 
 ## Hierarchy
 
@@ -20,7 +21,7 @@
 
 ### InfiniteAccessorCreator
 
-▸ **InfiniteAccessorCreator**(`arg`): [`InfiniteAccessor`](../classes/InfiniteAccessor.md)<`S`, `Arg`, `Data`, `unknown`\>
+▸ **InfiniteAccessorCreator**(`arg`): [`InfiniteAccessor`](../classes/InfiniteAccessor.md)<`S`, `Arg`, `Data`, `E`\>
 
 #### Parameters
 
@@ -30,11 +31,11 @@
 
 #### Returns
 
-[`InfiniteAccessor`](../classes/InfiniteAccessor.md)<`S`, `Arg`, `Data`, `unknown`\>
+[`InfiniteAccessor`](../classes/InfiniteAccessor.md)<`S`, `Arg`, `Data`, `E`\>
 
 #### Defined in
 
-[model/Model.ts:15](https://github.com/jason89521/react-fetch/blob/1201b7b/src/lib/model/Model.ts#L15)
+[model/Model.ts:15](https://github.com/jason89521/react-fetch/blob/450654d/src/lib/model/Model.ts#L15)
 
 ## Table of contents
 
@@ -64,4 +65,4 @@ BaseAccessorCreator.setIsStale
 
 #### Defined in
 
-[model/Model.ts:9](https://github.com/jason89521/react-fetch/blob/1201b7b/src/lib/model/Model.ts#L9)
+[model/Model.ts:9](https://github.com/jason89521/react-fetch/blob/450654d/src/lib/model/Model.ts#L9)

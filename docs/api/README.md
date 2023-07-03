@@ -44,7 +44,7 @@ react-server-model
 
 #### Defined in
 
-[adapters/paginationAdapter.ts:3](https://github.com/jason89521/react-fetch/blob/1201b7b/src/lib/adapters/paginationAdapter.ts#L3)
+[adapters/paginationAdapter.ts:3](https://github.com/jason89521/react-fetch/blob/450654d/src/lib/adapters/paginationAdapter.ts#L3)
 
 ___
 
@@ -72,7 +72,7 @@ ___
 
 #### Defined in
 
-[hooks/types.ts:51](https://github.com/jason89521/react-fetch/blob/1201b7b/src/lib/hooks/types.ts#L51)
+[hooks/types.ts:51](https://github.com/jason89521/react-fetch/blob/450654d/src/lib/hooks/types.ts#L51)
 
 ## Functions
 
@@ -92,7 +92,7 @@ ___
 
 #### Defined in
 
-[contexts/AccessorOptionsContext.tsx:13](https://github.com/jason89521/react-fetch/blob/1201b7b/src/lib/contexts/AccessorOptionsContext.tsx#L13)
+[contexts/AccessorOptionsContext.tsx:13](https://github.com/jason89521/react-fetch/blob/450654d/src/lib/contexts/AccessorOptionsContext.tsx#L13)
 
 ___
 
@@ -118,14 +118,15 @@ ___
 
 | Name | Type |
 | :------ | :------ |
-| `defineAccessor` | <Arg, Data\>(`type`: ``"normal"``, `action`: [`NormalAction`](interfaces/NormalAction.md)<`S`, `Arg`, `Data`, `unknown`\>) => [`NormalAccessorCreator`](interfaces/NormalAccessorCreator.md)<`S`, `Arg`, `Data`\><Arg, Data\>(`type`: ``"infinite"``, `action`: [`InfiniteAction`](interfaces/InfiniteAction.md)<`S`, `Arg`, `Data`, `unknown`\>) => [`InfiniteAccessorCreator`](interfaces/InfiniteAccessorCreator.md)<`S`, `Arg`, `Data`\> |
+| `defineInfiniteAccessor` | <Arg, Data, E\>(`action`: [`InfiniteAction`](interfaces/InfiniteAction.md)<`S`, `Arg`, `Data`, `E`\>) => [`InfiniteAccessorCreator`](interfaces/InfiniteAccessorCreator.md)<`S`, `Arg`, `Data`, `E`\> |
+| `defineNormalAccessor` | <Arg, Data, E\>(`action`: [`NormalAction`](interfaces/NormalAction.md)<`S`, `Arg`, `Data`, `E`\>) => [`NormalAccessorCreator`](interfaces/NormalAccessorCreator.md)<`S`, `Arg`, `Data`, `E`\> |
 | `getState` | () => `S` |
 | `mutate` | (`fn`: (`draft`: `Draft`<`S`\>) => `void`) => `void` |
 | `setIsStale` | (`isStale`: `boolean`) => `void` |
 
 #### Defined in
 
-[model/Model.ts:18](https://github.com/jason89521/react-fetch/blob/1201b7b/src/lib/model/Model.ts#L18)
+[model/Model.ts:18](https://github.com/jason89521/react-fetch/blob/450654d/src/lib/model/Model.ts#L18)
 
 ___
 
@@ -154,7 +155,7 @@ ___
 
 #### Defined in
 
-[adapters/paginationAdapter.ts:130](https://github.com/jason89521/react-fetch/blob/1201b7b/src/lib/adapters/paginationAdapter.ts#L130)
+[adapters/paginationAdapter.ts:130](https://github.com/jason89521/react-fetch/blob/450654d/src/lib/adapters/paginationAdapter.ts#L130)
 
 ___
 
@@ -188,7 +189,7 @@ ___
 
 #### Defined in
 
-[hooks/useAccessor.ts:18](https://github.com/jason89521/react-fetch/blob/1201b7b/src/lib/hooks/useAccessor.ts#L18)
+[hooks/useAccessor.ts:18](https://github.com/jason89521/react-fetch/blob/450654d/src/lib/hooks/useAccessor.ts#L18)
 
 ▸ **useAccessor**<`S`, `Arg`, `RD`, `SS`, `E`\>(`accessor`, `getSnapshot`, `options?`): [`UseAccessorReturn`](README.md#useaccessorreturn)<`SS` \| `undefined`, `E`, [`NormalAccessor`](classes/NormalAccessor.md)<`S`, `Arg`, `RD`, `E`\> \| ``null``\>
 
@@ -216,7 +217,7 @@ ___
 
 #### Defined in
 
-[hooks/useAccessor.ts:23](https://github.com/jason89521/react-fetch/blob/1201b7b/src/lib/hooks/useAccessor.ts#L23)
+[hooks/useAccessor.ts:23](https://github.com/jason89521/react-fetch/blob/450654d/src/lib/hooks/useAccessor.ts#L23)
 
 ▸ **useAccessor**<`S`, `Arg`, `RD`, `SS`, `E`\>(`accessor`, `getSnapshot`, `options?`): [`UseAccessorReturn`](README.md#useaccessorreturn)<`SS`, `E`, [`InfiniteAccessor`](classes/InfiniteAccessor.md)<`S`, `Arg`, `RD`, `E`\>\>
 
@@ -244,7 +245,7 @@ ___
 
 #### Defined in
 
-[hooks/useAccessor.ts:28](https://github.com/jason89521/react-fetch/blob/1201b7b/src/lib/hooks/useAccessor.ts#L28)
+[hooks/useAccessor.ts:28](https://github.com/jason89521/react-fetch/blob/450654d/src/lib/hooks/useAccessor.ts#L28)
 
 ▸ **useAccessor**<`S`, `Arg`, `RD`, `SS`, `E`\>(`accessor`, `getSnapshot`, `options?`): [`UseAccessorReturn`](README.md#useaccessorreturn)<`SS` \| `undefined`, `E`, [`InfiniteAccessor`](classes/InfiniteAccessor.md)<`S`, `Arg`, `RD`, `E`\> \| ``null``\>
 
@@ -272,7 +273,7 @@ ___
 
 #### Defined in
 
-[hooks/useAccessor.ts:33](https://github.com/jason89521/react-fetch/blob/1201b7b/src/lib/hooks/useAccessor.ts#L33)
+[hooks/useAccessor.ts:33](https://github.com/jason89521/react-fetch/blob/450654d/src/lib/hooks/useAccessor.ts#L33)
 
 ___
 
@@ -299,4 +300,4 @@ ___
 
 #### Defined in
 
-[hooks/useHydrate.ts:3](https://github.com/jason89521/react-fetch/blob/1201b7b/src/lib/hooks/useHydrate.ts#L3)
+[hooks/useHydrate.ts:3](https://github.com/jason89521/react-fetch/blob/450654d/src/lib/hooks/useHydrate.ts#L3)

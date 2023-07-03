@@ -7,7 +7,7 @@ export const postAdapter = createPaginationAdapter<Post>({});
 
 export const postModel = createModel(postAdapter.initialState);
 
-export const getPostById = postModel.defineAccessor('normal', {
+export const getPostById = postModel.defineNormalAccessor({
   fetchData: async (id: number) => {
     const data = await getPostByIdRequest(id);
     return data;
@@ -25,7 +25,7 @@ export const getPostById = postModel.defineAccessor('normal', {
   },
 });
 
-export const getPostList = postModel.defineAccessor<{ layout: PostLayout }, Post[]>('infinite', {
+export const getPostList = postModel.defineInfiniteAccessor<{ layout: PostLayout }, Post[]>({
   fetchData: async ({ layout }, { pageIndex, previousData }) => {
     if (previousData?.length === 0) return null;
     const data = await getPostListRequest({ layout, page: pageIndex });

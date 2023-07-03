@@ -16,7 +16,7 @@ export function createPost(id: number, layout: PostLayout = 'classic'): Post {
 export function createPostModel(control: PostModelControl) {
   const postAdapter = createPaginationAdapter<Post>({});
   const postModel = createModel(postAdapter.initialState);
-  const getPostById = postModel.defineAccessor('normal', {
+  const getPostById = postModel.defineNormalAccessor({
     fetchData: async (id: number) => {
       control.fetchDataMock?.();
 
@@ -45,7 +45,7 @@ export function createPostModel(control: PostModelControl) {
     },
   });
 
-  const getPostList = postModel.defineAccessor<void, Post[]>('infinite', {
+  const getPostList = postModel.defineInfiniteAccessor<void, Post[]>({
     async fetchData(_, { pageIndex }) {
       control.fetchDataMock?.();
 

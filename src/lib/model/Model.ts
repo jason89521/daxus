@@ -8,17 +8,17 @@ import { isServer, stableHash } from '../utils';
 interface BaseAccessorCreator {
   setIsStale(isStale: boolean): void;
 }
-export interface NormalAccessorCreator<S, Arg, Data> extends BaseAccessorCreator {
-  (arg: Arg): NormalAccessor<S, Arg, Data>;
+export interface NormalAccessorCreator<S, Arg, Data, E> extends BaseAccessorCreator {
+  (arg: Arg): NormalAccessor<S, Arg, Data, E>;
 }
-export interface InfiniteAccessorCreator<S, Arg, Data> extends BaseAccessorCreator {
-  (arg: Arg): InfiniteAccessor<S, Arg, Data>;
+export interface InfiniteAccessorCreator<S, Arg, Data, E> extends BaseAccessorCreator {
+  (arg: Arg): InfiniteAccessor<S, Arg, Data, E>;
 }
 
 export function createModel<S extends object>(initialState: S) {
   type Accessor<Arg = any, Data = any> =
-    | NormalAccessor<S, Arg, Data>
-    | InfiniteAccessor<S, Arg, Data>;
+    | NormalAccessor<S, Arg, Data, any>
+    | InfiniteAccessor<S, Arg, Data, any>;
 
   let prefixCounter = 0;
   const serverStateRecord = new WeakMap<object, S>();
@@ -67,47 +67,65 @@ export function createModel<S extends object>(initialState: S) {
     notifyListeners();
   }
 
-  function defineAccessor<Arg, Data>(
-    type: 'normal',
-    action: NormalAction<S, Arg, Data>
-  ): NormalAccessorCreator<S, Arg, Data>;
-  function defineAccessor<Arg, Data>(
-    type: 'infinite',
-    action: InfiniteAction<S, Arg, Data>
-  ): InfiniteAccessorCreator<S, Arg, Data>;
-  function defineAccessor<Arg, Data>(
-    type: 'normal' | 'infinite',
-    action: NormalAction<S, Arg, Data> | InfiniteAction<S, Arg, Data>
-  ) {
+  function defineNormalAccessor<Arg, Data, E = any>(
+    action: NormalAction<S, Arg, Data, E>
+  ): NormalAccessorCreator<S, Arg, Data, E> {
     const prefix = prefixCounter++;
-    const creatorFunc = (arg: Arg) => {
+    const main = (arg: Arg) => {
       const hashArg = stableHash(arg);
       const key = `${prefix}/${hashArg}`;
       const accessor = accessorRecord[key];
       if (accessor) {
-        return accessor;
+        return accessor as NormalAccessor<S, Arg, Data, E>;
       }
-      const newAccessor = (() => {
-        const constructorArgs = [
-          arg,
-          action as any,
-          updateState,
-          getState,
-          subscribe,
-          notifyListeners,
-        ] as const;
-        if (type === 'infinite') {
-          return new InfiniteAccessor(...constructorArgs);
-        }
 
-        return new NormalAccessor(...constructorArgs);
-      })();
+      const newAccessor = new NormalAccessor(
+        arg,
+        action,
+        updateState,
+        getState,
+        subscribe,
+        notifyListeners
+      );
       accessorRecord[key] = newAccessor;
-
       return newAccessor;
     };
 
-    return Object.assign(creatorFunc, {
+    return Object.assign(main, {
+      setIsStale: (isStale: boolean) => {
+        Object.entries(accessorRecord).forEach(([key, accessor]) => {
+          if (key.startsWith(`${prefix}`)) {
+            accessor?.setIsStale(isStale);
+          }
+        });
+      },
+    });
+  }
+
+  function defineInfiniteAccessor<Arg, Data, E = any>(
+    action: InfiniteAction<S, Arg, Data, E>
+  ): InfiniteAccessorCreator<S, Arg, Data, E> {
+    const prefix = prefixCounter++;
+    const main = (arg: Arg) => {
+      const hashArg = stableHash(arg);
+      const key = `${prefix}/${hashArg}`;
+      const accessor = accessorRecord[key];
+      if (accessor) {
+        return accessor as InfiniteAccessor<S, Arg, Data, E>;
+      }
+      const newAccessor = new InfiniteAccessor(
+        arg,
+        action,
+        updateState,
+        getState,
+        subscribe,
+        notifyListeners
+      );
+      accessorRecord[key] = newAccessor;
+      return newAccessor;
+    };
+
+    return Object.assign(main, {
       setIsStale: (isStale: boolean) => {
         Object.entries(accessorRecord).forEach(([key, accessor]) => {
           if (key.startsWith(`${prefix}`)) {
@@ -124,5 +142,5 @@ export function createModel<S extends object>(initialState: S) {
     });
   }
 
-  return { mutate, defineAccessor, getState, setIsStale };
+  return { mutate, defineInfiniteAccessor, defineNormalAccessor, getState, setIsStale };
 }

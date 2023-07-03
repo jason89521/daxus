@@ -1,6 +1,6 @@
 [react-server-model](../README.md) / NormalAccessorCreator
 
-# Interface: NormalAccessorCreator<S, Arg, Data\>
+# Interface: NormalAccessorCreator<S, Arg, Data, E\>
 
 ## Type parameters
 
@@ -9,6 +9,7 @@
 | `S` |
 | `Arg` |
 | `Data` |
+| `E` |
 
 ## Hierarchy
 
@@ -20,7 +21,7 @@
 
 ### NormalAccessorCreator
 
-▸ **NormalAccessorCreator**(`arg`): [`NormalAccessor`](../classes/NormalAccessor.md)<`S`, `Arg`, `Data`, `unknown`\>
+▸ **NormalAccessorCreator**(`arg`): [`NormalAccessor`](../classes/NormalAccessor.md)<`S`, `Arg`, `Data`, `E`\>
 
 #### Parameters
 
@@ -30,11 +31,11 @@
 
 #### Returns
 
-[`NormalAccessor`](../classes/NormalAccessor.md)<`S`, `Arg`, `Data`, `unknown`\>
+[`NormalAccessor`](../classes/NormalAccessor.md)<`S`, `Arg`, `Data`, `E`\>
 
 #### Defined in
 
-[model/Model.ts:12](https://github.com/jason89521/react-fetch/blob/1201b7b/src/lib/model/Model.ts#L12)
+[model/Model.ts:12](https://github.com/jason89521/react-fetch/blob/450654d/src/lib/model/Model.ts#L12)
 
 ## Table of contents
 
@@ -64,4 +65,4 @@ BaseAccessorCreator.setIsStale
 
 #### Defined in
 
-[model/Model.ts:9](https://github.com/jason89521/react-fetch/blob/1201b7b/src/lib/model/Model.ts#L9)
+[model/Model.ts:9](https://github.com/jason89521/react-fetch/blob/450654d/src/lib/model/Model.ts#L9)
