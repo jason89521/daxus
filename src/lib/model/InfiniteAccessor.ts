@@ -172,16 +172,16 @@ export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Acc
         if (this.isExpiredFetching(startAt)) return null;
 
         if (error) {
-          this.updateStatus({ error, isFetching: false });
+          this.updateStatus({ error });
           this.action.onError?.({ error, arg });
         } else {
           this.flush(data, { start: pageIndex });
           this.updateData(data);
-          this.updateStatus({ error: null, isFetching: false });
+          this.updateStatus({ error: null });
           this.action.onSuccess?.({ data, arg });
         }
         this.currentTask = 'idle';
-        this.onFetchingSuccess();
+        this.onFetchingFinish();
         return data;
       } catch (error) {
         // This error happens when any fetching is aborted.

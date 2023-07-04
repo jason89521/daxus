@@ -64,8 +64,7 @@ export class NormalAccessor<S, Arg = any, Data = any, E = unknown> extends Acces
           this.action.onError?.({ error: error!, arg });
         }
         this.notifyModel();
-        this.updateStatus({ isFetching: false });
-        this.onFetchingSuccess();
+        this.onFetchingFinish();
         return data;
       } catch (error) {
         // This error happens when any fetching is aborted.
