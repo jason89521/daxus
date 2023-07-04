@@ -34,19 +34,19 @@ Daxus is a server state management library that emphasizes developer control ove
 
 ## Comparison
 
-|                             | `Daxus` | `React Query` | `Redux` |
-| --------------------------- | :-----: | :-----------: | :-----: |
-| Customizable data structure |   ✅    |      ❌       |   ✅    |
-| Dedupe                      |   ✅    |      ✅       |   ❌    |
-| Revalidate on focus         |   ✅    |      ✅       |   ❌    |
-| Revalidate on reconnect     |   ✅    |      ✅       |   ❌    |
-| Revalidate if stale         |   ✅    |      ✅       |   ❌    |
-| Polling                     |   ✅    |      ✅       |   ❌    |
-| Error retry                 |   ✅    |      ✅       |   ❌    |
-| Invalidate queries          |   ✅    |      ✅       |   ❌    |
-| Mutation                    |   ✅    |      ✅       |   ✅    |
-| Conditional fetching        |   ✅    |      ✅       |   ❌    |
-| DevTool                     |   ❌    |      ✅       |   ✅    |
+|                             | `Daxus` | `React Query` | `Redux With Async Thunk` |
+| --------------------------- | :-----: | :-----------: | :----------------------: |
+| Customizable data structure |   ✅    |      ❌       |            ✅            |
+| Dedupe                      |   ✅    |      ✅       |            ❌            |
+| Revalidate on focus         |   ✅    |      ✅       |            ❌            |
+| Revalidate on reconnect     |   ✅    |      ✅       |            ❌            |
+| Revalidate if stale         |   ✅    |      ✅       |            ❌            |
+| Polling                     |   ✅    |      ✅       |            ❌            |
+| Error retry                 |   ✅    |      ✅       |            ❌            |
+| Invalidate queries          |   ✅    |      ✅       |            ❌            |
+| Mutation                    |   ✅    |      ✅       |            ✅            |
+| Conditional fetching        |   ✅    |      ✅       |            ❌            |
+| DevTool                     |   ❌    |      ✅       |            ✅            |
 
 ## Installation
 
