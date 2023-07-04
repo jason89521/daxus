@@ -1,7 +1,7 @@
-import { getCurrentTime } from '../utils';
-import type { ModelSubscribe } from './Accessor';
-import { Accessor } from './Accessor';
-import type { InfiniteAction } from './types';
+import { getCurrentTime } from '../utils/index.js';
+import type { ModelSubscribe } from './Accessor.js';
+import { Accessor } from './Accessor.js';
+import type { InfiniteAction } from './types.js';
 import type { Draft } from 'immer';
 
 type Task = 'validate' | 'next' | 'idle';

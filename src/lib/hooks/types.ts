@@ -1,4 +1,4 @@
-import type { Accessor } from '../model';
+import type { Accessor } from '../model/index.js';
 
 /**
  * @param <S> The snapshot of the state.

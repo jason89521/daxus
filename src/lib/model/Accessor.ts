@@ -1,7 +1,7 @@
-import { defaultOptions } from '../constants';
-import type { AccessorOptions } from '../hooks/types';
+import { defaultOptions } from '../constants.js';
+import type { AccessorOptions } from '../hooks/types.js';
 import type { MutableRefObject } from 'react';
-import { isUndefined } from '../utils';
+import { isUndefined } from '../utils/index.js';
 
 export type Status<E = unknown> = {
   isFetching: boolean;

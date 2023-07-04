@@ -1,6 +1,6 @@
 // This file is copied from swr's stableHash.ts
 
-import { isUndefined } from './isUndefined';
+import { isUndefined } from './isUndefined.js';
 
 // use WeakMap to store the object->key mapping
 // so the objects can be garbage collected.

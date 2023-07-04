@@ -1,6 +1,6 @@
 import { act, fireEvent, waitFor } from '@testing-library/react';
-import { useAccessor } from '../lib';
-import { createPostModel, createControl, renderWithOptionsProvider, sleep } from './utils';
+import { useAccessor } from '../lib/index.js';
+import { createPostModel, createControl, renderWithOptionsProvider, sleep } from './utils.js';
 import { useState } from 'react';
 
 describe('useAccessor-normal pollingInterval', () => {

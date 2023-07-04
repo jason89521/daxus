@@ -1,7 +1,7 @@
-import { getCurrentTime } from '../utils';
-import type { ModelSubscribe } from './Accessor';
-import { Accessor } from './Accessor';
-import type { NormalAction } from './types';
+import { getCurrentTime } from '../utils/index.js';
+import type { ModelSubscribe } from './Accessor.js';
+import { Accessor } from './Accessor.js';
+import type { NormalAction } from './types.js';
 import type { Draft } from 'immer';
 
 /**

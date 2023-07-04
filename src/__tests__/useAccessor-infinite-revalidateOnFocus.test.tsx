@@ -1,6 +1,6 @@
 import { act, fireEvent, screen } from '@testing-library/react';
-import { useAccessor } from '../lib';
-import { createPostModel, createControl, sleep, renderWithOptionsProvider } from './utils';
+import { useAccessor } from '../lib/index.js';
+import { createPostModel, createControl, sleep, renderWithOptionsProvider } from './utils.js';
 
 describe('useAccessor-infinite revalidateOnFocus', () => {
   test('should revalidate when window get focused', async () => {

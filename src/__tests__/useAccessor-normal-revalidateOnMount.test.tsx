@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
-import { useAccessor } from '../lib';
-import type { PostModelControl } from './types';
-import { createPost, createPostModel } from './utils';
+import { useAccessor } from '../lib/index.js';
+import type { PostModelControl } from './types.js';
+import { createPost, createPostModel } from './utils.js';
 
 describe('useAccessor-normal revalidateOnMount', () => {
   test('should always revalidate if revalidateOnMount is true', async () => {

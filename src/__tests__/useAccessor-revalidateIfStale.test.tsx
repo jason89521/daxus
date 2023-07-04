@@ -1,6 +1,6 @@
 import { waitFor } from '@testing-library/react';
-import { useAccessor } from '../lib';
-import { createControl, createPost, createPostModel, renderWithOptionsProvider } from './utils';
+import { useAccessor } from '../lib/index.js';
+import { createControl, createPost, createPostModel, renderWithOptionsProvider } from './utils.js';
 
 describe('useAccessor-normal revalidateIfStale', () => {
   test('should revalidate if the data is marked as stale', async () => {

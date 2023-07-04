@@ -2,7 +2,7 @@
  * @vitest-environment node
  */
 
-import { createControl, createPost, createPostModel } from './utils';
+import { createControl, createPost, createPostModel } from './utils.js';
 
 const control = createControl({});
 

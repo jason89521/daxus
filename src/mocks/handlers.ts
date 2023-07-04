@@ -1,5 +1,5 @@
 import { rest } from 'msw';
-import type { Post } from '../types';
+import type { Post } from '../types.js';
 
 const TOTAL_POST_NUM = 50;
 

@@ -1,6 +1,6 @@
-import { useAccessor } from '../lib';
+import { useAccessor } from '../lib/index.js';
 import { act, render, screen } from '@testing-library/react';
-import { createPostModel, createControl, sleep } from './utils';
+import { createPostModel, createControl, sleep } from './utils.js';
 
 describe('useAccessor-normal dedupeInterval', () => {
   test('should sync state with the data from the latest request', async () => {

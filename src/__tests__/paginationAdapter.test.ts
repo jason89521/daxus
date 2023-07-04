@@ -1,6 +1,6 @@
-import { createPaginationAdapter } from '../lib';
-import type { Post } from '../types';
-import { createPost } from './utils';
+import { createPaginationAdapter } from '../lib/index.js';
+import type { Post } from '../types.js';
+import { createPost } from './utils.js';
 
 describe('paginationAdapter', () => {
   const post0 = createPost(0);

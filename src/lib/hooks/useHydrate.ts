@@ -1,5 +1,5 @@
-import { useServerStateKeyContext } from '../contexts';
-import { isServer } from '../utils';
+import { useServerStateKeyContext } from '../contexts/index.js';
+import { isServer } from '../utils/index.js';
 
 const dataset = new WeakSet();
 
