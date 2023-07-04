@@ -140,7 +140,7 @@ const getPostById = postModel.defineNormalAccessor<number, Post>({
 
 There are two type of the accessors. One is `normal`, the other one is `infinite`. You can use `model.defineNormalAccessor` to define a normal accessor, and use `model.defineInfiniteAccessor` to define an infinite accessor. Typically, you would only use `infinite` when implementing infinite loading. In most cases, `normal` is sufficient.
 
-The second argument is the accessor's **action**. `fetchData` tells the accessor how to fetch data from the server, while `syncState` specifies how to synchronize the obtained data with the model's state.
+The argument is the accessor's **action**. `fetchData` tells the accessor how to fetch data from the server, while `syncState` specifies how to synchronize the obtained data with the model's state.
 
 `defineNormalAccessor` and `defineInfiniteAccessor` returns an accessor creator function. If you pass the same arguments to it, it will return the same accessor. Next, we will use the accessor created by `defineNormalAccessor` with the `useAccessor` hook.
 
