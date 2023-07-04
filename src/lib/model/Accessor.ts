@@ -204,13 +204,22 @@ export abstract class Accessor<S, D, E> {
     this.updateStatus({ isFetching: true });
   };
 
-  protected onFetchingSuccess = () => {
+  /**
+   * Call this method after the fetching is done.
+   * This method would
+   * - Check whether it need to start polling
+   * - Reset the `fetchPromise`
+   * - Update the `status.isFetching` to false
+   * - Mark this accessor to be stale
+   */
+  protected onFetchingFinish = () => {
     const { pollingInterval } = this.getOptions();
     if (pollingInterval > 0) {
       this.pollingTimeoutId = window.setTimeout(this.invokePollingRevalidation, pollingInterval);
     }
     this.fetchPromise = Promise.resolve(null);
-    this.isStale = false;
+    this.updateStatus({ isFetching: false });
+    this.isStale = true;
   };
 
   private getFirstOptionsRef = () => {
