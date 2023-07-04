@@ -1,5 +1,5 @@
-import type { RequiredAccessorOptions } from './hooks/types';
-import { isUndefined } from './utils';
+import type { RequiredAccessorOptions } from './hooks/types.js';
+import { isUndefined } from './utils/index.js';
 
 export const defaultOptions: RequiredAccessorOptions = {
   retryCount: 3,

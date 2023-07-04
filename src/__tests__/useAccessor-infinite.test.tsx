@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, act, waitFor } from '@testing-library/react';
-import { useAccessor } from '../lib';
-import { createPost, createPostModel, createControl, sleep } from './utils';
-import type { PostModelControl } from './types';
+import { useAccessor } from '../lib/index.js';
+import { createPost, createPostModel, createControl, sleep } from './utils.js';
+import type { PostModelControl } from './types.js';
 
 describe('useAccessor-infinite', () => {
   test('should be able to update the cache', async () => {

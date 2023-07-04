@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { createPostModel, createControl, renderWithOptionsProvider, sleep } from './utils';
-import { useAccessor } from '../lib';
+import { createPostModel, createControl, renderWithOptionsProvider, sleep } from './utils.js';
+import { useAccessor } from '../lib/index.js';
 import { fireEvent, waitFor, act } from '@testing-library/react';
 
 describe('useAccessor-infinite pollingInterval', () => {

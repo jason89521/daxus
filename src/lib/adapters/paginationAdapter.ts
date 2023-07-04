@@ -1,4 +1,4 @@
-import { isNumber, isString, isNonNullable } from '../utils';
+import { isNumber, isString, isNonNullable } from '../utils/index.js';
 
 export type Id = string | number;
 

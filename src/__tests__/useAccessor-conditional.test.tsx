@@ -1,6 +1,6 @@
 import { waitFor } from '@testing-library/react';
-import { useAccessor } from '../lib';
-import { createControl, createPostModel, renderWithOptionsProvider } from './utils';
+import { useAccessor } from '../lib/index.js';
+import { createControl, createPostModel, renderWithOptionsProvider } from './utils.js';
 
 describe('useAccessor-normal conditional accessor', () => {
   test('should fetch only when accessor is appeared', async () => {

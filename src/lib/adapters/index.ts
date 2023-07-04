@@ -1,1 +1,1 @@
-export * from './paginationAdapter';
+export * from './paginationAdapter.js';

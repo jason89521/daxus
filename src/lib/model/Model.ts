@@ -1,9 +1,9 @@
 import { createDraft, finishDraft } from 'immer';
 import type { Draft } from 'immer';
-import type { InfiniteAction, NormalAction } from './types';
-import { NormalAccessor } from './NormalAccessor';
-import { InfiniteAccessor } from './InfiniteAccessor';
-import { isServer, stableHash } from '../utils';
+import type { InfiniteAction, NormalAction } from './types.js';
+import { NormalAccessor } from './NormalAccessor.js';
+import { InfiniteAccessor } from './InfiniteAccessor.js';
+import { isServer, stableHash } from '../utils/index.js';
 
 interface BaseAccessorCreator {
   invalidate(): void;

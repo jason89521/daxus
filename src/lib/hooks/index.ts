@@ -1,2 +1,2 @@
-export * from './useAccessor';
-export * from './useHydrate';
+export * from './useAccessor.js';
+export * from './useHydrate.js';

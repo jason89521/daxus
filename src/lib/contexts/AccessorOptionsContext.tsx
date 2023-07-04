@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react';
 import { useMemo } from 'react';
 import { createContext } from 'react';
-import { defaultOptions } from '../constants';
-import type { AccessorOptions } from '../hooks/types';
+import { defaultOptions } from '../constants.js';
+import type { AccessorOptions } from '../hooks/types.js';
 
 export const accessorOptionsContext = createContext(defaultOptions);
 

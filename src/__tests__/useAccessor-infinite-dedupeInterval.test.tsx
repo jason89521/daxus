@@ -1,6 +1,6 @@
-import { useAccessor } from '../lib';
-import type { PostModelControl } from './types';
-import { createPost, createPostModel, sleep } from './utils';
+import { useAccessor } from '../lib/index.js';
+import type { PostModelControl } from './types.js';
+import { createPost, createPostModel, sleep } from './utils.js';
 import { render, act, screen } from '@testing-library/react';
 
 describe('useAccessor-infinite dedupeInterval', () => {

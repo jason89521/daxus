@@ -1,7 +1,7 @@
 import { act, render } from '@testing-library/react';
-import { useAccessor, useHydrate } from '../lib';
-import type { Post } from '../types';
-import { createPost, createPostModel, createControl, sleep } from './utils';
+import { useAccessor, useHydrate } from '../lib/index.js';
+import type { Post } from '../types.js';
+import { createPost, createPostModel, createControl, sleep } from './utils.js';
 import { renderToString } from 'react-dom/server';
 
 describe('useHydrate', () => {

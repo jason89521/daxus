@@ -1,23 +1,26 @@
-import type { InfiniteAction, NormalAction } from './model/types';
-import type { InfiniteAccessorCreator, NormalAccessorCreator } from './model/Model';
-import type { AccessorOptions, UseAccessorReturn } from './hooks/types';
-import type { NormalAccessor, InfiniteAccessor, Accessor } from './model';
-import type { AccessorOptionsProviderProps, ServerStateKeyProviderProps } from './contexts';
+import type { InfiniteAction, NormalAction } from './model/types.js';
+import type { InfiniteAccessorCreator, NormalAccessorCreator } from './model/Model.js';
+import type { AccessorOptions, UseAccessorReturn } from './hooks/types.js';
+import type { NormalAccessor, InfiniteAccessor, Accessor } from './model/index.js';
+import type {
+  AccessorOptionsProviderProps,
+  ServerStateKeyProviderProps,
+} from './contexts/index.js';
 import type {
   PaginationAdapter,
   Pagination,
   PaginationMeta,
   PaginationState,
   Id,
-} from './adapters';
-import { createModel } from './model';
-import { useAccessor, useHydrate } from './hooks';
-import { createPaginationAdapter } from './adapters';
+} from './adapters/index.js';
+import { createModel } from './model/index.js';
+import { useAccessor, useHydrate } from './hooks/index.js';
+import { createPaginationAdapter } from './adapters/index.js';
 import {
   AccessorOptionsProvider,
   ServerStateKeyProvider,
   useServerStateKeyContext,
-} from './contexts';
+} from './contexts/index.js';
 
 export type {
   AccessorOptions,
