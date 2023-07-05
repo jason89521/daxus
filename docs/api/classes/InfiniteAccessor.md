@@ -57,7 +57,7 @@ Get the state of the corresponding model.
 
 #### Defined in
 
-[model/Accessor.ts:42](https://github.com/jason89521/react-fetch/blob/1011800/src/lib/model/Accessor.ts#L42)
+[model/Accessor.ts:42](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/model/Accessor.ts#L42)
 
 ## Methods
 
@@ -75,7 +75,7 @@ The all pages if it is not interrupted by the other revalidation, otherwise retu
 
 #### Defined in
 
-[model/InfiniteAccessor.ts:58](https://github.com/jason89521/react-fetch/blob/1011800/src/lib/model/InfiniteAccessor.ts#L58)
+[model/InfiniteAccessor.ts:58](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/model/InfiniteAccessor.ts#L58)
 
 ___
 
@@ -93,7 +93,7 @@ ___
 
 #### Defined in
 
-[model/Accessor.ts:126](https://github.com/jason89521/react-fetch/blob/1011800/src/lib/model/Accessor.ts#L126)
+[model/Accessor.ts:126](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/model/Accessor.ts#L126)
 
 ___
 
@@ -115,4 +115,4 @@ Accessor.revalidate
 
 #### Defined in
 
-[model/InfiniteAccessor.ts:49](https://github.com/jason89521/react-fetch/blob/1011800/src/lib/model/InfiniteAccessor.ts#L49)
+[model/InfiniteAccessor.ts:49](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/model/InfiniteAccessor.ts#L49)
