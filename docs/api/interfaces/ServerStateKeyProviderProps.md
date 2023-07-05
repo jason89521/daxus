@@ -7,7 +7,6 @@
 ### Properties
 
 - [children](ServerStateKeyProviderProps.md#children)
-- [value](ServerStateKeyProviderProps.md#value)
 
 ## Properties
 
@@ -17,14 +16,4 @@
 
 #### Defined in
 
-[contexts/ServerStateKeyContext.tsx:8](https://github.com/jason89521/react-fetch/blob/1011800/src/lib/contexts/ServerStateKeyContext.tsx#L8)
-
-___
-
-### value
-
-• **value**: `object`
-
-#### Defined in
-
-[contexts/ServerStateKeyContext.tsx:7](https://github.com/jason89521/react-fetch/blob/1011800/src/lib/contexts/ServerStateKeyContext.tsx#L7)
+[contexts/ServerStateKeyContext.tsx:7](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/contexts/ServerStateKeyContext.tsx#L7)
