@@ -29,10 +29,10 @@ export function createModel<S extends object>(initialState: S) {
   function updateState(fn: (draft: Draft<S>) => void, serverStateKey?: object) {
     if (isServer() && serverStateKey) {
       const serverState = serverStateRecord.get(serverStateKey) ?? { ...initialState };
-      serverStateRecord.set(serverStateKey, serverState);
       const draft = createDraft(serverState);
       fn(draft);
       serverStateRecord.set(serverStateKey, finishDraft(draft) as S);
+      return;
     }
 
     const draft = createDraft(clientState);
