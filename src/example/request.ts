@@ -1,4 +1,4 @@
-import type { Post, PostLayout } from '../types';
+import type { Post, PostLayout } from '../types.js';
 import axios from 'axios';
 
 const PORT = 5173;

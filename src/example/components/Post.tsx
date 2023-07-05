@@ -1,5 +1,5 @@
-import type { AccessorOptions } from '../../lib/hooks/types';
-import { usePost } from '../hooks';
+import type { AccessorOptions } from '../../lib/hooks/types.js';
+import { usePost } from '../hooks/index.js';
 
 interface Props extends AccessorOptions {
   id: number;

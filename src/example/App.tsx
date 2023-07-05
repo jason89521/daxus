@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { Post, PostList } from './components';
+import { Post, PostList } from './components/index.js';
 
-import { postAdapter, postModel, getPostById } from './model';
-import { usePost } from './hooks';
-import { updatePostLayoutById } from './request';
+import { postAdapter, postModel, getPostById } from './model/index.js';
+import { usePost } from './hooks/index.js';
+import { updatePostLayoutById } from './request.js';
 
 function UpdateButton({ id }: { id: number }) {
   const { post } = usePost({ id });

@@ -47,7 +47,7 @@ daxus
 
 #### Defined in
 
-[adapters/paginationAdapter.ts:3](https://github.com/jason89521/react-fetch/blob/27b98d0/src/lib/adapters/paginationAdapter.ts#L3)
+[adapters/paginationAdapter.ts:3](https://github.com/jason89521/react-fetch/blob/1011800/src/lib/adapters/paginationAdapter.ts#L3)
 
 ___
 
@@ -75,7 +75,7 @@ ___
 
 #### Defined in
 
-[hooks/types.ts:51](https://github.com/jason89521/react-fetch/blob/27b98d0/src/lib/hooks/types.ts#L51)
+[hooks/types.ts:61](https://github.com/jason89521/react-fetch/blob/1011800/src/lib/hooks/types.ts#L61)
 
 ## Functions
 
@@ -95,7 +95,7 @@ ___
 
 #### Defined in
 
-[contexts/AccessorOptionsContext.tsx:13](https://github.com/jason89521/react-fetch/blob/27b98d0/src/lib/contexts/AccessorOptionsContext.tsx#L13)
+[contexts/AccessorOptionsContext.tsx:14](https://github.com/jason89521/react-fetch/blob/1011800/src/lib/contexts/AccessorOptionsContext.tsx#L14)
 
 ___
 
@@ -115,7 +115,7 @@ ___
 
 #### Defined in
 
-[contexts/ServerStateKeyContext.tsx:15](https://github.com/jason89521/react-fetch/blob/27b98d0/src/lib/contexts/ServerStateKeyContext.tsx#L15)
+[contexts/ServerStateKeyContext.tsx:15](https://github.com/jason89521/react-fetch/blob/1011800/src/lib/contexts/ServerStateKeyContext.tsx#L15)
 
 ___
 
@@ -149,7 +149,7 @@ ___
 
 #### Defined in
 
-[model/Model.ts:18](https://github.com/jason89521/react-fetch/blob/27b98d0/src/lib/model/Model.ts#L18)
+[model/Model.ts:18](https://github.com/jason89521/react-fetch/blob/1011800/src/lib/model/Model.ts#L18)
 
 ___
 
@@ -178,7 +178,7 @@ ___
 
 #### Defined in
 
-[adapters/paginationAdapter.ts:130](https://github.com/jason89521/react-fetch/blob/27b98d0/src/lib/adapters/paginationAdapter.ts#L130)
+[adapters/paginationAdapter.ts:130](https://github.com/jason89521/react-fetch/blob/1011800/src/lib/adapters/paginationAdapter.ts#L130)
 
 ___
 
@@ -202,7 +202,7 @@ ___
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `accessor` | [`NormalAccessor`](classes/NormalAccessor.md)<`S`, `Arg`, `RD`, `E`\> | The accessor generated from an accessor creator function. It can be `null`. This may be useful when you want conditional fetching. |
+| `accessor` | [`NormalAccessor`](classes/NormalAccessor.md)<`S`, `Arg`, `RD`, `E`\> | A normal accessor. |
 | `getSnapshot` | (`state`: `S`) => `SS` | A function that accepts the state of the `accessor`'s model and returns the desired data. |
 | `options?` | [`AccessorOptions`](interfaces/AccessorOptions.md)<`SS`\> | Additional options for controlling the behavior of the accessor. |
 
@@ -212,9 +212,11 @@ ___
 
 #### Defined in
 
-[hooks/useAccessor.ts:18](https://github.com/jason89521/react-fetch/blob/27b98d0/src/lib/hooks/useAccessor.ts#L18)
+[hooks/useAccessor.ts:18](https://github.com/jason89521/react-fetch/blob/1011800/src/lib/hooks/useAccessor.ts#L18)
 
 ▸ **useAccessor**<`S`, `Arg`, `RD`, `SS`, `E`\>(`accessor`, `getSnapshot`, `options?`): [`UseAccessorReturn`](README.md#useaccessorreturn)<`SS` \| `undefined`, `E`, [`NormalAccessor`](classes/NormalAccessor.md)<`S`, `Arg`, `RD`, `E`\> \| ``null``\>
+
+`useAccessor` hook provides a way to access and manage data fetched by an accessor.
 
 #### Type parameters
 
@@ -228,11 +230,11 @@ ___
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `accessor` | ``null`` \| [`NormalAccessor`](classes/NormalAccessor.md)<`S`, `Arg`, `RD`, `E`\> |
-| `getSnapshot` | (`state`: `S`) => `SS` |
-| `options?` | [`AccessorOptions`](interfaces/AccessorOptions.md)<`SS`\> |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `accessor` | ``null`` \| [`NormalAccessor`](classes/NormalAccessor.md)<`S`, `Arg`, `RD`, `E`\> | A normal accessor or `null`. It is useful when you want conditional fetching. |
+| `getSnapshot` | (`state`: `S`) => `SS` | A function that accepts the state of the `accessor`'s model and returns the desired data. |
+| `options?` | [`AccessorOptions`](interfaces/AccessorOptions.md)<`SS`\> | Additional options for controlling the behavior of the accessor. |
 
 #### Returns
 
@@ -240,9 +242,11 @@ ___
 
 #### Defined in
 
-[hooks/useAccessor.ts:23](https://github.com/jason89521/react-fetch/blob/27b98d0/src/lib/hooks/useAccessor.ts#L23)
+[hooks/useAccessor.ts:29](https://github.com/jason89521/react-fetch/blob/1011800/src/lib/hooks/useAccessor.ts#L29)
 
 ▸ **useAccessor**<`S`, `Arg`, `RD`, `SS`, `E`\>(`accessor`, `getSnapshot`, `options?`): [`UseAccessorReturn`](README.md#useaccessorreturn)<`SS`, `E`, [`InfiniteAccessor`](classes/InfiniteAccessor.md)<`S`, `Arg`, `RD`, `E`\>\>
+
+`useAccessor` hook provides a way to access and manage data fetched by an accessor.
 
 #### Type parameters
 
@@ -256,11 +260,11 @@ ___
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `accessor` | [`InfiniteAccessor`](classes/InfiniteAccessor.md)<`S`, `Arg`, `RD`, `E`\> |
-| `getSnapshot` | (`state`: `S`) => `SS` |
-| `options?` | [`AccessorOptions`](interfaces/AccessorOptions.md)<`SS`\> |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `accessor` | [`InfiniteAccessor`](classes/InfiniteAccessor.md)<`S`, `Arg`, `RD`, `E`\> | A infinite accessor. |
+| `getSnapshot` | (`state`: `S`) => `SS` | A function that accepts the state of the `accessor`'s model and returns the desired data. |
+| `options?` | [`AccessorOptions`](interfaces/AccessorOptions.md)<`SS`\> | Additional options for controlling the behavior of the accessor. |
 
 #### Returns
 
@@ -268,9 +272,11 @@ ___
 
 #### Defined in
 
-[hooks/useAccessor.ts:28](https://github.com/jason89521/react-fetch/blob/27b98d0/src/lib/hooks/useAccessor.ts#L28)
+[hooks/useAccessor.ts:40](https://github.com/jason89521/react-fetch/blob/1011800/src/lib/hooks/useAccessor.ts#L40)
 
 ▸ **useAccessor**<`S`, `Arg`, `RD`, `SS`, `E`\>(`accessor`, `getSnapshot`, `options?`): [`UseAccessorReturn`](README.md#useaccessorreturn)<`SS` \| `undefined`, `E`, [`InfiniteAccessor`](classes/InfiniteAccessor.md)<`S`, `Arg`, `RD`, `E`\> \| ``null``\>
+
+`useAccessor` hook provides a way to access and manage data fetched by an accessor.
 
 #### Type parameters
 
@@ -284,11 +290,11 @@ ___
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `accessor` | ``null`` \| [`InfiniteAccessor`](classes/InfiniteAccessor.md)<`S`, `Arg`, `RD`, `E`\> |
-| `getSnapshot` | (`state`: `S`) => `SS` |
-| `options?` | [`AccessorOptions`](interfaces/AccessorOptions.md)<`SS`\> |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `accessor` | ``null`` \| [`InfiniteAccessor`](classes/InfiniteAccessor.md)<`S`, `Arg`, `RD`, `E`\> | A infinite accessor or `null`. It is useful when you want conditional fetching. |
+| `getSnapshot` | (`state`: `S`) => `SS` | A function that accepts the state of the `accessor`'s model and returns the desired data. |
+| `options?` | [`AccessorOptions`](interfaces/AccessorOptions.md)<`SS`\> | Additional options for controlling the behavior of the accessor. |
 
 #### Returns
 
@@ -296,13 +302,16 @@ ___
 
 #### Defined in
 
-[hooks/useAccessor.ts:33](https://github.com/jason89521/react-fetch/blob/27b98d0/src/lib/hooks/useAccessor.ts#L33)
+[hooks/useAccessor.ts:51](https://github.com/jason89521/react-fetch/blob/1011800/src/lib/hooks/useAccessor.ts#L51)
 
 ___
 
 ### useHydrate
 
 ▸ **useHydrate**<`T`\>(`data`, `update`): `void`
+
+This function will call the `update` when the data change.
+You can use it for server side render.
 
 #### Type parameters
 
@@ -312,10 +321,10 @@ ___
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `data` | `T` |
-| `update` | (`serverStateKey?`: `object`) => `void` |
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `data` | `T` | This data will be store in a weak set, if it doesn't appear in the weak set, the `update` function will be invoked. |
+| `update` | (`serverStateKey?`: `object`) => `void` | A function which receive a server state key. You should pass this key when you mutate any model. |
 
 #### Returns
 
@@ -323,7 +332,7 @@ ___
 
 #### Defined in
 
-[hooks/useHydrate.ts:6](https://github.com/jason89521/react-fetch/blob/27b98d0/src/lib/hooks/useHydrate.ts#L6)
+[hooks/useHydrate.ts:12](https://github.com/jason89521/react-fetch/blob/1011800/src/lib/hooks/useHydrate.ts#L12)
 
 ___
 
@@ -337,4 +346,4 @@ ___
 
 #### Defined in
 
-[contexts/ServerStateKeyContext.tsx:11](https://github.com/jason89521/react-fetch/blob/27b98d0/src/lib/contexts/ServerStateKeyContext.tsx#L11)
+[contexts/ServerStateKeyContext.tsx:11](https://github.com/jason89521/react-fetch/blob/1011800/src/lib/contexts/ServerStateKeyContext.tsx#L11)

@@ -1,1 +1,1 @@
-export * from './usePost';
+export * from './usePost.js';

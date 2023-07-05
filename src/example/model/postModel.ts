@@ -1,7 +1,10 @@
-import type { Post, PostLayout } from '../../types';
-import { createModel } from '../../lib';
-import { createPaginationAdapter } from '../../lib';
-import { getPostById as getPostByIdRequest, getPostList as getPostListRequest } from '../request';
+import type { Post, PostLayout } from '../../types.js';
+import { createModel } from '../../lib/index.js';
+import { createPaginationAdapter } from '../../lib/index.js';
+import {
+  getPostById as getPostByIdRequest,
+  getPostList as getPostListRequest,
+} from '../request.js';
 
 export const postAdapter = createPaginationAdapter<Post>({});
 
