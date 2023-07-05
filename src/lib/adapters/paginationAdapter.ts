@@ -26,7 +26,7 @@ export interface PaginationAdapter<Data, RawData = Data> {
   createOne(draft: PaginationState<Data>, rawData: RawData): void;
   /**
    * Try to read the data with the specified id.
-   * If it is not existed, return `undefined`.
+   * If it does not exist, return `undefined`.
    */
   tryReadOne(state: PaginationState<Data>, id: Id): Data | undefined;
   /**
@@ -35,12 +35,12 @@ export interface PaginationAdapter<Data, RawData = Data> {
    */
   tryReadOneFactory(id: Id): (state: PaginationState<Data>) => Data | undefined;
   /**
-   * Read the data with the specify id. If the data is not existed, it will throw an error.
+   * Read the data with the specify id. If the data does not exist, it will throw an error.
    * This function is useful when you are sure that the data is existed.
    */
   readOne(state: PaginationState<Data>, id: Id): Data;
   /**
-   * Update the entity with the new data. If the entity is not existed, do nothing.
+   * Update the entity with the new data. If the entity does not exist, do nothing.
    */
   updateOne(draft: PaginationState<Data>, id: Id, data: Partial<Data>): void;
   /**
@@ -48,11 +48,11 @@ export interface PaginationAdapter<Data, RawData = Data> {
    */
   deleteOne(draft: PaginationState<Data>, id: Id): void;
   /**
-   * Update the entity with the data. If the entity is not existed, insert it to the state.
+   * Update the entity with the data. If the entity does not exist, insert it to the state.
    */
   upsertOne(draft: PaginationState<Data>, rawData: RawData): void;
   /**
-   * Try to read the pagination meta. If the meta is not existed, return `undefined`.
+   * Try to read the pagination meta. If the meta does not exist, return `undefined`.
    */
   tryReadPaginationMeta(state: PaginationState<Data>, key: string): PaginationMeta | undefined;
   /**
@@ -63,12 +63,12 @@ export interface PaginationAdapter<Data, RawData = Data> {
     key: string
   ): (state: PaginationState<Data>) => PaginationMeta | undefined;
   /**
-   * Read the pagination meta with the specified key. If it is not existed, throw an error.
+   * Read the pagination meta with the specified key. If it does not exist, throw an error.
    * It is useful when you are sure that the pagination is existed.
    */
   readPaginationMeta(state: PaginationState<Data>, key: string): PaginationMeta;
   /**
-   * Try to read the pagination with the specified key. If it is not existed, return `undefined`.
+   * Try to read the pagination with the specified key. If it does not exist, return `undefined`.
    */
   tryReadPagination(state: PaginationState<Data>, key: string): Pagination<Data> | undefined;
   /**
@@ -79,7 +79,7 @@ export interface PaginationAdapter<Data, RawData = Data> {
     key: string
   ): (state: PaginationState<Data>) => Pagination<Data> | undefined;
   /**
-   * Read the pagination with the specified key. If the pagination is not existed, throw an error.
+   * Read the pagination with the specified key. If the pagination does not exist, throw an error.
    * It is useful when you are sure that the pagination is existed.
    */
   readPagination(state: PaginationState<Data>, key: string): Pagination<Data>;
@@ -88,11 +88,11 @@ export interface PaginationAdapter<Data, RawData = Data> {
    */
   replacePagination(draft: PaginationState<Data>, key: string, data: RawData[]): void;
   /**
-   * Append the data to the pagination. If the pagination is not existed, create one.
+   * Append the data to the pagination. If the pagination does not exist, create one.
    */
   appendPagination(draft: PaginationState<Data>, key: string, data: RawData[]): void;
   /**
-   * Prepend the data to the pagination. If the pagination is not existed, create one.
+   * Prepend the data to the pagination. If the pagination does not exist, create one.
    */
   prependPagination(draft: PaginationState<Data>, key: string, data: RawData[]): void;
   /**
@@ -153,7 +153,7 @@ export function createPaginationAdapter<Data, RawData = Data>({
   function readOne(state: State, id: Id): Data {
     const entity = state.entityRecord[id];
     if (!entity) {
-      throw new Error(`Entity with ${id} is not existed. Please use tryReadOne instead.`);
+      throw new Error(`Entity with ${id} does not exist. Please use tryReadOne instead.`);
     }
 
     return entity;
@@ -211,7 +211,7 @@ export function createPaginationAdapter<Data, RawData = Data>({
     const meta = tryReadPaginationMeta(state, key);
     if (!meta) {
       throw new Error(
-        `pagination meta with key: ${key} is not existed, use tryReadPaginationMeta instead.`
+        `pagination meta with key: ${key} does not exist, use tryReadPaginationMeta instead.`
       );
     }
     return meta;
@@ -269,7 +269,7 @@ export function createPaginationAdapter<Data, RawData = Data>({
   function readPagination(state: State, key: string): Pagination<Data> {
     const pagination = tryReadPagination(state, key);
     if (!pagination) {
-      throw new Error(`pagination with key: ${key} is not existed, use tryReadPagination instead`);
+      throw new Error(`pagination with key: ${key} does not exist, use tryReadPagination instead`);
     }
     return pagination;
   }

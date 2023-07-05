@@ -52,7 +52,7 @@
 
 ▸ **appendPagination**(`draft`, `key`, `data`): `void`
 
-Append the data to the pagination. If the pagination is not existed, create one.
+Append the data to the pagination. If the pagination does not exist, create one.
 
 #### Parameters
 
@@ -122,7 +122,7 @@ ___
 
 ▸ **prependPagination**(`draft`, `key`, `data`): `void`
 
-Prepend the data to the pagination. If the pagination is not existed, create one.
+Prepend the data to the pagination. If the pagination does not exist, create one.
 
 #### Parameters
 
@@ -146,7 +146,7 @@ ___
 
 ▸ **readOne**(`state`, `id`): `Data`
 
-Read the data with the specify id. If the data is not existed, it will throw an error.
+Read the data with the specify id. If the data does not exist, it will throw an error.
 This function is useful when you are sure that the data is existed.
 
 #### Parameters
@@ -170,7 +170,7 @@ ___
 
 ▸ **readPagination**(`state`, `key`): [`Pagination`](Pagination.md)<`Data`\>
 
-Read the pagination with the specified key. If the pagination is not existed, throw an error.
+Read the pagination with the specified key. If the pagination does not exist, throw an error.
 It is useful when you are sure that the pagination is existed.
 
 #### Parameters
@@ -194,7 +194,7 @@ ___
 
 ▸ **readPaginationMeta**(`state`, `key`): [`PaginationMeta`](PaginationMeta.md)
 
-Read the pagination meta with the specified key. If it is not existed, throw an error.
+Read the pagination meta with the specified key. If it does not exist, throw an error.
 It is useful when you are sure that the pagination is existed.
 
 #### Parameters
@@ -291,7 +291,7 @@ ___
 ▸ **tryReadOne**(`state`, `id`): `undefined` \| `Data`
 
 Try to read the data with the specified id.
-If it is not existed, return `undefined`.
+If it does not exist, return `undefined`.
 
 #### Parameters
 
@@ -352,7 +352,7 @@ ___
 
 ▸ **tryReadPagination**(`state`, `key`): `undefined` \| [`Pagination`](Pagination.md)<`Data`\>
 
-Try to read the pagination with the specified key. If it is not existed, return `undefined`.
+Try to read the pagination with the specified key. If it does not exist, return `undefined`.
 
 #### Parameters
 
@@ -413,7 +413,7 @@ ___
 
 ▸ **tryReadPaginationMeta**(`state`, `key`): `undefined` \| [`PaginationMeta`](PaginationMeta.md)
 
-Try to read the pagination meta. If the meta is not existed, return `undefined`.
+Try to read the pagination meta. If the meta does not exist, return `undefined`.
 
 #### Parameters
 
@@ -474,7 +474,7 @@ ___
 
 ▸ **updateOne**(`draft`, `id`, `data`): `void`
 
-Update the entity with the new data. If the entity is not existed, do nothing.
+Update the entity with the new data. If the entity does not exist, do nothing.
 
 #### Parameters
 
@@ -498,7 +498,7 @@ ___
 
 ▸ **upsertOne**(`draft`, `rawData`): `void`
 
-Update the entity with the data. If the entity is not existed, insert it to the state.
+Update the entity with the data. If the entity does not exist, insert it to the state.
 
 #### Parameters
 
