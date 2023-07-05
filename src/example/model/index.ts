@@ -1,1 +1,1 @@
-export * from './postModel';
+export * from './postModel.js';

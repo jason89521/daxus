@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { useAccessor } from '../../lib';
-import { postAdapter, getPostList } from '../model';
-import type { PostLayout } from '../../types';
+import { useAccessor } from '../../lib/index.js';
+import { postAdapter, getPostList } from '../model/index.js';
+import type { PostLayout } from '../../types.js';
 
 export function PostList() {
   const [layout, setLayout] = useState<PostLayout>('classic');

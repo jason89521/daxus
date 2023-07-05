@@ -11,7 +11,7 @@ const defaultStatus = { isFetching: false, error: null } satisfies Status;
 
 /**
  * `useAccessor` hook provides a way to access and manage data fetched by an accessor.
- * @param accessor The accessor generated from an accessor creator function. It can be `null`. This may be useful when you want conditional fetching.
+ * @param accessor A normal accessor.
  * @param getSnapshot A function that accepts the state of the `accessor`'s model and returns the desired data.
  * @param options Additional options for controlling the behavior of the accessor.
  */
@@ -20,16 +20,34 @@ export function useAccessor<S, Arg, RD, SS, E = unknown>(
   getSnapshot: (state: S) => SS,
   options?: AccessorOptions<SS>
 ): UseAccessorReturn<SS, E, NormalAccessor<S, Arg, RD, E>>;
+/**
+ * `useAccessor` hook provides a way to access and manage data fetched by an accessor.
+ * @param accessor A normal accessor or `null`. It is useful when you want conditional fetching.
+ * @param getSnapshot A function that accepts the state of the `accessor`'s model and returns the desired data.
+ * @param options Additional options for controlling the behavior of the accessor.
+ */
 export function useAccessor<S, Arg, RD, SS, E = unknown>(
   accessor: NormalAccessor<S, Arg, RD, E> | null,
   getSnapshot: (state: S) => SS,
   options?: AccessorOptions<SS>
 ): UseAccessorReturn<SS | undefined, E, NormalAccessor<S, Arg, RD, E> | null>;
+/**
+ * `useAccessor` hook provides a way to access and manage data fetched by an accessor.
+ * @param accessor A infinite accessor.
+ * @param getSnapshot A function that accepts the state of the `accessor`'s model and returns the desired data.
+ * @param options Additional options for controlling the behavior of the accessor.
+ */
 export function useAccessor<S, Arg, RD, SS, E = unknown>(
   accessor: InfiniteAccessor<S, Arg, RD, E>,
   getSnapshot: (state: S) => SS,
   options?: AccessorOptions<SS>
 ): UseAccessorReturn<SS, E, InfiniteAccessor<S, Arg, RD, E>>;
+/**
+ * `useAccessor` hook provides a way to access and manage data fetched by an accessor.
+ * @param accessor A infinite accessor or `null`. It is useful when you want conditional fetching.
+ * @param getSnapshot A function that accepts the state of the `accessor`'s model and returns the desired data.
+ * @param options Additional options for controlling the behavior of the accessor.
+ */
 export function useAccessor<S, Arg, RD, SS, E = unknown>(
   accessor: InfiniteAccessor<S, Arg, RD, E> | null,
   getSnapshot: (state: S) => SS,

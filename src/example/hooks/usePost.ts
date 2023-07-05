@@ -1,6 +1,6 @@
-import { getPostById } from '../model';
-import { useAccessor } from '../../lib';
-import type { AccessorOptions } from '../../lib/hooks/types';
+import { getPostById } from '../model/index.js';
+import { useAccessor } from '../../lib/index.js';
+import type { AccessorOptions } from '../../lib/hooks/types.js';
 
 interface Props extends AccessorOptions {
   id: number;
