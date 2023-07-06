@@ -26,6 +26,7 @@ daxus
 
 ### Type Aliases
 
+- [FetchPromiseResult](README.md#fetchpromiseresult)
 - [Id](README.md#id)
 - [UseAccessorReturn](README.md#useaccessorreturn)
 
@@ -41,13 +42,30 @@ daxus
 
 ## Type Aliases
 
+### FetchPromiseResult
+
+Ƭ **FetchPromiseResult**<`E`, `D`\>: readonly [`E`] \| readonly [``null``, `D`]
+
+#### Type parameters
+
+| Name |
+| :------ |
+| `E` |
+| `D` |
+
+#### Defined in
+
+[model/Accessor.ts:13](https://github.com/jason89521/react-fetch/blob/6ec4382/src/lib/model/Accessor.ts#L13)
+
+___
+
 ### Id
 
 Ƭ **Id**: `string` \| `number`
 
 #### Defined in
 
-[adapters/paginationAdapter.ts:3](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/adapters/paginationAdapter.ts#L3)
+[adapters/paginationAdapter.ts:3](https://github.com/jason89521/react-fetch/blob/6ec4382/src/lib/adapters/paginationAdapter.ts#L3)
 
 ___
 
@@ -75,7 +93,7 @@ ___
 
 #### Defined in
 
-[hooks/types.ts:61](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/hooks/types.ts#L61)
+[hooks/types.ts:61](https://github.com/jason89521/react-fetch/blob/6ec4382/src/lib/hooks/types.ts#L61)
 
 ## Functions
 
@@ -95,7 +113,7 @@ ___
 
 #### Defined in
 
-[contexts/AccessorOptionsContext.tsx:14](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/contexts/AccessorOptionsContext.tsx#L14)
+[contexts/AccessorOptionsContext.tsx:14](https://github.com/jason89521/react-fetch/blob/6ec4382/src/lib/contexts/AccessorOptionsContext.tsx#L14)
 
 ___
 
@@ -115,7 +133,7 @@ ___
 
 #### Defined in
 
-[contexts/ServerStateKeyContext.tsx:14](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/contexts/ServerStateKeyContext.tsx#L14)
+[contexts/ServerStateKeyContext.tsx:14](https://github.com/jason89521/react-fetch/blob/6ec4382/src/lib/contexts/ServerStateKeyContext.tsx#L14)
 
 ___
 
@@ -149,7 +167,7 @@ ___
 
 #### Defined in
 
-[model/Model.ts:18](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/model/Model.ts#L18)
+[model/Model.ts:18](https://github.com/jason89521/react-fetch/blob/6ec4382/src/lib/model/Model.ts#L18)
 
 ___
 
@@ -178,7 +196,7 @@ ___
 
 #### Defined in
 
-[adapters/paginationAdapter.ts:130](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/adapters/paginationAdapter.ts#L130)
+[adapters/paginationAdapter.ts:130](https://github.com/jason89521/react-fetch/blob/6ec4382/src/lib/adapters/paginationAdapter.ts#L130)
 
 ___
 
@@ -212,7 +230,7 @@ ___
 
 #### Defined in
 
-[hooks/useAccessor.ts:18](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/hooks/useAccessor.ts#L18)
+[hooks/useAccessor.ts:18](https://github.com/jason89521/react-fetch/blob/6ec4382/src/lib/hooks/useAccessor.ts#L18)
 
 ▸ **useAccessor**<`S`, `Arg`, `RD`, `SS`, `E`\>(`accessor`, `getSnapshot`, `options?`): [`UseAccessorReturn`](README.md#useaccessorreturn)<`SS` \| `undefined`, `E`, [`NormalAccessor`](classes/NormalAccessor.md)<`S`, `Arg`, `RD`, `E`\> \| ``null``\>
 
@@ -242,7 +260,7 @@ ___
 
 #### Defined in
 
-[hooks/useAccessor.ts:29](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/hooks/useAccessor.ts#L29)
+[hooks/useAccessor.ts:29](https://github.com/jason89521/react-fetch/blob/6ec4382/src/lib/hooks/useAccessor.ts#L29)
 
 ▸ **useAccessor**<`S`, `Arg`, `RD`, `SS`, `E`\>(`accessor`, `getSnapshot`, `options?`): [`UseAccessorReturn`](README.md#useaccessorreturn)<`SS`, `E`, [`InfiniteAccessor`](classes/InfiniteAccessor.md)<`S`, `Arg`, `RD`, `E`\>\>
 
@@ -272,7 +290,7 @@ ___
 
 #### Defined in
 
-[hooks/useAccessor.ts:40](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/hooks/useAccessor.ts#L40)
+[hooks/useAccessor.ts:40](https://github.com/jason89521/react-fetch/blob/6ec4382/src/lib/hooks/useAccessor.ts#L40)
 
 ▸ **useAccessor**<`S`, `Arg`, `RD`, `SS`, `E`\>(`accessor`, `getSnapshot`, `options?`): [`UseAccessorReturn`](README.md#useaccessorreturn)<`SS` \| `undefined`, `E`, [`InfiniteAccessor`](classes/InfiniteAccessor.md)<`S`, `Arg`, `RD`, `E`\> \| ``null``\>
 
@@ -302,7 +320,7 @@ ___
 
 #### Defined in
 
-[hooks/useAccessor.ts:51](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/hooks/useAccessor.ts#L51)
+[hooks/useAccessor.ts:51](https://github.com/jason89521/react-fetch/blob/6ec4382/src/lib/hooks/useAccessor.ts#L51)
 
 ___
 
@@ -332,7 +350,7 @@ You can use it for server side render.
 
 #### Defined in
 
-[hooks/useHydrate.ts:12](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/hooks/useHydrate.ts#L12)
+[hooks/useHydrate.ts:11](https://github.com/jason89521/react-fetch/blob/6ec4382/src/lib/hooks/useHydrate.ts#L11)
 
 ___
 
@@ -346,4 +364,4 @@ ___
 
 #### Defined in
 
-[contexts/ServerStateKeyContext.tsx:10](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/contexts/ServerStateKeyContext.tsx#L10)
+[contexts/ServerStateKeyContext.tsx:10](https://github.com/jason89521/react-fetch/blob/6ec4382/src/lib/contexts/ServerStateKeyContext.tsx#L10)

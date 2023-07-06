@@ -43,8 +43,7 @@ export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Acc
   }
 
   /**
-   * Revalidate the all pages.
-   * @returns The all pages if it is not interrupted by the other revalidation, otherwise returns `null.
+   * {@inheritDoc Accessor.revalidate}
    */
   revalidate = () => {
     const pageSize = this.pageSize() || 1;
@@ -169,7 +168,7 @@ export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Acc
         const [data, error] = await this.fetchPages({ pageSize, pageIndex });
 
         // expired means that there is an another `fetch` is fetching.
-        if (this.isExpiredFetching(startAt)) return null;
+        if (this.isExpiredFetching(startAt)) return this.fetchPromise;
 
         if (error) {
           this.updateStatus({ error });
@@ -182,11 +181,12 @@ export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Acc
         }
         this.currentTask = 'idle';
         this.onFetchingFinish();
-        return data;
+        if (error) return [error] as const;
+        return [null, data] as const;
       } catch (error) {
         // This error happens when any fetching is aborted.
         // We don't need to handle this.
-        return null;
+        return this.fetchPromise;
       }
     })();
     this.onFetchingStart({ fetchPromise, startAt });

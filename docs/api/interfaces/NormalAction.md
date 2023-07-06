@@ -48,7 +48,7 @@
 
 #### Defined in
 
-[model/types.ts:10](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/model/types.ts#L10)
+[model/types.ts:10](https://github.com/jason89521/react-fetch/blob/6ec4382/src/lib/model/types.ts#L10)
 
 ___
 
@@ -78,7 +78,7 @@ BaseAction.onError
 
 #### Defined in
 
-[model/types.ts:4](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/model/types.ts#L4)
+[model/types.ts:4](https://github.com/jason89521/react-fetch/blob/6ec4382/src/lib/model/types.ts#L4)
 
 ___
 
@@ -108,7 +108,7 @@ BaseAction.onSuccess
 
 #### Defined in
 
-[model/types.ts:5](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/model/types.ts#L5)
+[model/types.ts:5](https://github.com/jason89521/react-fetch/blob/6ec4382/src/lib/model/types.ts#L5)
 
 ___
 
@@ -136,4 +136,4 @@ ___
 
 #### Defined in
 
-[model/types.ts:11](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/model/types.ts#L11)
+[model/types.ts:11](https://github.com/jason89521/react-fetch/blob/6ec4382/src/lib/model/types.ts#L11)

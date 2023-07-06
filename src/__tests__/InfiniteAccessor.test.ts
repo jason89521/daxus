@@ -14,8 +14,16 @@ describe('InfiniteAccessor', () => {
   });
 
   test('should return data from revalidate and fetchNext', async () => {
-    expect(await getPostList().revalidate()).toEqual([[createPost(0)]]);
-    expect(await getPostList().fetchNext()).toEqual([page0, page1]);
+    expect(await getPostList().revalidate()).toEqual([null, [page0]]);
+    expect(await getPostList().fetchNext()).toEqual([null, [page0, page1]]);
+  });
+
+  test('should return error from revalidate and fetchNext', async () => {
+    control.fetchDataError = new Error();
+    const accessor = getPostList();
+    accessor.mount({ optionsRef: { current: { ...defaultOptions, retryCount: 0 } } });
+    expect(await accessor.revalidate()).toEqual([new Error()]);
+    expect(await accessor.fetchNext()).toEqual([new Error()]);
   });
 
   test('should get the same promise if it is a duplicated revalidation', async () => {
@@ -23,19 +31,22 @@ describe('InfiniteAccessor', () => {
     expect(promise1).toBe(promise2);
   });
 
-  test('should get null if it is an expired revalidation', async () => {
+  test('should get the same result if it is an expired revalidation', async () => {
     control.sleepTime = 30;
     const accessor = getPostList();
     accessor.mount({ optionsRef: { current: { ...defaultOptions, dedupeInterval: 5 } } });
     const promise1 = accessor.revalidate();
     await sleep(10);
     const promise2 = accessor.revalidate();
+    const result1 = await promise1;
+    const result2 = await promise2;
 
-    expect(await promise1).toBeNull();
-    expect(await promise2).toEqual([page0]);
+    expect(promise1).not.toBe(promise2);
+    expect(result1).toEqual([null, [page0]]);
+    expect(result1).toBe(result2);
   });
 
-  test('should get null if it is aborted when error retry', async () => {
+  test('should get the same result if it is aborted when error retry', async () => {
     control.fetchDataError = new Error();
     const accessor = getPostList();
     accessor.mount({ optionsRef: { current: { ...defaultOptions, dedupeInterval: 5 } } });
@@ -43,9 +54,12 @@ describe('InfiniteAccessor', () => {
     await sleep(10);
     control.fetchDataError = undefined;
     const promise2 = accessor.revalidate();
+    const result1 = await promise1;
+    const result2 = await promise2;
 
-    expect(await promise1).toBeNull();
-    expect(await promise2).toEqual([page0]);
+    expect(promise1).not.toBe(promise2);
+    expect(result1).toEqual([null, [page0]]);
+    expect(result1).toBe(result2);
   });
 
   test('fetchNext should interrupt revalidate', async () => {
@@ -54,8 +68,10 @@ describe('InfiniteAccessor', () => {
     control.sleepTime = 30;
     const promise1 = accessor.revalidate();
     const promise2 = accessor.fetchNext();
+    const [result1, result2] = await Promise.all([promise1, promise2]);
 
-    expect(await promise1).toBeNull();
-    expect(await promise2).toEqual([page0, page1]);
+    expect(promise1).not.toBe(promise2);
+    expect(result1).toEqual([null, [page0, page1]]);
+    expect(result1).toBe(result2);
   });
 });

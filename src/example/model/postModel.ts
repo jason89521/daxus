@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import type { Post, PostLayout } from '../../types.js';
 import { createModel } from '../../lib/index.js';
 import { createPaginationAdapter } from '../../lib/index.js';
