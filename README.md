@@ -28,7 +28,7 @@ Daxus is a server state management library that emphasizes developer control ove
   - [Invalidate Accessor](#invalidate-accessor)
 - [Documents](#documents)
 - [Development Motivation](#development-motivation)
-  - [Why not use SWR or React Query?](#why-not-use-swr-or-react-query)
+  - [Why not use React Query?](#why-not-use-react-query)
   - [Goals to achieve](#goals-to-achieve)
 - [Design Philosophy](#design-philosophy)
 
@@ -239,9 +239,9 @@ postModel.invalidate(); // invalidate all accessors related to this model
 
 In my company, we use Redux with async thunk to manage server state. While Redux brings many benefits with centralized state management, it also comes with some drawbacks. For example, combining all reducers into a single store leads to excessively large initial JavaScript files. Additionally, even with Redux Toolkit, we still need to write a lot of repetitive code. As a result, senior engineers in the company have been considering replacing Redux, but so far, we haven't found a suitable package.
 
-### Why not use SWR or React Query?
+### Why not use React Query?
 
-Actually, we have tried incorporating both SWR and React Query into our internal console-type websites, and colleagues find React Query to be more user-friendly than SWR. Although React Query performs well in console-type products, most colleagues believe it is not quite suitable for our main product website.
+Actually, we have tried incorporating both React Query and SWR into our internal console-type websites, and colleagues find React Query to be more user-friendly than SWR. Although React Query performs well in console-type products, most colleagues believe it is not quite suitable for our main product website.
 
 Our product is a user forum that receives a large number of user visits every day. Here's an example that colleagues think React Query is not suitable for our product: when a user creates a new comment, we want the corresponding post's `totalCommentCount` to increase by one. From the perspective of React Query, we should execute the following code after creating a comment:
 
