@@ -113,7 +113,7 @@ export function createModel<S extends object>(initialState: S): Model<S> {
     return Object.assign(main, {
       invalidate: () => {
         Object.entries(accessorRecord).forEach(([key, accessor]) => {
-          if (key.startsWith(`${prefix}`)) {
+          if (key.startsWith(`${prefix}/`)) {
             accessor?.invalidate();
           }
         });
@@ -147,7 +147,7 @@ export function createModel<S extends object>(initialState: S): Model<S> {
     return Object.assign(main, {
       invalidate: () => {
         Object.entries(accessorRecord).forEach(([key, accessor]) => {
-          if (key.startsWith(`${prefix}`)) {
+          if (key.startsWith(`${prefix}/`)) {
             accessor?.invalidate();
           }
         });
