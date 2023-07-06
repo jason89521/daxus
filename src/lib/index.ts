@@ -14,7 +14,7 @@ import type {
   Id,
 } from './adapters/index.js';
 import { createModel } from './model/index.js';
-import { useAccessor, useHydrate } from './hooks/index.js';
+import { useAccessor, useHydrate, useModel } from './hooks/index.js';
 import { createPaginationAdapter } from './adapters/index.js';
 import {
   AccessorOptionsProvider,
@@ -46,8 +46,11 @@ export type {
 };
 export {
   createModel,
+
+  // hook
   useAccessor,
   useHydrate,
+  useModel,
 
   // adapter
   createPaginationAdapter,

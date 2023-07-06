@@ -15,7 +15,26 @@ export interface InfiniteAccessorCreator<S, Arg, Data, E> extends BaseAccessorCr
   (arg: Arg): InfiniteAccessor<S, Arg, Data, E>;
 }
 
-export function createModel<S extends object>(initialState: S) {
+export interface Model<S extends object> {
+  mutate(fn: (draft: Draft<S>) => void, serverStateKey?: object): void;
+  defineInfiniteAccessor<Arg, Data, E = any>(
+    action: InfiniteAction<S, Arg, Data, E>
+  ): InfiniteAccessorCreator<S, Arg, Data, E>;
+  defineNormalAccessor<Arg, Data, E = any>(
+    action: NormalAction<S, Arg, Data, E>
+  ): NormalAccessorCreator<S, Arg, Data, E>;
+  getState(serverStateKey?: object): S;
+  /**
+   * Invalidate all accessor generated from this model.
+   */
+  invalidate(): void;
+  /**
+   * @internal
+   */
+  subscribe(listener: () => void): () => void;
+}
+
+export function createModel<S extends object>(initialState: S): Model<S> {
   type Accessor<Arg = any, Data = any> =
     | NormalAccessor<S, Arg, Data, any>
     | InfiniteAccessor<S, Arg, Data, any>;
@@ -142,5 +161,5 @@ export function createModel<S extends object>(initialState: S) {
     });
   }
 
-  return { mutate, defineInfiniteAccessor, defineNormalAccessor, getState, invalidate };
+  return { mutate, defineInfiniteAccessor, defineNormalAccessor, getState, invalidate, subscribe };
 }
