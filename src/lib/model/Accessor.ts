@@ -198,7 +198,6 @@ export abstract class Accessor<S, D, E> {
     startAt: number;
   }) => {
     this.fetchPromise = fetchPromise;
-    console.log('onFetchingStart', this.fetchPromise);
     clearTimeout(this.pollingTimeoutId);
     this.abortRetry();
     this.updateStartAt(startAt);
@@ -273,7 +272,6 @@ export abstract class Accessor<S, D, E> {
   private abortRetry = (): void => {
     if (!this.retryTimeoutMeta) return;
     clearTimeout(this.retryTimeoutMeta.timeoutId);
-    console.log('abort retry', this.fetchPromise);
     this.retryTimeoutMeta.reject();
   };
 
