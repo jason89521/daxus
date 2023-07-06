@@ -10,6 +10,8 @@ export type Status<E = unknown> = {
 
 export type ModelSubscribe = (listener: () => void) => () => void;
 
+export type FetchPromiseResult<E, D> = readonly [E] | readonly [null, D];
+
 type RetryTimeoutMeta = {
   timeoutId: number;
   reject: () => void;
@@ -21,7 +23,7 @@ type OptionsRef = MutableRefObject<Options>;
 export abstract class Accessor<S, D, E> {
   protected status: Status<E> = { isFetching: false, error: null };
   protected statusListeners: ((prev: Status, current: Status) => void)[] = [];
-  protected fetchPromise: Promise<readonly [D | null, E | null]> = Promise.resolve([null, null]);
+  protected fetchPromise!: Promise<FetchPromiseResult<E, D>>;
   private retryTimeoutMeta: RetryTimeoutMeta | null = null;
   private startAt = 0;
   private modelSubscribe: ModelSubscribe;
@@ -34,7 +36,7 @@ export abstract class Accessor<S, D, E> {
   /**
    * Return the result of the revalidation.
    */
-  abstract revalidate: () => Promise<readonly [D | null, E | null]>;
+  abstract revalidate: () => Promise<FetchPromiseResult<E, D>>;
 
   /**
    * Get the state of the corresponding model.
@@ -194,7 +196,7 @@ export abstract class Accessor<S, D, E> {
     fetchPromise,
     startAt,
   }: {
-    fetchPromise: Promise<readonly [D | null, E | null]>;
+    fetchPromise: Promise<FetchPromiseResult<E, D>>;
     startAt: number;
   }) => {
     this.fetchPromise = fetchPromise;

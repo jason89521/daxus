@@ -14,16 +14,16 @@ describe('InfiniteAccessor', () => {
   });
 
   test('should return data from revalidate and fetchNext', async () => {
-    expect(await getPostList().revalidate()).toEqual([[page0], null]);
-    expect(await getPostList().fetchNext()).toEqual([[page0, page1], null]);
+    expect(await getPostList().revalidate()).toEqual([null, [page0]]);
+    expect(await getPostList().fetchNext()).toEqual([null, [page0, page1]]);
   });
 
   test('should return error from revalidate and fetchNext', async () => {
     control.fetchDataError = new Error();
     const accessor = getPostList();
     accessor.mount({ optionsRef: { current: { ...defaultOptions, retryCount: 0 } } });
-    expect(await accessor.revalidate()).toEqual([null, new Error()]);
-    expect(await accessor.fetchNext()).toEqual([null, new Error()]);
+    expect(await accessor.revalidate()).toEqual([new Error()]);
+    expect(await accessor.fetchNext()).toEqual([new Error()]);
   });
 
   test('should get the same promise if it is a duplicated revalidation', async () => {
@@ -42,7 +42,7 @@ describe('InfiniteAccessor', () => {
     const result2 = await promise2;
 
     expect(promise1).not.toBe(promise2);
-    expect(result1).toEqual([[page0], null]);
+    expect(result1).toEqual([null, [page0]]);
     expect(result1).toBe(result2);
   });
 
@@ -58,7 +58,7 @@ describe('InfiniteAccessor', () => {
     const result2 = await promise2;
 
     expect(promise1).not.toBe(promise2);
-    expect(result1).toEqual([[page0], null]);
+    expect(result1).toEqual([null, [page0]]);
     expect(result1).toBe(result2);
   });
 
@@ -71,7 +71,7 @@ describe('InfiniteAccessor', () => {
     const [result1, result2] = await Promise.all([promise1, promise2]);
 
     expect(promise1).not.toBe(promise2);
-    expect(result1).toEqual([[page0, page1], null]);
+    expect(result1).toEqual([null, [page0, page1]]);
     expect(result1).toBe(result2);
   });
 });

@@ -13,7 +13,7 @@ describe('NormalAccessor', () => {
 
   test('should return data from revalidate', async () => {
     const result = await getPostById(0).revalidate();
-    expect(result).toEqual([createPost(0), null]);
+    expect(result).toEqual([null, createPost(0)]);
   });
 
   test('should return error from revalidate', async () => {
@@ -21,7 +21,8 @@ describe('NormalAccessor', () => {
     const accessor = getPostById(0);
     accessor.mount({ optionsRef: { current: { ...defaultOptions, retryCount: 0 } } });
     const result = await accessor.revalidate();
-    expect(result).toEqual([null, new Error()]);
+    expect(result).toEqual([new Error()]);
+    expect(result.length).toBe(1);
   });
 
   test('should get the same promise if it is a duplicated revalidation', async () => {
@@ -41,7 +42,7 @@ describe('NormalAccessor', () => {
     const result2 = await promise2;
 
     expect(promise1).not.toBe(promise2);
-    expect(result1).toEqual([createPost(0), null]);
+    expect(result1).toEqual([null, createPost(0)]);
     expect(result1).toBe(result2);
   });
 
@@ -57,7 +58,7 @@ describe('NormalAccessor', () => {
     const result2 = await promise2;
 
     expect(promise1).not.toBe(promise2);
-    expect(result1).toEqual([createPost(0), null]);
+    expect(result1).toEqual([null, createPost(0)]);
     expect(result1).toBe(result2);
   });
 });

@@ -66,7 +66,9 @@ export class NormalAccessor<S, Arg = any, Data = any, E = unknown> extends Acces
         }
         this.notifyModel();
         this.onFetchingFinish();
-        return [data, error] as const;
+        if (error) return [error] as const;
+        if (data) return [null, data] as const;
+        throw new Error('It is impossible that data and error are both null');
       } catch (error) {
         // This error happens when any fetching is aborted.
         // We don't need to handle this.

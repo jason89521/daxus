@@ -181,7 +181,8 @@ export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Acc
         }
         this.currentTask = 'idle';
         this.onFetchingFinish();
-        return error ? ([null, error] as const) : ([data, null] as const);
+        if (error) return [error] as const;
+        return [null, data] as const;
       } catch (error) {
         // This error happens when any fetching is aborted.
         // We don't need to handle this.

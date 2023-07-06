@@ -57,25 +57,25 @@ Get the state of the corresponding model.
 
 #### Defined in
 
-[model/Accessor.ts:42](https://github.com/jason89521/react-fetch/blob/1693949/src/lib/model/Accessor.ts#L42)
+[model/Accessor.ts:44](https://github.com/jason89521/react-fetch/blob/6ec4382/src/lib/model/Accessor.ts#L44)
 
 ## Methods
 
 ### fetchNext
 
-▸ **fetchNext**(): `Promise`<readonly [``null`` \| `Data`[], ``null`` \| `E`]\>
+▸ **fetchNext**(): `Promise`<[`FetchPromiseResult`](../README.md#fetchpromiseresult)<`E`, `Data`[]\>\>
 
 Fetch the next page.
 
 #### Returns
 
-`Promise`<readonly [``null`` \| `Data`[], ``null`` \| `E`]\>
+`Promise`<[`FetchPromiseResult`](../README.md#fetchpromiseresult)<`E`, `Data`[]\>\>
 
 The all pages if it is not interrupted by the other revalidation, otherwise returns `null`.
 
 #### Defined in
 
-[model/InfiniteAccessor.ts:57](https://github.com/jason89521/react-fetch/blob/1693949/src/lib/model/InfiniteAccessor.ts#L57)
+[model/InfiniteAccessor.ts:57](https://github.com/jason89521/react-fetch/blob/6ec4382/src/lib/model/InfiniteAccessor.ts#L57)
 
 ___
 
@@ -93,19 +93,19 @@ ___
 
 #### Defined in
 
-[model/Accessor.ts:126](https://github.com/jason89521/react-fetch/blob/1693949/src/lib/model/Accessor.ts#L126)
+[model/Accessor.ts:128](https://github.com/jason89521/react-fetch/blob/6ec4382/src/lib/model/Accessor.ts#L128)
 
 ___
 
 ### revalidate
 
-▸ **revalidate**(): `Promise`<readonly [``null`` \| `Data`[], ``null`` \| `E`]\>
+▸ **revalidate**(): `Promise`<[`FetchPromiseResult`](../README.md#fetchpromiseresult)<`E`, `Data`[]\>\>
 
 Return the result of the revalidation.
 
 #### Returns
 
-`Promise`<readonly [``null`` \| `Data`[], ``null`` \| `E`]\>
+`Promise`<[`FetchPromiseResult`](../README.md#fetchpromiseresult)<`E`, `Data`[]\>\>
 
 #### Overrides
 
@@ -113,4 +113,4 @@ Accessor.revalidate
 
 #### Defined in
 
-[model/InfiniteAccessor.ts:48](https://github.com/jason89521/react-fetch/blob/1693949/src/lib/model/InfiniteAccessor.ts#L48)
+[model/InfiniteAccessor.ts:48](https://github.com/jason89521/react-fetch/blob/6ec4382/src/lib/model/InfiniteAccessor.ts#L48)
