@@ -44,7 +44,7 @@
 
 #### Defined in
 
-[adapters/paginationAdapter.ts:22](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/adapters/paginationAdapter.ts#L22)
+[adapters/paginationAdapter.ts:22](https://github.com/jason89521/react-fetch/blob/1693949/src/lib/adapters/paginationAdapter.ts#L22)
 
 ## Methods
 
@@ -68,7 +68,7 @@ Append the data to the pagination. If the pagination does not exist, create one.
 
 #### Defined in
 
-[adapters/paginationAdapter.ts:93](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/adapters/paginationAdapter.ts#L93)
+[adapters/paginationAdapter.ts:93](https://github.com/jason89521/react-fetch/blob/1693949/src/lib/adapters/paginationAdapter.ts#L93)
 
 ___
 
@@ -91,7 +91,7 @@ Add the data to the state.
 
 #### Defined in
 
-[adapters/paginationAdapter.ts:26](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/adapters/paginationAdapter.ts#L26)
+[adapters/paginationAdapter.ts:26](https://github.com/jason89521/react-fetch/blob/1693949/src/lib/adapters/paginationAdapter.ts#L26)
 
 ___
 
@@ -114,7 +114,7 @@ Delete the entity with the specified id and remove the data from pagination (if 
 
 #### Defined in
 
-[adapters/paginationAdapter.ts:49](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/adapters/paginationAdapter.ts#L49)
+[adapters/paginationAdapter.ts:49](https://github.com/jason89521/react-fetch/blob/1693949/src/lib/adapters/paginationAdapter.ts#L49)
 
 ___
 
@@ -138,7 +138,7 @@ Prepend the data to the pagination. If the pagination does not exist, create one
 
 #### Defined in
 
-[adapters/paginationAdapter.ts:97](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/adapters/paginationAdapter.ts#L97)
+[adapters/paginationAdapter.ts:97](https://github.com/jason89521/react-fetch/blob/1693949/src/lib/adapters/paginationAdapter.ts#L97)
 
 ___
 
@@ -162,7 +162,7 @@ This function is useful when you are sure that the data is existed.
 
 #### Defined in
 
-[adapters/paginationAdapter.ts:41](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/adapters/paginationAdapter.ts#L41)
+[adapters/paginationAdapter.ts:41](https://github.com/jason89521/react-fetch/blob/1693949/src/lib/adapters/paginationAdapter.ts#L41)
 
 ___
 
@@ -186,7 +186,7 @@ It is useful when you are sure that the pagination is existed.
 
 #### Defined in
 
-[adapters/paginationAdapter.ts:85](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/adapters/paginationAdapter.ts#L85)
+[adapters/paginationAdapter.ts:85](https://github.com/jason89521/react-fetch/blob/1693949/src/lib/adapters/paginationAdapter.ts#L85)
 
 ___
 
@@ -210,7 +210,7 @@ It is useful when you are sure that the pagination is existed.
 
 #### Defined in
 
-[adapters/paginationAdapter.ts:69](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/adapters/paginationAdapter.ts#L69)
+[adapters/paginationAdapter.ts:69](https://github.com/jason89521/react-fetch/blob/1693949/src/lib/adapters/paginationAdapter.ts#L69)
 
 ___
 
@@ -234,7 +234,7 @@ Replace the whole pagination with the given data array.
 
 #### Defined in
 
-[adapters/paginationAdapter.ts:89](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/adapters/paginationAdapter.ts#L89)
+[adapters/paginationAdapter.ts:89](https://github.com/jason89521/react-fetch/blob/1693949/src/lib/adapters/paginationAdapter.ts#L89)
 
 ___
 
@@ -258,7 +258,7 @@ Set the `noMore` property in the pagination meta.
 
 #### Defined in
 
-[adapters/paginationAdapter.ts:101](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/adapters/paginationAdapter.ts#L101)
+[adapters/paginationAdapter.ts:101](https://github.com/jason89521/react-fetch/blob/1693949/src/lib/adapters/paginationAdapter.ts#L101)
 
 ___
 
@@ -282,7 +282,7 @@ Sort the pagination by the `compare` function.
 
 #### Defined in
 
-[adapters/paginationAdapter.ts:105](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/adapters/paginationAdapter.ts#L105)
+[adapters/paginationAdapter.ts:105](https://github.com/jason89521/react-fetch/blob/1693949/src/lib/adapters/paginationAdapter.ts#L105)
 
 ___
 
@@ -306,7 +306,7 @@ If it does not exist, return `undefined`.
 
 #### Defined in
 
-[adapters/paginationAdapter.ts:31](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/adapters/paginationAdapter.ts#L31)
+[adapters/paginationAdapter.ts:31](https://github.com/jason89521/react-fetch/blob/1693949/src/lib/adapters/paginationAdapter.ts#L31)
 
 ___
 
@@ -344,7 +344,7 @@ It is useful when you are using `useAccessor`.
 
 #### Defined in
 
-[adapters/paginationAdapter.ts:36](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/adapters/paginationAdapter.ts#L36)
+[adapters/paginationAdapter.ts:36](https://github.com/jason89521/react-fetch/blob/1693949/src/lib/adapters/paginationAdapter.ts#L36)
 
 ___
 
@@ -367,7 +367,7 @@ Try to read the pagination with the specified key. If it does not exist, return 
 
 #### Defined in
 
-[adapters/paginationAdapter.ts:73](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/adapters/paginationAdapter.ts#L73)
+[adapters/paginationAdapter.ts:73](https://github.com/jason89521/react-fetch/blob/1693949/src/lib/adapters/paginationAdapter.ts#L73)
 
 ___
 
@@ -405,7 +405,7 @@ If is useful when using `useAccessor`.
 
 #### Defined in
 
-[adapters/paginationAdapter.ts:78](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/adapters/paginationAdapter.ts#L78)
+[adapters/paginationAdapter.ts:78](https://github.com/jason89521/react-fetch/blob/1693949/src/lib/adapters/paginationAdapter.ts#L78)
 
 ___
 
@@ -428,7 +428,7 @@ Try to read the pagination meta. If the meta does not exist, return `undefined`.
 
 #### Defined in
 
-[adapters/paginationAdapter.ts:57](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/adapters/paginationAdapter.ts#L57)
+[adapters/paginationAdapter.ts:57](https://github.com/jason89521/react-fetch/blob/1693949/src/lib/adapters/paginationAdapter.ts#L57)
 
 ___
 
@@ -466,7 +466,7 @@ It is useful when using `useAccessor`.
 
 #### Defined in
 
-[adapters/paginationAdapter.ts:62](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/adapters/paginationAdapter.ts#L62)
+[adapters/paginationAdapter.ts:62](https://github.com/jason89521/react-fetch/blob/1693949/src/lib/adapters/paginationAdapter.ts#L62)
 
 ___
 
@@ -490,7 +490,7 @@ Update the entity with the new data. If the entity does not exist, do nothing.
 
 #### Defined in
 
-[adapters/paginationAdapter.ts:45](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/adapters/paginationAdapter.ts#L45)
+[adapters/paginationAdapter.ts:45](https://github.com/jason89521/react-fetch/blob/1693949/src/lib/adapters/paginationAdapter.ts#L45)
 
 ___
 
@@ -513,4 +513,4 @@ Update the entity with the data. If the entity does not exist, insert it to the 
 
 #### Defined in
 
-[adapters/paginationAdapter.ts:53](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/adapters/paginationAdapter.ts#L53)
+[adapters/paginationAdapter.ts:53](https://github.com/jason89521/react-fetch/blob/1693949/src/lib/adapters/paginationAdapter.ts#L53)

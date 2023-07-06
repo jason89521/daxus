@@ -53,27 +53,27 @@ Get the state of the corresponding model.
 
 #### Defined in
 
-[model/Accessor.ts:42](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/model/Accessor.ts#L42)
+[model/Accessor.ts:42](https://github.com/jason89521/react-fetch/blob/1693949/src/lib/model/Accessor.ts#L42)
 
 ___
 
 ### revalidate
 
-• `Abstract` **revalidate**: () => ``null`` \| `Promise`<``null`` \| `D`\>
+• `Abstract` **revalidate**: () => `Promise`<readonly [``null`` \| `D`, ``null`` \| `E`]\>
 
 #### Type declaration
 
-▸ (): ``null`` \| `Promise`<``null`` \| `D`\>
+▸ (): `Promise`<readonly [``null`` \| `D`, ``null`` \| `E`]\>
 
-Return the result of the revalidation. It may be `null` if the revalidation is aborted or encounters an error.
+Return the result of the revalidation.
 
 ##### Returns
 
-``null`` \| `Promise`<``null`` \| `D`\>
+`Promise`<readonly [``null`` \| `D`, ``null`` \| `E`]\>
 
 #### Defined in
 
-[model/Accessor.ts:37](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/model/Accessor.ts#L37)
+[model/Accessor.ts:37](https://github.com/jason89521/react-fetch/blob/1693949/src/lib/model/Accessor.ts#L37)
 
 ## Methods
 
@@ -87,4 +87,4 @@ Return the result of the revalidation. It may be `null` if the revalidation is a
 
 #### Defined in
 
-[model/Accessor.ts:126](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/model/Accessor.ts#L126)
+[model/Accessor.ts:126](https://github.com/jason89521/react-fetch/blob/1693949/src/lib/model/Accessor.ts#L126)

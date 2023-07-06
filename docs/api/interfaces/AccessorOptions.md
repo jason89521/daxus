@@ -51,7 +51,7 @@ A function to determine whether the returned data from the `getSnapshot` functio
 
 #### Defined in
 
-[hooks/types.ts:31](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/hooks/types.ts#L31)
+[hooks/types.ts:31](https://github.com/jason89521/react-fetch/blob/1693949/src/lib/hooks/types.ts#L31)
 
 ___
 
@@ -67,7 +67,7 @@ The time span in milliseconds to deduplicate requests with the same accessor.
 
 #### Defined in
 
-[hooks/types.ts:46](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/hooks/types.ts#L46)
+[hooks/types.ts:46](https://github.com/jason89521/react-fetch/blob/1693949/src/lib/hooks/types.ts#L46)
 
 ___
 
@@ -83,7 +83,7 @@ Return the previous data until the new data has been fetched.
 
 #### Defined in
 
-[hooks/types.ts:56](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/hooks/types.ts#L56)
+[hooks/types.ts:56](https://github.com/jason89521/react-fetch/blob/1693949/src/lib/hooks/types.ts#L56)
 
 ___
 
@@ -99,7 +99,7 @@ The interval in milliseconds for polling data. If the value is less than or equa
 
 #### Defined in
 
-[hooks/types.ts:51](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/hooks/types.ts#L51)
+[hooks/types.ts:51](https://github.com/jason89521/react-fetch/blob/1693949/src/lib/hooks/types.ts#L51)
 
 ___
 
@@ -115,7 +115,7 @@ The number of retry attempts for errors.
 
 #### Defined in
 
-[hooks/types.ts:36](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/hooks/types.ts#L36)
+[hooks/types.ts:36](https://github.com/jason89521/react-fetch/blob/1693949/src/lib/hooks/types.ts#L36)
 
 ___
 
@@ -131,7 +131,7 @@ The interval in milliseconds between retry attempts for errors.
 
 #### Defined in
 
-[hooks/types.ts:41](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/hooks/types.ts#L41)
+[hooks/types.ts:41](https://github.com/jason89521/react-fetch/blob/1693949/src/lib/hooks/types.ts#L41)
 
 ___
 
@@ -147,7 +147,7 @@ Whether it should revalidate when the accessor is stale.
 
 #### Defined in
 
-[hooks/types.ts:26](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/hooks/types.ts#L26)
+[hooks/types.ts:26](https://github.com/jason89521/react-fetch/blob/1693949/src/lib/hooks/types.ts#L26)
 
 ___
 
@@ -163,7 +163,7 @@ Whether the accessor should revalidate data when the user refocuses the page.
 
 #### Defined in
 
-[hooks/types.ts:11](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/hooks/types.ts#L11)
+[hooks/types.ts:11](https://github.com/jason89521/react-fetch/blob/1693949/src/lib/hooks/types.ts#L11)
 
 ___
 
@@ -179,7 +179,7 @@ Whether it should revalidate when the `accessor` changes.
 
 #### Defined in
 
-[hooks/types.ts:21](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/hooks/types.ts#L21)
+[hooks/types.ts:21](https://github.com/jason89521/react-fetch/blob/1693949/src/lib/hooks/types.ts#L21)
 
 ___
 
@@ -195,4 +195,4 @@ Whether the accessor should revalidate data when the user reconnects to the netw
 
 #### Defined in
 
-[hooks/types.ts:16](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/hooks/types.ts#L16)
+[hooks/types.ts:16](https://github.com/jason89521/react-fetch/blob/1693949/src/lib/hooks/types.ts#L16)

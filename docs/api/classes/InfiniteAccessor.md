@@ -57,25 +57,25 @@ Get the state of the corresponding model.
 
 #### Defined in
 
-[model/Accessor.ts:42](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/model/Accessor.ts#L42)
+[model/Accessor.ts:42](https://github.com/jason89521/react-fetch/blob/1693949/src/lib/model/Accessor.ts#L42)
 
 ## Methods
 
 ### fetchNext
 
-▸ **fetchNext**(): `Promise`<``null`` \| `Data`[]\>
+▸ **fetchNext**(): `Promise`<readonly [``null`` \| `Data`[], ``null`` \| `E`]\>
 
 Fetch the next page.
 
 #### Returns
 
-`Promise`<``null`` \| `Data`[]\>
+`Promise`<readonly [``null`` \| `Data`[], ``null`` \| `E`]\>
 
 The all pages if it is not interrupted by the other revalidation, otherwise returns `null`.
 
 #### Defined in
 
-[model/InfiniteAccessor.ts:58](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/model/InfiniteAccessor.ts#L58)
+[model/InfiniteAccessor.ts:57](https://github.com/jason89521/react-fetch/blob/1693949/src/lib/model/InfiniteAccessor.ts#L57)
 
 ___
 
@@ -93,21 +93,19 @@ ___
 
 #### Defined in
 
-[model/Accessor.ts:126](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/model/Accessor.ts#L126)
+[model/Accessor.ts:126](https://github.com/jason89521/react-fetch/blob/1693949/src/lib/model/Accessor.ts#L126)
 
 ___
 
 ### revalidate
 
-▸ **revalidate**(): `Promise`<``null`` \| `Data`[]\>
+▸ **revalidate**(): `Promise`<readonly [``null`` \| `Data`[], ``null`` \| `E`]\>
 
-Revalidate the all pages.
+Return the result of the revalidation.
 
 #### Returns
 
-`Promise`<``null`` \| `Data`[]\>
-
-The all pages if it is not interrupted by the other revalidation, otherwise returns `null.
+`Promise`<readonly [``null`` \| `Data`[], ``null`` \| `E`]\>
 
 #### Overrides
 
@@ -115,4 +113,4 @@ Accessor.revalidate
 
 #### Defined in
 
-[model/InfiniteAccessor.ts:49](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/model/InfiniteAccessor.ts#L49)
+[model/InfiniteAccessor.ts:48](https://github.com/jason89521/react-fetch/blob/1693949/src/lib/model/InfiniteAccessor.ts#L48)

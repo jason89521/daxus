@@ -56,7 +56,7 @@ Get the state of the corresponding model.
 
 #### Defined in
 
-[model/Accessor.ts:42](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/model/Accessor.ts#L42)
+[model/Accessor.ts:42](https://github.com/jason89521/react-fetch/blob/1693949/src/lib/model/Accessor.ts#L42)
 
 ## Methods
 
@@ -74,21 +74,19 @@ Get the state of the corresponding model.
 
 #### Defined in
 
-[model/Accessor.ts:126](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/model/Accessor.ts#L126)
+[model/Accessor.ts:126](https://github.com/jason89521/react-fetch/blob/1693949/src/lib/model/Accessor.ts#L126)
 
 ___
 
 ### revalidate
 
-▸ **revalidate**(): `Promise`<``null`` \| `Data`\>
+▸ **revalidate**(): `Promise`<readonly [``null`` \| `Data`, ``null`` \| `E`]\>
 
-Revalidate the data.
+Return the result of the revalidation.
 
 #### Returns
 
-`Promise`<``null`` \| `Data`\>
-
-The data fetched by the accessor if it is not interrupted. Otherwise returns `null`.
+`Promise`<readonly [``null`` \| `Data`, ``null`` \| `E`]\>
 
 #### Overrides
 
@@ -96,4 +94,4 @@ Accessor.revalidate
 
 #### Defined in
 
-[model/NormalAccessor.ts:40](https://github.com/jason89521/react-fetch/blob/9f24fa5/src/lib/model/NormalAccessor.ts#L40)
+[model/NormalAccessor.ts:39](https://github.com/jason89521/react-fetch/blob/1693949/src/lib/model/NormalAccessor.ts#L39)

@@ -34,8 +34,7 @@ export class NormalAccessor<S, Arg = any, Data = any, E = unknown> extends Acces
   }
 
   /**
-   * Revalidate the data.
-   * @returns The data fetched by the accessor if it is not interrupted. Otherwise returns `null`.
+   * {@inheritDoc Accessor.revalidate}
    */
   revalidate = () => {
     const startAt = getCurrentTime();
@@ -50,7 +49,9 @@ export class NormalAccessor<S, Arg = any, Data = any, E = unknown> extends Acces
         const [data, error] = await this.internalFetch(this.getRetryCount());
 
         // expired means that there is an another valid `revalidation` is fetching.
-        if (this.isExpiredFetching(startAt)) return null;
+        if (this.isExpiredFetching(startAt)) {
+          return this.fetchPromise;
+        }
         this.updateStartAt(startAt);
 
         if (data) {
@@ -65,11 +66,11 @@ export class NormalAccessor<S, Arg = any, Data = any, E = unknown> extends Acces
         }
         this.notifyModel();
         this.onFetchingFinish();
-        return data;
+        return [data, error] as const;
       } catch (error) {
         // This error happens when any fetching is aborted.
         // We don't need to handle this.
-        return null;
+        return this.fetchPromise;
       }
     })();
     this.onFetchingStart({ fetchPromise, startAt });

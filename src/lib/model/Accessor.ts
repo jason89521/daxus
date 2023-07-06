@@ -21,7 +21,7 @@ type OptionsRef = MutableRefObject<Options>;
 export abstract class Accessor<S, D, E> {
   protected status: Status<E> = { isFetching: false, error: null };
   protected statusListeners: ((prev: Status, current: Status) => void)[] = [];
-  protected fetchPromise: Promise<D | null> = Promise.resolve(null);
+  protected fetchPromise: Promise<readonly [D | null, E | null]> = Promise.resolve([null, null]);
   private retryTimeoutMeta: RetryTimeoutMeta | null = null;
   private startAt = 0;
   private modelSubscribe: ModelSubscribe;
@@ -32,9 +32,9 @@ export abstract class Accessor<S, D, E> {
   private isStale = false;
 
   /**
-   * Return the result of the revalidation. It may be `null` if the revalidation is aborted or encounters an error.
+   * Return the result of the revalidation.
    */
-  abstract revalidate: () => Promise<D | null> | null;
+  abstract revalidate: () => Promise<readonly [D | null, E | null]>;
 
   /**
    * Get the state of the corresponding model.
@@ -194,12 +194,13 @@ export abstract class Accessor<S, D, E> {
     fetchPromise,
     startAt,
   }: {
-    fetchPromise: Promise<D | null>;
+    fetchPromise: Promise<readonly [D | null, E | null]>;
     startAt: number;
   }) => {
+    this.fetchPromise = fetchPromise;
+    console.log('onFetchingStart', this.fetchPromise);
     clearTimeout(this.pollingTimeoutId);
     this.abortRetry();
-    this.fetchPromise = fetchPromise;
     this.updateStartAt(startAt);
     this.updateStatus({ isFetching: true });
   };
@@ -217,7 +218,6 @@ export abstract class Accessor<S, D, E> {
     if (pollingInterval > 0) {
       this.pollingTimeoutId = window.setTimeout(this.invokePollingRevalidation, pollingInterval);
     }
-    this.fetchPromise = Promise.resolve(null);
     this.updateStatus({ isFetching: false });
     this.isStale = true;
   };
@@ -273,6 +273,7 @@ export abstract class Accessor<S, D, E> {
   private abortRetry = (): void => {
     if (!this.retryTimeoutMeta) return;
     clearTimeout(this.retryTimeoutMeta.timeoutId);
+    console.log('abort retry', this.fetchPromise);
     this.retryTimeoutMeta.reject();
   };
 
