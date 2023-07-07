@@ -230,6 +230,8 @@ postModel.invalidate(); // invalidate all accessors related to this model
 
 ## Documents
 
+- [The Difference With React Query](./docs/the-difference-with-RQ.md)
+- [Accessor](./docs/accessor.md)
 - [API](./docs/api/)
 - [Pagination](./docs/pagination.md)
 - [Conditional Fetching](./docs/conditional-fetching.md)
