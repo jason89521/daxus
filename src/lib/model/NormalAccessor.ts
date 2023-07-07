@@ -1,7 +1,6 @@
 import { getCurrentTime } from '../utils/index.js';
-import type { ModelSubscribe } from './Accessor.js';
 import { Accessor } from './Accessor.js';
-import type { NormalAction } from './types.js';
+import type { NormalAction, NormalConstructorArgs } from './types.js';
 import type { Draft } from 'immer';
 
 /**
@@ -18,15 +17,17 @@ export class NormalAccessor<S, Arg = any, Data = any, E = unknown> extends Acces
   /**
    * @internal
    */
-  constructor(
-    arg: Arg,
-    action: NormalAction<S, Arg, Data, E>,
-    updateState: (cb: (draft: Draft<S>) => void) => void,
-    getState: (serverStateKey?: object) => S,
-    modelSubscribe: ModelSubscribe,
-    notifyModel: () => void
-  ) {
-    super(getState, modelSubscribe);
+  constructor({
+    getState,
+    modelSubscribe,
+    action,
+    arg,
+    updateState,
+    notifyModel,
+    onMount,
+    onUnmount,
+  }: NormalConstructorArgs<S, Arg, Data, E>) {
+    super({ getState, modelSubscribe, onMount, onUnmount });
     this.action = action;
     this.arg = arg;
     this.updateState = updateState;

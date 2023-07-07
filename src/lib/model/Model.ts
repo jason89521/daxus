@@ -1,9 +1,16 @@
 import { createDraft, finishDraft } from 'immer';
 import type { Draft } from 'immer';
-import type { InfiniteAction, NormalAction } from './types.js';
+import type {
+  InfiniteAction,
+  NormalAction,
+  InfiniteConstructorArgs,
+  NormalConstructorArgs,
+} from './types.js';
 import { NormalAccessor } from './NormalAccessor.js';
 import { InfiniteAccessor } from './InfiniteAccessor.js';
 import { isServer, stableHash } from '../utils/index.js';
+
+const CLEAR_ACCESSOR_CACHE_TIME = 60 * 1000;
 
 interface BaseAccessorCreator {
   invalidate(): void;
@@ -90,22 +97,53 @@ export function createModel<S extends object>(initialState: S): Model<S> {
     action: NormalAction<S, Arg, Data, E>
   ): NormalAccessorCreator<S, Arg, Data, E> {
     const prefix = prefixCounter++;
+    let timeoutId: number | undefined;
     const main = (arg: Arg) => {
       const hashArg = stableHash(arg);
       const key = `${prefix}/${hashArg}`;
+
+      const clearAccessorCache = () => {
+        const accessor = accessorRecord[key];
+        if (!accessor) return;
+        // Don't delete the accessor if it is mounted.
+        if (accessor.isMounted()) return;
+        delete accessorRecord[key];
+      };
+
+      const onMount = () => {
+        clearTimeout(timeoutId);
+      };
+
+      const onUnmount = () => {
+        timeoutId = window.setTimeout(clearAccessorCache, CLEAR_ACCESSOR_CACHE_TIME);
+      };
+
+      const constructorArgs: NormalConstructorArgs<S, Arg, Data, E> = {
+        arg,
+        action,
+        updateState,
+        getState,
+        modelSubscribe: subscribe,
+        notifyModel: notifyListeners,
+        onMount,
+        onUnmount,
+      };
+
+      if (isServer()) {
+        // We don't need to cache the accessor in server side.
+        return new NormalAccessor(constructorArgs);
+      }
+
+      // Remove the clear cache timeout since the accessor is being used.
+      clearTimeout(timeoutId);
+      timeoutId = window.setTimeout(clearAccessorCache, CLEAR_ACCESSOR_CACHE_TIME);
+
       const accessor = accessorRecord[key];
       if (accessor) {
         return accessor as NormalAccessor<S, Arg, Data, E>;
       }
 
-      const newAccessor = new NormalAccessor(
-        arg,
-        action,
-        updateState,
-        getState,
-        subscribe,
-        notifyListeners
-      );
+      const newAccessor = new NormalAccessor(constructorArgs);
       accessorRecord[key] = newAccessor;
       return newAccessor;
     };
@@ -125,21 +163,51 @@ export function createModel<S extends object>(initialState: S): Model<S> {
     action: InfiniteAction<S, Arg, Data, E>
   ): InfiniteAccessorCreator<S, Arg, Data, E> {
     const prefix = prefixCounter++;
+    let timeoutId: number | undefined;
     const main = (arg: Arg) => {
       const hashArg = stableHash(arg);
       const key = `${prefix}/${hashArg}`;
+
+      const clearAccessorCache = () => {
+        const accessor = accessorRecord[key];
+        if (!accessor) return;
+        // Don't delete the accessor if it is mounted.
+        if (accessor.isMounted()) return;
+        delete accessorRecord[key];
+      };
+
+      const onMount = () => {
+        clearTimeout(timeoutId);
+      };
+
+      const onUnmount = () => {
+        timeoutId = window.setTimeout(clearAccessorCache, CLEAR_ACCESSOR_CACHE_TIME);
+      };
+
+      const constructorArgs: InfiniteConstructorArgs<S, Arg, Data, E> = {
+        arg,
+        action,
+        getState,
+        modelSubscribe: subscribe,
+        notifyModel: notifyListeners,
+        updateState,
+        onMount,
+        onUnmount,
+      };
+
+      if (isServer()) {
+        // We don't need to cache the accessor in server side.
+        return new InfiniteAccessor(constructorArgs);
+      }
+
+      // Remove the clear cache timeout since the accessor is being used.
+      clearTimeout(timeoutId);
+      timeoutId = window.setTimeout(clearAccessorCache, CLEAR_ACCESSOR_CACHE_TIME);
       const accessor = accessorRecord[key];
       if (accessor) {
         return accessor as InfiniteAccessor<S, Arg, Data, E>;
       }
-      const newAccessor = new InfiniteAccessor(
-        arg,
-        action,
-        updateState,
-        getState,
-        subscribe,
-        notifyListeners
-      );
+      const newAccessor = new InfiniteAccessor(constructorArgs);
       accessorRecord[key] = newAccessor;
       return newAccessor;
     };

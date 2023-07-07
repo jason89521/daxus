@@ -2,13 +2,12 @@ import { defaultOptions } from '../constants.js';
 import type { AccessorOptions } from '../hooks/types.js';
 import type { MutableRefObject } from 'react';
 import { isUndefined } from '../utils/index.js';
+import type { BaseConstructorArgs, ModelSubscribe } from './types.js';
 
 export type Status<E = unknown> = {
   isFetching: boolean;
   error: E | null;
 };
-
-export type ModelSubscribe = (listener: () => void) => () => void;
 
 export type FetchPromiseResult<E, D> = readonly [E] | readonly [null, D];
 
@@ -32,6 +31,8 @@ export abstract class Accessor<S, D, E> {
   private removeOnReconnectListener: (() => void) | null = null;
   private pollingTimeoutId: number | undefined;
   private isStale = false;
+  private onMount: () => void;
+  private onUnmount: () => void;
 
   /**
    * Return the result of the revalidation.
@@ -46,9 +47,16 @@ export abstract class Accessor<S, D, E> {
   /**
    * @internal
    */
-  constructor(getState: (serverStateKey?: object) => S, modelSubscribe: ModelSubscribe) {
+  constructor({
+    getState,
+    modelSubscribe,
+    onMount,
+    onUnmount,
+  }: Pick<BaseConstructorArgs<S, any>, 'getState' | 'modelSubscribe' | 'onMount' | 'onUnmount'>) {
     this.getState = getState;
     this.modelSubscribe = modelSubscribe;
+    this.onMount = onMount;
+    this.onUnmount = onUnmount;
   }
 
   /**
@@ -56,6 +64,7 @@ export abstract class Accessor<S, D, E> {
    */
   mount = ({ optionsRef }: { optionsRef: OptionsRef }) => {
     this.optionsRefSet.add(optionsRef);
+    this.onMount();
 
     if (this.getFirstOptionsRef() === optionsRef) {
       this.removeOnFocusListener = this.registerOnFocus();
@@ -74,14 +83,16 @@ export abstract class Accessor<S, D, E> {
 
       // If it is not the first optionsRef, do nothing.
       if (!isFirstOptionsRef) return;
-      // Register new listeners if there is a optionsRef existed after unmounting the previous one.
       const firstOptionRef = this.getFirstOptionsRef();
+      // If it is the last mounted accessor, call onUnmount.
       if (!firstOptionRef) {
         this.removeOnFocusListener = null;
         this.removeOnReconnectListener = null;
+        this.onUnmount();
         return;
       }
 
+      // Register new listeners if there is a optionsRef existed after unmounting the previous one.
       this.removeOnFocusListener = this.registerOnFocus();
       this.removeOnReconnectListener = this.registerOnReconnect();
       clearTimeout(this.pollingTimeoutId);
@@ -130,6 +141,14 @@ export abstract class Accessor<S, D, E> {
     if (this.isMounted()) {
       this.revalidate();
     }
+  };
+
+  /**
+   * Determine whether this accessor is mounted by check whether there is an options ref.
+   * @internal
+   */
+  isMounted = () => {
+    return !isUndefined(this.getFirstOptionsRef());
   };
 
   protected updateStatus = (partialStatus: Partial<Status<E>>) => {
@@ -275,12 +294,5 @@ export abstract class Accessor<S, D, E> {
     if (!this.retryTimeoutMeta) return;
     clearTimeout(this.retryTimeoutMeta.timeoutId);
     this.retryTimeoutMeta.reject();
-  };
-
-  /**
-   * Determine whether this accessor is mounted by check whether there is an options ref.
-   */
-  private isMounted = () => {
-    return !isUndefined(this.getFirstOptionsRef());
   };
 }
