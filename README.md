@@ -8,7 +8,7 @@
 Daxus is a server state management library for building a single source of truth of state.
 
 - Customizable data structure
-  - This feature enable you to build your a single source of truth
+  - This feature enable you to build a single source of truth
 - Auto deduplication
 - Revalidate on Focus
 - Revalidate on network reconnection
