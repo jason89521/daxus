@@ -25,10 +25,18 @@ const getPostById = postModel.defineNormalAccessor<string, Post>({
   syncState: (draft, { data }) => {
     postAdapter.upsertOne(draft, data);
   },
+  onSuccess: ({ data, arg }) => {
+    // some effect when fetching success
+  },
+  onError: ({ error, arg }) => {
+    // some effect when fetching error
+  },
 });
 ```
 
 To define an accessor, you need to provide two pieces of information to your model. The `fetchData` function specifies how to fetch the remote data, while the `syncState` function determines how to sync the fetched data to the state of the model.
+
+Moreover, you can specify `onSuccess` and `onError` to perform some side effect when fetching success or fail.
 
 `defineNormalAccessor` returns an accessor creator that you can use to create an accessor. We encourage you to name the creator based on its purpose. In the example above, the accessor fetches post based on the given ID, so it is named `getPostById`.
 

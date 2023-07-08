@@ -35,6 +35,8 @@ Daxus is a server state management library for building a single source of truth
 
 ## Comparison
 
+[The difference with React Query](./docs/the-difference-with-RQ.md)
+
 |                             | `Daxus` | `React Query` | `Redux With Async Thunk` |
 | --------------------------- | :-----: | :-----------: | :----------------------: |
 | Customizable data structure |   ✅    |      ❌       |            ✅            |
@@ -143,7 +145,7 @@ There are two type of the accessors. One is `normal`, the other one is `infinite
 
 The argument is the accessor's **action**. `fetchData` tells the accessor how to fetch data from the server, while `syncState` specifies how to synchronize the obtained data with the model's state.
 
-`defineNormalAccessor` and `defineInfiniteAccessor` returns an accessor creator function. If you pass the same arguments to it, it will return the same accessor. Next, we will use the accessor created by `defineNormalAccessor` with the `useAccessor` hook.
+`defineNormalAccessor` and `defineInfiniteAccessor` returns an accessor creator function. Next, we will use the accessor created by `defineNormalAccessor` with the `useAccessor` hook.
 
 ```typescript
 function usePost(id: number) {
