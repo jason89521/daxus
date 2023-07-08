@@ -111,7 +111,7 @@ export function createModel<S extends object>(initialState: S): Model<S> {
       };
 
       const onMount = () => {
-        clearTimeout(timeoutId);
+        window.clearTimeout(timeoutId);
       };
 
       const onUnmount = () => {
@@ -135,7 +135,7 @@ export function createModel<S extends object>(initialState: S): Model<S> {
       }
 
       // Remove the clear cache timeout since the accessor is being used.
-      clearTimeout(timeoutId);
+      window.clearTimeout(timeoutId);
       timeoutId = window.setTimeout(clearAccessorCache, CLEAR_ACCESSOR_CACHE_TIME);
 
       const accessor = accessorRecord[key];
@@ -177,7 +177,7 @@ export function createModel<S extends object>(initialState: S): Model<S> {
       };
 
       const onMount = () => {
-        clearTimeout(timeoutId);
+        window.clearTimeout(timeoutId);
       };
 
       const onUnmount = () => {
@@ -201,7 +201,7 @@ export function createModel<S extends object>(initialState: S): Model<S> {
       }
 
       // Remove the clear cache timeout since the accessor is being used.
-      clearTimeout(timeoutId);
+      window.clearTimeout(timeoutId);
       timeoutId = window.setTimeout(clearAccessorCache, CLEAR_ACCESSOR_CACHE_TIME);
       const accessor = accessorRecord[key];
       if (accessor) {
