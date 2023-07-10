@@ -1,7 +1,6 @@
 import { getCurrentTime } from '../utils/index.js';
-import type { ModelSubscribe } from './Accessor.js';
 import { Accessor } from './Accessor.js';
-import type { InfiniteAction } from './types.js';
+import type { InfiniteAction, InfiniteConstructorArgs } from './types.js';
 import type { Draft } from 'immer';
 
 type Task = 'validate' | 'next' | 'idle';
@@ -27,15 +26,17 @@ export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Acc
   /**
    * @internal
    */
-  constructor(
-    arg: Arg,
-    action: InfiniteAction<S, Arg, Data, E>,
-    updateState: (cb: (draft: Draft<S>) => void) => void,
-    getState: (serverStateKey?: object) => S,
-    modelSubscribe: ModelSubscribe,
-    notifyModel: () => void
-  ) {
-    super(getState, modelSubscribe);
+  constructor({
+    getState,
+    modelSubscribe,
+    arg,
+    action,
+    updateState,
+    notifyModel,
+    onMount,
+    onUnmount,
+  }: InfiniteConstructorArgs<S, Arg, Data, E>) {
+    super({ getState, modelSubscribe, onMount, onUnmount });
     this.arg = arg;
     this.action = action;
     this.updateState = updateState;

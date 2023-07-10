@@ -34,4 +34,22 @@ export type Action<S, Arg = any, Data = any, E = unknown> =
   | NormalAction<S, Arg, Data, E>
   | InfiniteAction<S, Arg, Data, E>;
 
-export type Listener = () => void;
+export type ModelSubscribe = (listener: () => void) => () => void;
+
+export interface BaseConstructorArgs<S, Arg> {
+  arg: Arg;
+  updateState: (cb: (draft: Draft<S>) => void) => void;
+  getState: (serverStateKey?: object) => S;
+  modelSubscribe: ModelSubscribe;
+  notifyModel: () => void;
+  onMount: () => void;
+  onUnmount: () => void;
+}
+
+export interface NormalConstructorArgs<S, Arg, Data, E> extends BaseConstructorArgs<S, Arg> {
+  action: NormalAction<S, Arg, Data, E>;
+}
+
+export interface InfiniteConstructorArgs<S, Arg, Data, E> extends BaseConstructorArgs<S, Arg> {
+  action: InfiniteAction<S, Arg, Data, E>;
+}
