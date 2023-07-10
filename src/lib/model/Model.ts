@@ -125,7 +125,7 @@ export function createModel<S extends object>(initialState: S): Model<S> {
   function defineNormalAccessor<Arg, Data, E = unknown>(
     action: NormalAction<S, Arg, Data, E>
   ): NormalAccessorCreator<S, Arg, Data, E> {
-    const prefix = prefixCounter++;
+    const prefix = action.prefix ?? prefixCounter++;
     let timeoutId: number | undefined;
     const main = (arg: Arg) => {
       const hashArg = stableHash(arg);
@@ -192,7 +192,7 @@ export function createModel<S extends object>(initialState: S): Model<S> {
   function defineInfiniteAccessor<Arg, Data, E = unknown>(
     action: InfiniteAction<S, Arg, Data, E>
   ): InfiniteAccessorCreator<S, Arg, Data, E> {
-    const prefix = prefixCounter++;
+    const prefix = action.prefix ?? prefixCounter++;
     let timeoutId: number | undefined;
     const main = (arg: Arg) => {
       const hashArg = stableHash(arg);
