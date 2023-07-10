@@ -3,6 +3,10 @@ import type { Draft } from 'immer';
 interface BaseAction<Arg, D, E> {
   onError?: (info: { error: E; arg: Arg }) => void;
   onSuccess?: (info: { data: D; arg: Arg }) => void;
+  /**
+   * @internal
+   */
+  prefix?: number;
 }
 
 export interface NormalAction<S, Arg = any, Data = any, E = unknown>
@@ -44,6 +48,7 @@ export interface BaseConstructorArgs<S, Arg> {
   notifyModel: () => void;
   onMount: () => void;
   onUnmount: () => void;
+  prefix: number;
 }
 
 export interface NormalConstructorArgs<S, Arg, Data, E> extends BaseConstructorArgs<S, Arg> {

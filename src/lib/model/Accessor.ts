@@ -1,7 +1,7 @@
 import { defaultOptions } from '../constants.js';
 import type { AccessorOptions } from '../hooks/types.js';
 import type { MutableRefObject } from 'react';
-import { isUndefined } from '../utils/index.js';
+import { getKey, isUndefined } from '../utils/index.js';
 import type { BaseConstructorArgs, ModelSubscribe } from './types.js';
 
 export type Status<E = unknown> = {
@@ -19,10 +19,11 @@ type RetryTimeoutMeta = {
 type Options = Required<AccessorOptions>;
 type OptionsRef = MutableRefObject<Options>;
 
-export abstract class Accessor<S, D, E> {
+export abstract class Accessor<S, D, E, Arg = unknown> {
   protected status: Status<E> = { isFetching: false, error: null };
   protected statusListeners: ((prev: Status, current: Status) => void)[] = [];
   protected fetchPromise!: Promise<FetchPromiseResult<E, D>>;
+  protected arg: Arg;
   private retryTimeoutMeta: RetryTimeoutMeta | null = null;
   private startAt = 0;
   private modelSubscribe: ModelSubscribe;
@@ -33,6 +34,7 @@ export abstract class Accessor<S, D, E> {
   private isStale = false;
   private onMount: () => void;
   private onUnmount: () => void;
+  private prefix: number;
 
   /**
    * Return the result of the revalidation.
@@ -52,12 +54,23 @@ export abstract class Accessor<S, D, E> {
     modelSubscribe,
     onMount,
     onUnmount,
-  }: Pick<BaseConstructorArgs<S, any>, 'getState' | 'modelSubscribe' | 'onMount' | 'onUnmount'>) {
+    prefix,
+    arg,
+  }: Pick<
+    BaseConstructorArgs<S, any>,
+    'getState' | 'modelSubscribe' | 'onMount' | 'onUnmount' | 'prefix' | 'arg'
+  >) {
     this.getState = getState;
     this.modelSubscribe = modelSubscribe;
     this.onMount = onMount;
     this.onUnmount = onUnmount;
+    this.prefix = prefix;
+    this.arg = arg;
   }
+
+  getKey = () => {
+    return getKey(this.prefix, this.arg);
+  };
 
   /**
    * @internal
