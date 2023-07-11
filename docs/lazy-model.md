@@ -38,6 +38,14 @@ lazyModel.mutate(getUser(userId), prevUser => {
 
 Note that when using the lazy model, you should return a new data object instead of directly mutating the cached data.
 
+## Get State
+
+The `getState` method need to pass an accessor to get the corresponding cache.
+
+```ts
+lazyModel.getState(getUser(userId)); // -> User | undefined
+```
+
 ## Limitation
 
 When using the lazy model, you lose some control over the model's state. The data is bound to the accessor, and its definition is derived from the return value of the `fetchData` function.

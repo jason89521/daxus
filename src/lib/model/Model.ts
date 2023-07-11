@@ -55,8 +55,7 @@ export interface Model<S extends object> {
   subscribe(listener: () => void): () => void;
 }
 
-export interface LazyModel
-  extends Omit<Model<LazyState>, 'mutate' | 'defineNormalAccessor' | 'defineInfiniteAccessor'> {
+export interface LazyModel extends Pick<Model<LazyState>, 'invalidate' | 'subscribe'> {
   mutate<Data, E = unknown>(
     accessor: Accessor<LazyState, Data, E>,
     fn: (prevData: Data | undefined) => Data,
@@ -68,6 +67,10 @@ export interface LazyModel
   defineInfiniteAccessor<Arg, Data, E = unknown>(
     action: LazyInfiniteAction<Arg, Data, E>
   ): InfiniteAccessorCreator<LazyState, Arg, Data, E>;
+  getState<Data, E = unknown>(
+    accessor: Accessor<LazyState, Data, E>,
+    serverStateKey?: object
+  ): Data | undefined;
 }
 
 export function createModel<S extends object>(initialState: S): Model<S> {
@@ -312,10 +315,21 @@ export function createLazyModel(): LazyModel {
     });
   }
 
+  function getState<Data, E = unknown>(
+    accessor: Accessor<LazyState, Data, E>,
+    serverStateKey?: object
+  ) {
+    const key = accessor.getKey();
+    const cache = model.getState(serverStateKey)[key] as Data | undefined;
+
+    return cache;
+  }
+
   return {
     ...model,
     defineNormalAccessor,
     defineInfiniteAccessor,
     mutate,
+    getState,
   };
 }

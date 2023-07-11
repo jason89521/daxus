@@ -18,12 +18,12 @@ describe('lazyModel', () => {
       return prevData ? 'has data' : 'no data';
     });
 
-    expect(model.getState()[getData().getKey()]).toBe('no data');
+    expect(model.getState(getData())).toBe('no data');
     model.mutate(getData(), prevData => {
       return prevData ? 'has data' : 'no data';
     });
 
-    expect(model.getState()[getData().getKey()]).toBe('has data');
+    expect(model.getState(getData())).toBe('has data');
   });
 });
 
