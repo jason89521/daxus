@@ -304,15 +304,15 @@ export function createLazyModel(): LazyModel {
 
   function mutate<Data, E = unknown>(
     accessor: Accessor<LazyState, Data, E>,
-    fn: (prevData: Data) => Data,
+    fn: (prevData: Data | undefined) => Data,
     serverStateKey?: object
   ) {
     const key = accessor.getKey();
-    const prevData = model.getState(serverStateKey)[key] as Data;
+    const prevData = model.getState(serverStateKey)[key] as Data | undefined;
     const newData = fn(prevData);
     model.mutate(draft => {
       draft[key] = newData;
-    });
+    }, serverStateKey);
   }
 
   function getState<Data, E = unknown>(
