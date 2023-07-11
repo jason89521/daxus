@@ -8,9 +8,13 @@ import type { Draft } from 'immer';
  */
 type FetchResult<D, E> = [D | null, E | null];
 
-export class NormalAccessor<S, Arg = any, Data = any, E = unknown> extends Accessor<S, Data, E> {
+export class NormalAccessor<S, Arg = any, Data = any, E = unknown> extends Accessor<
+  S,
+  Data,
+  E,
+  Arg
+> {
   private action: NormalAction<S, Arg, Data, E>;
-  private arg: Arg;
   private updateState: (cb: (draft: Draft<S>) => void) => void;
   private notifyModel: () => void;
 
@@ -26,8 +30,9 @@ export class NormalAccessor<S, Arg = any, Data = any, E = unknown> extends Acces
     notifyModel,
     onMount,
     onUnmount,
+    prefix,
   }: NormalConstructorArgs<S, Arg, Data, E>) {
-    super({ getState, modelSubscribe, onMount, onUnmount });
+    super({ getState, modelSubscribe, onMount, onUnmount, arg, prefix });
     this.action = action;
     this.arg = arg;
     this.updateState = updateState;

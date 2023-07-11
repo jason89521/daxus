@@ -1,4 +1,5 @@
 export * from './getCurrentTime.js';
+export * from './getKey.js';
 export * from './isNonNullable.js';
 export * from './isNull.js';
 export * from './isNumber.js';

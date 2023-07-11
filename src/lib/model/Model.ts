@@ -8,13 +8,27 @@ import type {
 } from './types.js';
 import { NormalAccessor } from './NormalAccessor.js';
 import { InfiniteAccessor } from './InfiniteAccessor.js';
-import { isServer, stableHash } from '../utils/index.js';
+import { getKey, isServer, stableHash } from '../utils/index.js';
+import type { Accessor } from './Accessor.js';
 
 const CLEAR_ACCESSOR_CACHE_TIME = 60 * 1000;
 
 interface BaseAccessorCreator {
   invalidate(): void;
 }
+
+export type LazyState = Record<string, unknown>;
+
+export type LazyNormalAction<Arg, Data, E> = Omit<
+  NormalAction<LazyState, Arg, Data, E>,
+  'syncState'
+>;
+
+export type LazyInfiniteAction<Arg, Data, E> = Omit<
+  InfiniteAction<LazyState, Arg, Data, E>,
+  'syncState'
+>;
+
 export interface NormalAccessorCreator<S, Arg, Data, E> extends BaseAccessorCreator {
   (arg: Arg): NormalAccessor<S, Arg, Data, E>;
 }
@@ -39,6 +53,24 @@ export interface Model<S extends object> {
    * @internal
    */
   subscribe(listener: () => void): () => void;
+}
+
+export interface LazyModel extends Pick<Model<LazyState>, 'invalidate' | 'subscribe'> {
+  mutate<Data, E = unknown>(
+    accessor: Accessor<LazyState, Data, E>,
+    fn: (prevData: Data | undefined) => Data,
+    serverStateKey?: object
+  ): void;
+  defineNormalAccessor<Arg, Data, E = unknown>(
+    action: LazyNormalAction<Arg, Data, E>
+  ): NormalAccessorCreator<LazyState, Arg, Data, E>;
+  defineInfiniteAccessor<Arg, Data, E = unknown>(
+    action: LazyInfiniteAction<Arg, Data, E>
+  ): InfiniteAccessorCreator<LazyState, Arg, Data, E>;
+  getState<Data, E = unknown>(
+    accessor: Accessor<LazyState, Data, E>,
+    serverStateKey?: object
+  ): Data | undefined;
 }
 
 export function createModel<S extends object>(initialState: S): Model<S> {
@@ -96,7 +128,7 @@ export function createModel<S extends object>(initialState: S): Model<S> {
   function defineNormalAccessor<Arg, Data, E = unknown>(
     action: NormalAction<S, Arg, Data, E>
   ): NormalAccessorCreator<S, Arg, Data, E> {
-    const prefix = prefixCounter++;
+    const prefix = action.prefix ?? prefixCounter++;
     let timeoutId: number | undefined;
     const main = (arg: Arg) => {
       const hashArg = stableHash(arg);
@@ -127,6 +159,7 @@ export function createModel<S extends object>(initialState: S): Model<S> {
         notifyModel: notifyListeners,
         onMount,
         onUnmount,
+        prefix,
       };
 
       if (isServer()) {
@@ -162,7 +195,7 @@ export function createModel<S extends object>(initialState: S): Model<S> {
   function defineInfiniteAccessor<Arg, Data, E = unknown>(
     action: InfiniteAction<S, Arg, Data, E>
   ): InfiniteAccessorCreator<S, Arg, Data, E> {
-    const prefix = prefixCounter++;
+    const prefix = action.prefix ?? prefixCounter++;
     let timeoutId: number | undefined;
     const main = (arg: Arg) => {
       const hashArg = stableHash(arg);
@@ -193,6 +226,7 @@ export function createModel<S extends object>(initialState: S): Model<S> {
         updateState,
         onMount,
         onUnmount,
+        prefix,
       };
 
       if (isServer()) {
@@ -230,4 +264,72 @@ export function createModel<S extends object>(initialState: S): Model<S> {
   }
 
   return { mutate, defineInfiniteAccessor, defineNormalAccessor, getState, invalidate, subscribe };
+}
+
+export function createLazyModel(): LazyModel {
+  const model = createModel<LazyState>({});
+  let prefixCounter = 0;
+
+  function defineNormalAccessor<Arg, Data, E = unknown>(action: LazyNormalAction<Arg, Data, E>) {
+    const prefix = prefixCounter++;
+    return model.defineNormalAccessor({
+      ...action,
+      syncState(draft, { data, arg }) {
+        const key = getKey(prefix, arg);
+        draft[key] = data;
+      },
+      prefix,
+    });
+  }
+
+  function defineInfiniteAccessor<Arg, Data, E = unknown>(
+    action: LazyInfiniteAction<Arg, Data, E>
+  ) {
+    const prefix = prefixCounter++;
+    return model.defineInfiniteAccessor({
+      ...action,
+      prefix,
+      syncState(draft, { pageIndex, data, arg }) {
+        const key = getKey(prefix, arg);
+        if (pageIndex === 0) {
+          draft[key] = [data];
+          return;
+        }
+
+        const pages = draft[key] as Data[];
+        pages[pageIndex] = data;
+      },
+    });
+  }
+
+  function mutate<Data, E = unknown>(
+    accessor: Accessor<LazyState, Data, E>,
+    fn: (prevData: Data | undefined) => Data,
+    serverStateKey?: object
+  ) {
+    const key = accessor.getKey();
+    const prevData = model.getState(serverStateKey)[key] as Data | undefined;
+    const newData = fn(prevData);
+    model.mutate(draft => {
+      draft[key] = newData;
+    }, serverStateKey);
+  }
+
+  function getState<Data, E = unknown>(
+    accessor: Accessor<LazyState, Data, E>,
+    serverStateKey?: object
+  ) {
+    const key = accessor.getKey();
+    const cache = model.getState(serverStateKey)[key] as Data | undefined;
+
+    return cache;
+  }
+
+  return {
+    ...model,
+    defineNormalAccessor,
+    defineInfiniteAccessor,
+    mutate,
+    getState,
+  };
 }

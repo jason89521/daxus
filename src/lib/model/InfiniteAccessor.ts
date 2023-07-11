@@ -8,10 +8,10 @@ type Task = 'validate' | 'next' | 'idle';
 export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Accessor<
   S,
   Data[],
-  E
+  E,
+  Arg
 > {
   private action: InfiniteAction<S, Arg, Data, E>;
-  private arg: Arg;
   private updateState: (cb: (draft: Draft<S>) => void) => void;
   private data: Data[] = [];
   /**
@@ -35,9 +35,9 @@ export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Acc
     notifyModel,
     onMount,
     onUnmount,
+    prefix,
   }: InfiniteConstructorArgs<S, Arg, Data, E>) {
-    super({ getState, modelSubscribe, onMount, onUnmount });
-    this.arg = arg;
+    super({ getState, modelSubscribe, onMount, onUnmount, arg, prefix });
     this.action = action;
     this.updateState = updateState;
     this.notifyModel = notifyModel;

@@ -239,6 +239,7 @@ postModel.invalidate(); // invalidate all accessors related to this model
 - [Pagination](./docs/pagination.md)
 - [Conditional Fetching](./docs/conditional-fetching.md)
 - [SSR](./docs/ssr.md)
+- [Lazy Model](./docs/lazy-model.md)
 
 ## Development Motivation
 
