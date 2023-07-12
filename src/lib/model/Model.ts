@@ -83,6 +83,10 @@ export function createModel<S extends object>(initialState: S): Model<S> {
   let clientState = { ...initialState };
   const listeners: (() => void)[] = [];
   const accessorRecord = {} as Record<string, Accessor | undefined>;
+  /**
+   * instead of recording the whole data, we only record the pages number to save the memory usage
+   */
+  const infiniteAccessorPageNumRecord = {} as Record<string, number | undefined>;
 
   function updateState(fn: (draft: Draft<S>) => void, serverStateKey?: object) {
     if (isServer() && serverStateKey) {
@@ -202,10 +206,11 @@ export function createModel<S extends object>(initialState: S): Model<S> {
       const key = `${prefix}/${hashArg}`;
 
       const clearAccessorCache = () => {
-        const accessor = accessorRecord[key];
+        const accessor = accessorRecord[key] as InfiniteAccessor<S>;
         if (!accessor) return;
         // Don't delete the accessor if it is mounted.
         if (accessor.isMounted()) return;
+        infiniteAccessorPageNumRecord[key] = accessor.getPageNum();
         delete accessorRecord[key];
       };
 
@@ -227,6 +232,7 @@ export function createModel<S extends object>(initialState: S): Model<S> {
         onMount,
         onUnmount,
         prefix,
+        initialPageNum: infiniteAccessorPageNumRecord[key] ?? 1,
       };
 
       if (isServer()) {
