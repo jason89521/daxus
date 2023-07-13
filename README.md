@@ -242,11 +242,13 @@ flowchart TD
     state[(state)]
   end
   s[(server)]
-  na(normalAccessor)
-  m --> |defineNormalAccessor| na
-  na --> |fetchData| s
-  s --> |Data| na
-  na --> |syncState| state
+  NAC(normalAccessorCreator)
+  NA(normalAccessor)
+  m --> |defineNormalAccessor| NAC
+  NAC -->  NA
+  NA --> |fetchData| s
+  s --> |Data| NA
+  NA --> |syncState| state
 
 ```
 
