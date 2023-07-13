@@ -13,6 +13,10 @@ describe('InfiniteAccessor', () => {
     getPostList = model.getPostList;
   });
 
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   test('should return data from revalidate and fetchNext', async () => {
     expect(await getPostList().revalidate()).toEqual([null, [page0]]);
     expect(await getPostList().fetchNext()).toEqual([null, [page0, page1]]);
@@ -73,5 +77,21 @@ describe('InfiniteAccessor', () => {
     expect(promise1).not.toBe(promise2);
     expect(result1).toEqual([null, [page0, page1]]);
     expect(result1).toBe(result2);
+  });
+
+  test('should record the number of the previous fetched pages after accessor cache is deleted', async () => {
+    vi.useFakeTimers();
+    const oldAccessor = getPostList();
+    await oldAccessor.revalidate();
+    await oldAccessor.fetchNext();
+    vi.runOnlyPendingTimers();
+    // the cache should be deleted from the model
+    const newAccessor = getPostList();
+
+    expect(oldAccessor).not.toBe(newAccessor);
+
+    await newAccessor.revalidate();
+
+    expect(newAccessor.getPageNum()).toBe(2);
   });
 });

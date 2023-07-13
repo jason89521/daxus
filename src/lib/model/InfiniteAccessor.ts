@@ -22,6 +22,7 @@ export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Acc
   private rejectFetching: (() => void) | null = null;
   private currentTask: Task = 'idle';
   private notifyModel: () => void;
+  private initialPageNum: number;
 
   /**
    * @internal
@@ -36,19 +37,28 @@ export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Acc
     onMount,
     onUnmount,
     prefix,
+    initialPageNum,
   }: InfiniteConstructorArgs<S, Arg, Data, E>) {
     super({ getState, modelSubscribe, onMount, onUnmount, arg, prefix });
     this.action = action;
     this.updateState = updateState;
     this.notifyModel = notifyModel;
+    this.initialPageNum = initialPageNum;
   }
+
+  /**
+   * @internal
+   */
+  getPageNum = () => {
+    return this.data.length;
+  };
 
   /**
    * {@inheritDoc Accessor.revalidate}
    */
   revalidate = () => {
-    const pageSize = this.pageSize() || 1;
-    return this.fetch({ pageSize, pageIndex: 0, task: 'validate' });
+    const pageNum = this.getPageNum() || this.initialPageNum;
+    return this.fetch({ pageNum, pageIndex: 0, task: 'validate' });
   };
 
   /**
@@ -56,9 +66,9 @@ export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Acc
    * @returns The all pages if it is not interrupted by the other revalidation, otherwise returns `null`.
    */
   fetchNext = () => {
-    const pageIndex = this.pageSize();
-    const pageSize = pageIndex + 1;
-    return this.fetch({ pageSize, pageIndex, task: 'next' });
+    const pageIndex = this.getPageNum();
+    const pageNum = pageIndex + 1;
+    return this.fetch({ pageNum, pageIndex, task: 'next' });
   };
 
   private updateData = (data: Data[]) => {
@@ -112,17 +122,11 @@ export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Acc
    * Fetch the pages from `pageIndex` to `pageSize` (exclusive).
    * This function returns the whole data list.
    */
-  private fetchPages = async ({
-    pageSize,
-    pageIndex = this.pageSize(),
-  }: {
-    pageSize: number;
-    pageIndex?: number;
-  }) => {
+  private fetchPages = async ({ pageNum, pageIndex }: { pageNum: number; pageIndex: number }) => {
     const dataArray = [...this.data];
     const result: [Data[], E | null] = [dataArray, null];
     let previousData: Data | null = dataArray[pageIndex - 1] ?? null;
-    for (; pageIndex < pageSize; pageIndex++) {
+    for (; pageIndex < pageNum; pageIndex++) {
       const [data, error] = await this.fetchPage({
         previousData,
         pageIndex,
@@ -144,12 +148,12 @@ export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Acc
   };
 
   private fetch = ({
-    pageIndex = this.pageSize(),
-    pageSize,
+    pageIndex,
+    pageNum,
     task,
   }: {
-    pageIndex?: number;
-    pageSize: number;
+    pageIndex: number;
+    pageNum: number;
     task: Task;
   }) => {
     const startAt = getCurrentTime();
@@ -166,7 +170,7 @@ export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Acc
     const fetchPromise = (async () => {
       try {
         const arg = this.arg;
-        const [data, error] = await this.fetchPages({ pageSize, pageIndex });
+        const [data, error] = await this.fetchPages({ pageNum, pageIndex });
 
         // expired means that there is an another `fetch` is fetching.
         if (this.isExpiredFetching(startAt)) return this.fetchPromise;
@@ -211,9 +215,5 @@ export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Acc
         });
       });
     });
-  };
-
-  private pageSize = () => {
-    return this.data.length;
   };
 }

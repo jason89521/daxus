@@ -57,4 +57,5 @@ export interface NormalConstructorArgs<S, Arg, Data, E> extends BaseConstructorA
 
 export interface InfiniteConstructorArgs<S, Arg, Data, E> extends BaseConstructorArgs<S, Arg> {
   action: InfiniteAction<S, Arg, Data, E>;
+  initialPageNum: number;
 }
