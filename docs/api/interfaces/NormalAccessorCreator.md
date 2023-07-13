@@ -35,7 +35,7 @@
 
 #### Defined in
 
-[model/Model.ts:12](https://github.com/jason89521/react-fetch/blob/6ec4382/src/lib/model/Model.ts#L12)
+[model/Model.ts:33](https://github.com/jason89521/react-fetch/blob/6f430a6/src/lib/model/Model.ts#L33)
 
 ## Table of contents
 
@@ -59,4 +59,4 @@ BaseAccessorCreator.invalidate
 
 #### Defined in
 
-[model/Model.ts:9](https://github.com/jason89521/react-fetch/blob/6ec4382/src/lib/model/Model.ts#L9)
+[model/Model.ts:17](https://github.com/jason89521/react-fetch/blob/6f430a6/src/lib/model/Model.ts#L17)
