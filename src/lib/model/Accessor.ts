@@ -24,6 +24,7 @@ export abstract class Accessor<S, D, E, Arg = unknown> {
   protected statusListeners: ((prev: Status, current: Status) => void)[] = [];
   protected fetchPromise!: Promise<FetchPromiseResult<E, D>>;
   protected arg: Arg;
+  private notifyModel: () => void;
   private retryTimeoutMeta: RetryTimeoutMeta | null = null;
   private startAt = 0;
   private modelSubscribe: ModelSubscribe;
@@ -35,6 +36,8 @@ export abstract class Accessor<S, D, E, Arg = unknown> {
   private onMount: () => void;
   private onUnmount: () => void;
   private prefix: number;
+  private lazyListeners: (() => void)[] = [];
+  private isLazy: boolean;
 
   /**
    * Return the result of the revalidation.
@@ -54,18 +57,29 @@ export abstract class Accessor<S, D, E, Arg = unknown> {
     modelSubscribe,
     onMount,
     onUnmount,
+    notifyModel,
     prefix,
     arg,
+    isLazy,
   }: Pick<
     BaseConstructorArgs<S, any>,
-    'getState' | 'modelSubscribe' | 'onMount' | 'onUnmount' | 'prefix' | 'arg'
+    | 'getState'
+    | 'modelSubscribe'
+    | 'onMount'
+    | 'onUnmount'
+    | 'prefix'
+    | 'arg'
+    | 'notifyModel'
+    | 'isLazy'
   >) {
     this.getState = getState;
     this.modelSubscribe = modelSubscribe;
     this.onMount = onMount;
     this.onUnmount = onUnmount;
+    this.notifyModel = notifyModel;
     this.prefix = prefix;
     this.arg = arg;
+    this.isLazy = isLazy;
   }
 
   getKey = () => {
@@ -123,14 +137,8 @@ export abstract class Accessor<S, D, E, Arg = unknown> {
     };
   };
 
-  /**
-   * @internal
-   */
   subscribeData = (listener: () => void) => {
-    const modelUnsubscribe = this.modelSubscribe(listener);
-    return () => {
-      modelUnsubscribe();
-    };
+    return this.isLazy ? this.subscribeLazyAccessor(listener) : this.subscribeModel(listener);
   };
 
   /**
@@ -172,6 +180,14 @@ export abstract class Accessor<S, D, E, Arg = unknown> {
 
   protected notifyStatusListeners = (newCache: Status) => {
     this.statusListeners.forEach(l => l(this.status, newCache));
+  };
+
+  protected notifyDataListeners = () => {
+    if (this.isLazy) {
+      this.notifyLazyAccessor();
+    } else {
+      this.notifyModel();
+    }
   };
 
   protected getOptions = (): Required<AccessorOptions> => {
@@ -307,5 +323,22 @@ export abstract class Accessor<S, D, E, Arg = unknown> {
     if (!this.retryTimeoutMeta) return;
     clearTimeout(this.retryTimeoutMeta.timeoutId);
     this.retryTimeoutMeta.reject();
+  };
+
+  private subscribeModel = (listener: () => void) => {
+    return this.modelSubscribe(listener);
+  };
+
+  private subscribeLazyAccessor = (listener: () => void) => {
+    this.lazyListeners.push(listener);
+
+    return () => {
+      const index = this.lazyListeners.indexOf(listener);
+      this.lazyListeners.splice(index, 1);
+    };
+  };
+
+  private notifyLazyAccessor = () => {
+    this.lazyListeners.forEach(l => l());
   };
 }

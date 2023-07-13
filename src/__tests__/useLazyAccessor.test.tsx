@@ -1,5 +1,6 @@
-import { act, renderHook, waitFor } from '@testing-library/react';
+import { act, fireEvent, renderHook, waitFor } from '@testing-library/react';
 import { createLazyModel, useLazyAccessor } from '../lib/index.js';
+import { renderWithOptionsProvider } from './utils.js';
 
 let model = createLazyModel();
 
@@ -52,6 +53,57 @@ describe('useLazyAccessor - normal', () => {
     await waitFor(() => {
       expect(result.current.data).toBe(4);
     });
+  });
+
+  test('should notify accessor itself only', async () => {
+    let notifiedCount = 0;
+    const getStaticData = model.defineNormalAccessor<void, string>({
+      fetchData: async () => {
+        return 'static';
+      },
+    });
+    const getDynamicData = model.defineNormalAccessor<void, string>({
+      fetchData: async () => {
+        return `${notifiedCount}`;
+      },
+    });
+
+    function StaticComponent() {
+      const { data } = useLazyAccessor(getStaticData(), data => {
+        notifiedCount += 1;
+        return data;
+      });
+
+      return <div>{data}</div>;
+    }
+
+    function DynamicComponent() {
+      const { accessor, data } = useLazyAccessor(getDynamicData());
+
+      return (
+        <div>
+          {data}
+          <button onClick={() => accessor.revalidate()}>rerender</button>
+        </div>
+      );
+    }
+
+    function Page() {
+      return (
+        <div>
+          <StaticComponent />
+          <DynamicComponent />
+        </div>
+      );
+    }
+
+    const { findByText, getByText } = renderWithOptionsProvider(<Page />);
+    await findByText('static');
+    expect(notifiedCount).toBe(2);
+    fireEvent.click(getByText('rerender'));
+    await findByText('2');
+
+    expect(notifiedCount).toBe(2); // should not be notified
   });
 });
 

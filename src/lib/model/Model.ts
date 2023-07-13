@@ -164,6 +164,7 @@ export function createModel<S extends object>(initialState: S): Model<S> {
         onMount,
         onUnmount,
         prefix,
+        isLazy: action.isLazy ?? false,
       };
 
       if (isServer()) {
@@ -233,6 +234,7 @@ export function createModel<S extends object>(initialState: S): Model<S> {
         onUnmount,
         prefix,
         initialPageNum: infiniteAccessorPageNumRecord[key] ?? 1,
+        isLazy: action.isLazy ?? false,
       };
 
       if (isServer()) {
@@ -280,11 +282,12 @@ export function createLazyModel(): LazyModel {
     const prefix = prefixCounter++;
     return model.defineNormalAccessor({
       ...action,
+      prefix,
+      isLazy: true,
       syncState(draft, { data, arg }) {
         const key = getKey(prefix, arg);
         draft[key] = data;
       },
-      prefix,
     });
   }
 
@@ -295,6 +298,7 @@ export function createLazyModel(): LazyModel {
     return model.defineInfiniteAccessor({
       ...action,
       prefix,
+      isLazy: true,
       syncState(draft, { pageIndex, data, arg }) {
         const key = getKey(prefix, arg);
         if (pageIndex === 0) {
