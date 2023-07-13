@@ -21,7 +21,6 @@ export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Acc
    */
   private rejectFetching: (() => void) | null = null;
   private currentTask: Task = 'idle';
-  private notifyModel: () => void;
   private initialPageNum: number;
 
   /**
@@ -38,11 +37,11 @@ export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Acc
     onUnmount,
     prefix,
     initialPageNum,
+    isLazy,
   }: InfiniteConstructorArgs<S, Arg, Data, E>) {
-    super({ getState, modelSubscribe, onMount, onUnmount, arg, prefix });
+    super({ getState, modelSubscribe, onMount, onUnmount, arg, prefix, notifyModel, isLazy });
     this.action = action;
     this.updateState = updateState;
-    this.notifyModel = notifyModel;
     this.initialPageNum = initialPageNum;
   }
 
@@ -73,7 +72,7 @@ export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Acc
 
   private updateData = (data: Data[]) => {
     this.data = data;
-    this.notifyModel();
+    this.notifyDataListeners();
   };
 
   /**

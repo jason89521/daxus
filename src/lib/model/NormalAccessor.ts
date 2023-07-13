@@ -16,7 +16,6 @@ export class NormalAccessor<S, Arg = any, Data = any, E = unknown> extends Acces
 > {
   private action: NormalAction<S, Arg, Data, E>;
   private updateState: (cb: (draft: Draft<S>) => void) => void;
-  private notifyModel: () => void;
 
   /**
    * @internal
@@ -31,12 +30,12 @@ export class NormalAccessor<S, Arg = any, Data = any, E = unknown> extends Acces
     onMount,
     onUnmount,
     prefix,
+    isLazy,
   }: NormalConstructorArgs<S, Arg, Data, E>) {
-    super({ getState, modelSubscribe, onMount, onUnmount, arg, prefix });
+    super({ getState, modelSubscribe, onMount, onUnmount, arg, prefix, notifyModel, isLazy });
     this.action = action;
     this.arg = arg;
     this.updateState = updateState;
-    this.notifyModel = notifyModel;
   }
 
   /**
@@ -70,7 +69,7 @@ export class NormalAccessor<S, Arg = any, Data = any, E = unknown> extends Acces
           this.updateStatus({ error });
           this.action.onError?.({ error: error!, arg });
         }
-        this.notifyModel();
+        this.notifyDataListeners();
         this.onFetchingFinish();
         if (error) return [error] as const;
         if (data) return [null, data] as const;
