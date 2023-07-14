@@ -56,6 +56,10 @@ export interface AccessorOptions<S = any> {
   keepPreviousData?: boolean;
 }
 
+export interface LazyAccessorOptions<D, S = any> extends AccessorOptions<S> {
+  getSnapshot?: (data: D | undefined) => S;
+}
+
 export type RequiredAccessorOptions<S = unknown> = Required<AccessorOptions<S>>;
 
 export type UseAccessorReturn<S, E, ACC extends Accessor<any, any, E> | null> = {

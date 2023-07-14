@@ -48,7 +48,11 @@ describe('useLazyAccessor - normal', () => {
         return 'data';
       },
     });
-    const { result } = renderHook(() => useLazyAccessor(getData(), data => data?.length));
+    const { result } = renderHook(() =>
+      useLazyAccessor(getData(), {
+        getSnapshot: data => data?.length,
+      })
+    );
 
     await waitFor(() => {
       expect(result.current.data).toBe(4);
@@ -69,9 +73,11 @@ describe('useLazyAccessor - normal', () => {
     });
 
     function StaticComponent() {
-      const { data } = useLazyAccessor(getStaticData(), data => {
-        notifiedCount += 1;
-        return data;
+      const { data } = useLazyAccessor(getStaticData(), {
+        getSnapshot: data => {
+          notifiedCount += 1;
+          return data;
+        },
       });
 
       return <div>{data}</div>;
@@ -139,13 +145,12 @@ describe('useLazyAccessor - infinite', () => {
       },
     });
     const { result } = renderHook(() =>
-      useLazyAccessor(
-        getData(),
-        data => {
+      useLazyAccessor(getData(), {
+        revalidateOnMount: true,
+        getSnapshot: data => {
           return (data ?? []).flat();
         },
-        { revalidateOnMount: true }
-      )
+      })
     );
 
     await waitFor(() => {
