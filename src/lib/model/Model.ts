@@ -135,8 +135,7 @@ export function createModel<S extends object>(initialState: S): Model<S> {
     const prefix = action.prefix ?? prefixCounter++;
     let timeoutId: number | undefined;
     const main = (arg: Arg) => {
-      const hashArg = stableHash(arg);
-      const key = `${prefix}/${hashArg}`;
+      const key = getKey(prefix, arg);
 
       const clearAccessorCache = () => {
         const accessor = accessorRecord[key];
@@ -203,8 +202,7 @@ export function createModel<S extends object>(initialState: S): Model<S> {
     const prefix = action.prefix ?? prefixCounter++;
     let timeoutId: number | undefined;
     const main = (arg: Arg) => {
-      const hashArg = stableHash(arg);
-      const key = `${prefix}/${hashArg}`;
+      const key = getKey(prefix, arg);
 
       const clearAccessorCache = () => {
         const accessor = accessorRecord[key] as InfiniteAccessor<S>;
