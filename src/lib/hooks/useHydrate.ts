@@ -9,10 +9,11 @@ const dataset = new WeakSet();
  * @param update A function which receive a server state key. You should pass this key when you mutate any model.
  */
 export function useHydrate<T extends object>(
-  data: T,
+  data: T | undefined,
   update: (serverStateKey?: object) => void
 ): void {
   const serverStateKey = useServerStateKeyContext();
+  if (!data) return;
 
   if (!dataset.has(data)) {
     dataset.add(data);
