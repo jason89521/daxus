@@ -93,7 +93,7 @@ export class NormalAccessor<S, Arg = any, Data = any, E = unknown> extends Acces
     const result: FetchResult<Data, E> = [null, null];
     const arg = this.arg;
     try {
-      const data = await this.action.fetchData(arg);
+      const data = await this.action.fetchData(arg, { getState: () => this.getState() });
       result[0] = data;
     } catch (error) {
       if (remainRetryCount <= 0) {

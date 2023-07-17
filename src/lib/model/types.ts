@@ -15,7 +15,7 @@ interface BaseAction<Arg, D, E> {
 
 export interface NormalAction<S, Arg = any, Data = any, E = unknown>
   extends BaseAction<Arg, Data, E> {
-  fetchData: (arg: Arg) => Promise<Data>;
+  fetchData: (arg: Arg, meta: { getState: () => S }) => Promise<Data>;
   syncState: (
     draft: Draft<S>,
     payload: {
@@ -30,7 +30,7 @@ export interface InfiniteAction<S, Arg = any, Data = any, E = unknown>
   extends BaseAction<Arg, Data[], E> {
   fetchData: (
     arg: Arg,
-    meta: { previousData: Data | null; pageIndex: number }
+    meta: { previousData: Data | null; pageIndex: number; getState: () => S }
   ) => Promise<Data | null>;
   syncState: (
     draft: Draft<S>,
