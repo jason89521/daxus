@@ -30,7 +30,7 @@ devDependencies:
     version: 5.62.0(eslint@8.44.0)(typescript@5.1.6)
   '@vitejs/plugin-react':
     specifier: ^4.0.3
-    version: 4.0.3(vite@4.4.2)
+    version: 4.0.3(vite@4.4.4)
   '@vitest/coverage-v8':
     specifier: ^0.33.0
     version: 0.33.0(vitest@0.33.0)
@@ -71,8 +71,8 @@ devDependencies:
     specifier: ^5.1.6
     version: 5.1.6
   vite:
-    specifier: ^4.4.2
-    version: 4.4.2(@types/node@20.2.1)
+    specifier: ^4.4.4
+    version: 4.4.4(@types/node@20.2.1)
   vitest:
     specifier: ^0.33.0
     version: 0.33.0(jsdom@22.1.0)
@@ -1054,7 +1054,7 @@ packages:
       eslint-visitor-keys: 3.4.1
     dev: true
 
-  /@vitejs/plugin-react@4.0.3(vite@4.4.2):
+  /@vitejs/plugin-react@4.0.3(vite@4.4.4):
     resolution: {integrity: sha512-pwXDog5nwwvSIzwrvYYmA2Ljcd/ZNlcsSG2Q9CNDBwnsd55UGAyr2doXtB5j+2uymRCnCfExlznzzSFbBRcoCg==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
@@ -1064,7 +1064,7 @@ packages:
       '@babel/plugin-transform-react-jsx-self': 7.22.5(@babel/core@7.22.5)
       '@babel/plugin-transform-react-jsx-source': 7.22.5(@babel/core@7.22.5)
       react-refresh: 0.14.0
-      vite: 4.4.2(@types/node@20.2.1)
+      vite: 4.4.4(@types/node@20.2.1)
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -3947,7 +3947,7 @@ packages:
       mlly: 1.4.0
       pathe: 1.1.1
       picocolors: 1.0.0
-      vite: 4.4.2(@types/node@20.2.1)
+      vite: 4.4.4(@types/node@20.2.1)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -3959,8 +3959,8 @@ packages:
       - terser
     dev: true
 
-  /vite@4.4.2(@types/node@20.2.1):
-    resolution: {integrity: sha512-zUcsJN+UvdSyHhYa277UHhiJ3iq4hUBwHavOpsNUGsTgjBeoBlK8eDt+iT09pBq0h9/knhG/SPrZiM7cGmg7NA==}
+  /vite@4.4.4(@types/node@20.2.1):
+    resolution: {integrity: sha512-4mvsTxjkveWrKDJI70QmelfVqTm+ihFAb6+xf4sjEU2TmUCTlVX87tmg/QooPEMQb/lM9qGHT99ebqPziEd3wg==}
     engines: {node: ^14.18.0 || >=16.0.0}
     hasBin: true
     peerDependencies:
@@ -4048,7 +4048,7 @@ packages:
       strip-literal: 1.0.1
       tinybench: 2.5.0
       tinypool: 0.6.0
-      vite: 4.4.2(@types/node@20.2.1)
+      vite: 4.4.4(@types/node@20.2.1)
       vite-node: 0.33.0(@types/node@20.2.1)
       why-is-node-running: 2.2.2
     transitivePeerDependencies:
