@@ -92,7 +92,7 @@ export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Acc
     const arg = this.arg;
     const promise = new Promise<[Data | null, E | null]>((resolve, reject) => {
       this.action
-        .fetchData(arg, { previousData, pageIndex })
+        .fetchData(arg, { previousData, pageIndex, getState: () => this.getState() })
         .then(value => resolve([value, null]))
         .catch(e => {
           if (remainRetryCount <= 0) {
