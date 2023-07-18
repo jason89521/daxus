@@ -130,9 +130,11 @@ function createPaginationMeta(): PaginationMeta {
 export function createPaginationAdapter<Data, RawData = Data>({
   getId = defaultGetId,
   transform = rawData => rawData as unknown as Data,
+  merge = (from, to) => ({ ...from, ...to }),
 }: {
   getId?: (data: Data) => Id;
   transform?: (rawData: RawData) => Data;
+  merge?: (from: Data, to: Partial<Data>) => Data;
 } = {}): PaginationAdapter<Data, RawData> {
   type State = PaginationState<Data>;
 
@@ -162,7 +164,7 @@ export function createPaginationAdapter<Data, RawData = Data>({
   function updateOne(draft: State, id: Id, data: Partial<Data>): void {
     if (!draft.entityRecord[id]) return;
     const cache = draft.entityRecord[id]!;
-    draft.entityRecord[id] = { ...cache, ...data };
+    draft.entityRecord[id] = merge(cache, data);
   }
 
   function deleteOne(draft: State, id: Id): void {
@@ -181,7 +183,7 @@ export function createPaginationAdapter<Data, RawData = Data>({
     const data = transform(rawData);
     const id = getId(data);
     const cache = draft.entityRecord[id];
-    draft.entityRecord[id] = { ...cache, ...data };
+    draft.entityRecord[id] = cache ? merge(cache, data) : data;
   }
 
   /**
