@@ -1,7 +1,7 @@
 import type { RequiredAccessorOptions } from './hooks/types.js';
 import { isUndefined } from './utils/index.js';
 
-export const defaultOptions: RequiredAccessorOptions = {
+export const defaultOptions: RequiredAccessorOptions<any> = {
   retryCount: 3,
   retryInterval: 1000,
   revalidateOnMount: false,
@@ -12,4 +12,5 @@ export const defaultOptions: RequiredAccessorOptions = {
   pollingInterval: 0,
   checkHasData: value => !isUndefined(value),
   keepPreviousData: false,
+  placeholderData: undefined,
 };

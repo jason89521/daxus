@@ -54,6 +54,7 @@ export interface AccessorOptions<S = any> {
    * @defaultValue `false`
    */
   keepPreviousData?: boolean;
+  placeholderData?: S;
 }
 
 export interface LazyAccessorOptions<D, S = any> extends AccessorOptions<S> {
