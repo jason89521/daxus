@@ -150,11 +150,14 @@ export function useAccessor<S, SS, E = unknown>(
   return {
     get data() {
       stateDeps.data = true;
-      if (keepPreviousData) {
-        return hasData ? data : deferredDataRef.current;
-      }
+      const remoteData = (() => {
+        if (keepPreviousData) {
+          return hasData ? data : deferredDataRef.current;
+        }
+        return data;
+      })();
 
-      return data;
+      return remoteData ?? options.placeholderData;
     },
     get isFetching() {
       stateDeps.isFetching = true;
