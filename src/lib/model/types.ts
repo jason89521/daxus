@@ -1,6 +1,6 @@
 import type { Draft } from 'immer';
 
-interface BaseAction<Arg, D, E> {
+export interface BaseAction<Arg, D, E> {
   onError?: (info: { error: E; arg: Arg }) => void;
   onSuccess?: (info: { data: D; arg: Arg }) => void;
   /**
@@ -19,7 +19,6 @@ export interface NormalAction<S, Arg = any, Data = any, E = unknown>
   syncState: (
     draft: Draft<S>,
     payload: {
-      startAt: number;
       arg: Arg;
       data: Data;
     }

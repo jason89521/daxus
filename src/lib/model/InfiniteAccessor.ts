@@ -11,7 +11,7 @@ export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Acc
   E,
   Arg
 > {
-  private action: InfiniteAction<S, Arg, Data, E>;
+  protected action: InfiniteAction<S, Arg, Data, E>;
   private updateState: (cb: (draft: Draft<S>) => void) => void;
   private data: Data[] = [];
   /**
@@ -68,11 +68,6 @@ export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Acc
     const pageIndex = this.getPageNum();
     const pageNum = pageIndex + 1;
     return this.fetch({ pageNum, pageIndex, task: 'next' });
-  };
-
-  private updateData = (data: Data[]) => {
-    this.data = data;
-    this.notifyDataListeners();
   };
 
   /**
@@ -168,25 +163,17 @@ export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Acc
     this.rejectFetching?.();
     const fetchPromise = (async () => {
       try {
-        const arg = this.arg;
         const [data, error] = await this.fetchPages({ pageNum, pageIndex });
 
         // expired means that there is an another `fetch` is fetching.
         if (this.isExpiredFetching(startAt)) return this.fetchPromise;
 
-        if (error) {
-          this.updateStatus({ error });
-          this.action.onError?.({ error, arg });
-        } else {
+        if (!error) {
           this.flush(data, { start: pageIndex });
-          this.updateData(data);
-          this.updateStatus({ error: null });
-          this.action.onSuccess?.({ data, arg });
+          this.data = data;
         }
         this.currentTask = 'idle';
-        this.onFetchingFinish();
-        if (error) return [error] as const;
-        return [null, data] as const;
+        return this.onFetchingFinish({ error, data });
       } catch (error) {
         // This error happens when any fetching is aborted.
         // We don't need to handle this.
