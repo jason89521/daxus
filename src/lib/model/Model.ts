@@ -8,7 +8,7 @@ import type {
 } from './types.js';
 import { NormalAccessor } from './NormalAccessor.js';
 import { InfiniteAccessor } from './InfiniteAccessor.js';
-import { getKey, isServer, stableHash } from '../utils/index.js';
+import { getKey, isServer } from '../utils/index.js';
 import type { Accessor } from './Accessor.js';
 
 const CLEAR_ACCESSOR_CACHE_TIME = 60 * 1000;
@@ -56,8 +56,8 @@ export interface Model<S extends object> {
 }
 
 export interface LazyModel extends Pick<Model<LazyState>, 'invalidate' | 'subscribe'> {
-  mutate<Data, E = unknown>(
-    accessor: Accessor<LazyState, Data, E>,
+  mutate<Arg, Data, E = unknown>(
+    accessor: Accessor<LazyState, Arg, Data, E>,
     fn: (prevData: Data | undefined) => Data,
     serverStateKey?: object
   ): void;
@@ -67,8 +67,8 @@ export interface LazyModel extends Pick<Model<LazyState>, 'invalidate' | 'subscr
   defineInfiniteAccessor<Arg, Data, E = unknown>(
     action: LazyInfiniteAction<Arg, Data, E>
   ): InfiniteAccessorCreator<LazyState, Arg, Data, E>;
-  getState<Data, E = unknown>(
-    accessor: Accessor<LazyState, Data, E>,
+  getState<Arg, Data, E = unknown>(
+    accessor: Accessor<LazyState, Arg, Data, E>,
     serverStateKey?: object
   ): Data | undefined;
 }
@@ -310,8 +310,8 @@ export function createLazyModel(): LazyModel {
     });
   }
 
-  function mutate<Data, E = unknown>(
-    accessor: Accessor<LazyState, Data, E>,
+  function mutate<Arg, Data, E = unknown>(
+    accessor: Accessor<LazyState, Arg, Data, E>,
     fn: (prevData: Data | undefined) => Data,
     serverStateKey?: object
   ) {
@@ -323,8 +323,8 @@ export function createLazyModel(): LazyModel {
     }, serverStateKey);
   }
 
-  function getState<Data, E = unknown>(
-    accessor: Accessor<LazyState, Data, E>,
+  function getState<Arg, Data, E = unknown>(
+    accessor: Accessor<LazyState, Arg, Data, E>,
     serverStateKey?: object
   ) {
     const key = accessor.getKey();

@@ -54,10 +54,10 @@ export function useAccessor<S, Arg, RD, SS, E = unknown>(
   options?: AccessorOptions<SS>
 ): UseAccessorReturn<SS | undefined, E, InfiniteAccessor<S, Arg, RD, E> | null>;
 export function useAccessor<S, SS, E = unknown>(
-  accessor: Accessor<S, any, E> | null,
+  accessor: Accessor<S, unknown, any, E> | null,
   getSnapshot: (state: S) => SS,
   options: AccessorOptions<SS> = {}
-): UseAccessorReturn<SS | undefined, E, Accessor<S, any, E> | null> {
+): UseAccessorReturn<SS | undefined, E, Accessor<S, unknown, any, E> | null> {
   const serverStateKey = useServerStateKeyContext();
   const defaultOptions = useContext(accessorOptionsContext);
   const requiredOptions = { ...defaultOptions, ...options };

@@ -10,11 +10,11 @@ type FetchResult<D, E> = [D | null, E | null];
 
 export class NormalAccessor<S, Arg = any, Data = any, E = unknown> extends Accessor<
   S,
+  Arg,
   Data,
-  E,
-  Arg
+  E
 > {
-  private action: NormalAction<S, Arg, Data, E>;
+  protected action: NormalAction<S, Arg, Data, E>;
   private updateState: (cb: (draft: Draft<S>) => void) => void;
 
   /**
@@ -61,19 +61,10 @@ export class NormalAccessor<S, Arg = any, Data = any, E = unknown> extends Acces
 
         if (data) {
           this.updateState(draft => {
-            this.action.syncState(draft, { data, arg, startAt });
+            this.action.syncState(draft, { data, arg });
           });
-          this.updateStatus({ error: null });
-          this.action.onSuccess?.({ data, arg });
-        } else {
-          this.updateStatus({ error });
-          this.action.onError?.({ error: error!, arg });
         }
-        this.notifyDataListeners();
-        this.onFetchingFinish();
-        if (error) return [error] as const;
-        if (data) return [null, data] as const;
-        throw new Error('It is impossible that data and error are both null');
+        return this.onFetchingFinish({ error, data });
       } catch (error) {
         // This error happens when any fetching is aborted.
         // We don't need to handle this.

@@ -2,7 +2,7 @@ import { defaultOptions } from '../constants.js';
 import type { AccessorOptions } from '../hooks/types.js';
 import type { MutableRefObject } from 'react';
 import { getKey, isUndefined } from '../utils/index.js';
-import type { BaseConstructorArgs, ModelSubscribe } from './types.js';
+import type { BaseAction, BaseConstructorArgs, ModelSubscribe } from './types.js';
 
 export type Status<E = unknown> = {
   isFetching: boolean;
@@ -10,6 +10,11 @@ export type Status<E = unknown> = {
 };
 
 export type FetchPromiseResult<E, D> = readonly [E] | readonly [null, D];
+
+export type OnFetchingFinishContext<D, E> = {
+  error: E | null;
+  data: D | null;
+};
 
 type RetryTimeoutMeta = {
   timeoutId: number;
@@ -19,7 +24,7 @@ type RetryTimeoutMeta = {
 type Options = Required<AccessorOptions>;
 type OptionsRef = MutableRefObject<Options>;
 
-export abstract class Accessor<S, D, E, Arg = unknown> {
+export abstract class Accessor<S, Arg, D, E> {
   protected status: Status<E> = { isFetching: false, error: null };
   protected statusListeners: ((prev: Status, current: Status) => void)[] = [];
   protected fetchPromise!: Promise<FetchPromiseResult<E, D>>;
@@ -43,6 +48,8 @@ export abstract class Accessor<S, D, E, Arg = unknown> {
    * Return the result of the revalidation.
    */
   abstract revalidate: () => Promise<FetchPromiseResult<E, D>>;
+
+  protected abstract action: BaseAction<Arg, D, E>;
 
   /**
    * Get the state of the corresponding model.
@@ -258,17 +265,33 @@ export abstract class Accessor<S, D, E, Arg = unknown> {
    * Call this method after the fetching is done.
    * This method would
    * - Check whether it need to start polling
-   * - Reset the `fetchPromise`
-   * - Update the `status.isFetching` to false
+   * - Update the status
    * - Mark this accessor to be stale
+   * - Notify the model if data is not `null`
+   * - Return the fetchPromise result
    */
-  protected onFetchingFinish = () => {
+  protected onFetchingFinish = ({
+    error,
+    data,
+  }: OnFetchingFinishContext<D, E>): FetchPromiseResult<E, D> => {
     const { pollingInterval } = this.getOptions();
     if (pollingInterval > 0) {
       this.pollingTimeoutId = window.setTimeout(this.invokePollingRevalidation, pollingInterval);
     }
-    this.updateStatus({ isFetching: false });
+
     this.isStale = true;
+    if (error) {
+      this.action.onError?.({ error, arg: this.arg });
+      this.updateStatus({ isFetching: false, error });
+      return [error];
+    } else if (data) {
+      this.action.onSuccess?.({ data, arg: this.arg });
+      this.updateStatus({ isFetching: false, error: null });
+      this.notifyDataListeners();
+      return [null, data];
+    } else {
+      throw new Error('It is impossible that data and error are both null');
+    }
   };
 
   private getFirstOptionsRef = () => {
