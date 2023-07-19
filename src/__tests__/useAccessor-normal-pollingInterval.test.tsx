@@ -130,7 +130,7 @@ describe('useAccessor-normal pollingInterval', () => {
     );
   });
 
-  test.only('should keep polling if pollingWhenHidden is set to true', async () => {
+  test('should keep polling if pollingWhenHidden is set to true', async () => {
     const onSuccessMock = vi.fn();
     const control = createControl({ onSuccessMock });
     const { getPostById, postAdapter } = createPostModel(control);
