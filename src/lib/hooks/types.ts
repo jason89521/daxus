@@ -55,6 +55,7 @@ export interface AccessorOptions<S = any> {
    */
   keepPreviousData?: boolean;
   placeholderData?: S;
+  pollingWhenHidden?: boolean;
 }
 
 export interface LazyAccessorOptions<D, S = any> extends AccessorOptions<S> {

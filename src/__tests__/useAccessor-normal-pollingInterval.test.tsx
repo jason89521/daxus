@@ -1,4 +1,4 @@
-import { act, fireEvent, waitFor } from '@testing-library/react';
+import { act, fireEvent, renderHook, waitFor } from '@testing-library/react';
 import { useAccessor } from '../lib/index.js';
 import { createPostModel, createControl, renderWithOptionsProvider, sleep } from './utils.js';
 import { useState } from 'react';
@@ -94,6 +94,64 @@ describe('useAccessor-normal pollingInterval', () => {
     await waitFor(
       () => {
         expect(onSuccessMock).toHaveBeenCalledTimes(3);
+      },
+      { interval: 1 }
+    );
+  });
+
+  test('should stop background polling if document.visibilityState is hidden', async () => {
+    const onSuccessMock = vi.fn();
+    const control = createControl({ onSuccessMock });
+    const { getPostById, postAdapter } = createPostModel(control);
+    renderHook(() =>
+      useAccessor(getPostById(0), postAdapter.tryReadOneFactory(0), {
+        pollingInterval: 10,
+      })
+    );
+
+    await waitFor(
+      () => {
+        expect(onSuccessMock).toHaveBeenCalledTimes(1);
+      },
+      { interval: 1 }
+    );
+    Object.defineProperty(document, 'visibilityState', { value: 'hidden', configurable: true });
+    fireEvent(document, new Event('visibilitychange'));
+    await sleep(30);
+    expect(onSuccessMock).toHaveBeenCalledTimes(1);
+
+    Object.defineProperty(document, 'visibilityState', { value: 'visible', configurable: true });
+    fireEvent(document, new Event('visibilitychange'));
+    await waitFor(
+      () => {
+        expect(onSuccessMock).toHaveBeenCalledTimes(2);
+      },
+      { interval: 1 }
+    );
+  });
+
+  test('should keep polling if pollingWhenHidden is set to true', async () => {
+    const onSuccessMock = vi.fn();
+    const control = createControl({ onSuccessMock });
+    const { getPostById, postAdapter } = createPostModel(control);
+    renderHook(() =>
+      useAccessor(getPostById(0), postAdapter.tryReadOneFactory(0), {
+        pollingInterval: 10,
+        pollingWhenHidden: true,
+      })
+    );
+
+    await waitFor(
+      () => {
+        expect(onSuccessMock).toHaveBeenCalledTimes(1);
+      },
+      { interval: 1 }
+    );
+    Object.defineProperty(document, 'visibilityState', { value: 'hidden', configurable: true });
+    fireEvent(document, new Event('visibilitychange'));
+    await waitFor(
+      () => {
+        expect(onSuccessMock).toHaveBeenCalledTimes(2);
       },
       { interval: 1 }
     );

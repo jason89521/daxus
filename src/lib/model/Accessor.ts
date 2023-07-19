@@ -36,12 +36,14 @@ export abstract class Accessor<S, Arg, D, E> {
   private optionsRefSet = new Set<OptionsRef>();
   private removeOnFocusListener: (() => void) | null = null;
   private removeOnReconnectListener: (() => void) | null = null;
+  private removeOnVisibilityChangeListener: (() => void) | null = null;
   private pollingTimeoutId: number | undefined;
   private isStale = false;
   private onMount: () => void;
   private onUnmount: () => void;
   private prefix: number;
   private lazyListeners: (() => void)[] = [];
+  private removeAllListeners: (() => void) | null = null;
   private isLazy: boolean;
 
   /**
@@ -69,7 +71,7 @@ export abstract class Accessor<S, Arg, D, E> {
     arg,
     isLazy,
   }: Pick<
-    BaseConstructorArgs<S, any>,
+    BaseConstructorArgs<S, Arg>,
     | 'getState'
     | 'modelSubscribe'
     | 'onMount'
@@ -101,8 +103,7 @@ export abstract class Accessor<S, Arg, D, E> {
     this.onMount();
 
     if (this.getFirstOptionsRef() === optionsRef) {
-      this.removeOnFocusListener = this.registerOnFocus();
-      this.removeOnReconnectListener = this.registerOnReconnect();
+      this.registerAllListeners();
     }
 
     return () => {
@@ -110,8 +111,7 @@ export abstract class Accessor<S, Arg, D, E> {
       // If it is the first optionsRef, remove the listeners (if exist).
       const isFirstOptionsRef = this.getFirstOptionsRef() === optionsRef;
       if (isFirstOptionsRef) {
-        this.removeOnFocusListener?.();
-        this.removeOnReconnectListener?.();
+        this.removeAllListeners?.();
       }
       this.optionsRefSet.delete(optionsRef);
 
@@ -120,15 +120,12 @@ export abstract class Accessor<S, Arg, D, E> {
       const firstOptionRef = this.getFirstOptionsRef();
       // If it is the last mounted accessor, call onUnmount.
       if (!firstOptionRef) {
-        this.removeOnFocusListener = null;
-        this.removeOnReconnectListener = null;
         this.onUnmount();
         return;
       }
 
       // Register new listeners if there is a optionsRef existed after unmounting the previous one.
-      this.removeOnFocusListener = this.registerOnFocus();
-      this.removeOnReconnectListener = this.registerOnReconnect();
+      this.registerAllListeners();
       clearTimeout(this.pollingTimeoutId);
     };
   };
@@ -329,13 +326,41 @@ export abstract class Accessor<S, Arg, D, E> {
     };
   };
 
+  private registerOnVisibilityChange = () => {
+    const polling = () => {
+      if (document.visibilityState === 'visible') {
+        this.invokePollingRevalidation();
+      }
+    };
+
+    document.addEventListener('visibilitychange', polling);
+
+    return () => {
+      document.removeEventListener('visibilitychange', polling);
+    };
+  };
+
+  private registerAllListeners = () => {
+    this.removeAllListeners?.();
+    this.removeOnFocusListener = this.registerOnFocus();
+    this.removeOnReconnectListener = this.registerOnReconnect();
+    this.removeOnVisibilityChangeListener = this.registerOnVisibilityChange();
+
+    this.removeAllListeners = () => {
+      this.removeOnFocusListener?.();
+      this.removeOnReconnectListener?.();
+      this.removeOnVisibilityChangeListener?.();
+    };
+  };
+
   /**
    * invoke `this.revalidate` if `options.pollingInterval` is larger than 0.
    * @returns
    */
   private invokePollingRevalidation = () => {
-    const { pollingInterval } = this.getOptions();
+    const { pollingInterval, pollingWhenHidden } = this.getOptions();
     if (pollingInterval <= 0) return;
+    if (!pollingWhenHidden && document.visibilityState === 'hidden') return;
     this.revalidate();
   };
 
