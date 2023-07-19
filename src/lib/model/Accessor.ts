@@ -36,6 +36,7 @@ export abstract class Accessor<S, Arg, D, E> {
   private optionsRefSet = new Set<OptionsRef>();
   private removeOnFocusListener: (() => void) | null = null;
   private removeOnReconnectListener: (() => void) | null = null;
+  private removeOnVisibilityChangeListener: (() => void) | null = null;
   private pollingTimeoutId: number | undefined;
   private isStale = false;
   private onMount: () => void;
@@ -69,7 +70,7 @@ export abstract class Accessor<S, Arg, D, E> {
     arg,
     isLazy,
   }: Pick<
-    BaseConstructorArgs<S, any>,
+    BaseConstructorArgs<S, Arg>,
     | 'getState'
     | 'modelSubscribe'
     | 'onMount'
@@ -103,6 +104,7 @@ export abstract class Accessor<S, Arg, D, E> {
     if (this.getFirstOptionsRef() === optionsRef) {
       this.removeOnFocusListener = this.registerOnFocus();
       this.removeOnReconnectListener = this.registerOnReconnect();
+      this.removeOnVisibilityChangeListener = this.registerOnVisibilityChange();
     }
 
     return () => {
@@ -112,6 +114,7 @@ export abstract class Accessor<S, Arg, D, E> {
       if (isFirstOptionsRef) {
         this.removeOnFocusListener?.();
         this.removeOnReconnectListener?.();
+        this.removeOnVisibilityChangeListener?.();
       }
       this.optionsRefSet.delete(optionsRef);
 
@@ -122,6 +125,7 @@ export abstract class Accessor<S, Arg, D, E> {
       if (!firstOptionRef) {
         this.removeOnFocusListener = null;
         this.removeOnReconnectListener = null;
+        this.removeOnVisibilityChangeListener = null;
         this.onUnmount();
         return;
       }
@@ -129,6 +133,7 @@ export abstract class Accessor<S, Arg, D, E> {
       // Register new listeners if there is a optionsRef existed after unmounting the previous one.
       this.removeOnFocusListener = this.registerOnFocus();
       this.removeOnReconnectListener = this.registerOnReconnect();
+      this.removeOnReconnectListener = this.registerOnVisibilityChange();
       clearTimeout(this.pollingTimeoutId);
     };
   };
@@ -329,13 +334,28 @@ export abstract class Accessor<S, Arg, D, E> {
     };
   };
 
+  private registerOnVisibilityChange = () => {
+    const polling = () => {
+      if (document.visibilityState === 'visible') {
+        this.invokePollingRevalidation();
+      }
+    };
+
+    document.addEventListener('visibilitychange', polling);
+
+    return () => {
+      document.removeEventListener('visibilitychange', polling);
+    };
+  };
+
   /**
    * invoke `this.revalidate` if `options.pollingInterval` is larger than 0.
    * @returns
    */
   private invokePollingRevalidation = () => {
-    const { pollingInterval } = this.getOptions();
+    const { pollingInterval, pollingWhenHidden } = this.getOptions();
     if (pollingInterval <= 0) return;
+    if (!pollingWhenHidden && document.visibilityState === 'hidden') return;
     this.revalidate();
   };
 

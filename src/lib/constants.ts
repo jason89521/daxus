@@ -13,4 +13,5 @@ export const defaultOptions: RequiredAccessorOptions<any> = {
   checkHasData: value => !isUndefined(value),
   keepPreviousData: false,
   placeholderData: undefined,
+  pollingWhenHidden: false,
 };
