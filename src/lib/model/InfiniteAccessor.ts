@@ -7,9 +7,9 @@ type Task = 'validate' | 'next' | 'idle';
 
 export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Accessor<
   S,
+  Arg,
   Data[],
-  E,
-  Arg
+  E
 > {
   protected action: InfiniteAction<S, Arg, Data, E>;
   private updateState: (cb: (draft: Draft<S>) => void) => void;

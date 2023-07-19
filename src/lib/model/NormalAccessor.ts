@@ -10,9 +10,9 @@ type FetchResult<D, E> = [D | null, E | null];
 
 export class NormalAccessor<S, Arg = any, Data = any, E = unknown> extends Accessor<
   S,
+  Arg,
   Data,
-  E,
-  Arg
+  E
 > {
   protected action: NormalAction<S, Arg, Data, E>;
   private updateState: (cb: (draft: Draft<S>) => void) => void;

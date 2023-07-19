@@ -22,7 +22,7 @@ export function useLazyAccessor<Arg, D, E, SS = D[] | undefined>(
   options?: LazyAccessorOptions<D[], SS>
 ): UseAccessorReturn<SS | undefined, E, InfiniteAccessor<LazyState, Arg, D, E> | null>;
 export function useLazyAccessor<Arg, D, SS, E = unknown>(
-  accessor: Accessor<LazyState, D, E> | null,
+  accessor: Accessor<LazyState, Arg, D, E> | null,
   options: LazyAccessorOptions<D, SS> = {}
 ) {
   const { getSnapshot = data => data, ...originalOptions } = options;
