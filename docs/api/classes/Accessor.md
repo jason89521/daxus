@@ -1,15 +1,15 @@
 [daxus](../README.md) / Accessor
 
-# Class: Accessor<S, D, E, Arg\>
+# Class: Accessor<S, Arg, D, E\>
 
 ## Type parameters
 
-| Name | Type |
-| :------ | :------ |
-| `S` | `S` |
-| `D` | `D` |
-| `E` | `E` |
-| `Arg` | `unknown` |
+| Name |
+| :------ |
+| `S` |
+| `Arg` |
+| `D` |
+| `E` |
 
 ## Hierarchy
 
@@ -56,7 +56,7 @@ Get the state of the corresponding model.
 
 #### Defined in
 
-[model/Accessor.ts:50](https://github.com/jason89521/react-fetch/blob/6f430a6/src/lib/model/Accessor.ts#L50)
+[model/Accessor.ts:59](https://github.com/jason89521/react-fetch/blob/6d3292c/src/lib/model/Accessor.ts#L59)
 
 ___
 
@@ -76,7 +76,7 @@ Return the result of the revalidation.
 
 #### Defined in
 
-[model/Accessor.ts:45](https://github.com/jason89521/react-fetch/blob/6f430a6/src/lib/model/Accessor.ts#L45)
+[model/Accessor.ts:52](https://github.com/jason89521/react-fetch/blob/6d3292c/src/lib/model/Accessor.ts#L52)
 
 ## Methods
 
@@ -90,7 +90,7 @@ Return the result of the revalidation.
 
 #### Defined in
 
-[model/Accessor.ts:85](https://github.com/jason89521/react-fetch/blob/6f430a6/src/lib/model/Accessor.ts#L85)
+[model/Accessor.ts:94](https://github.com/jason89521/react-fetch/blob/6d3292c/src/lib/model/Accessor.ts#L94)
 
 ___
 
@@ -104,7 +104,7 @@ ___
 
 #### Defined in
 
-[model/Accessor.ts:160](https://github.com/jason89521/react-fetch/blob/6f430a6/src/lib/model/Accessor.ts#L160)
+[model/Accessor.ts:164](https://github.com/jason89521/react-fetch/blob/6d3292c/src/lib/model/Accessor.ts#L164)
 
 ___
 
@@ -130,4 +130,4 @@ ___
 
 #### Defined in
 
-[model/Accessor.ts:140](https://github.com/jason89521/react-fetch/blob/6f430a6/src/lib/model/Accessor.ts#L140)
+[model/Accessor.ts:144](https://github.com/jason89521/react-fetch/blob/6d3292c/src/lib/model/Accessor.ts#L144)

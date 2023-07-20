@@ -37,9 +37,9 @@ export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Acc
     onUnmount,
     prefix,
     initialPageNum,
-    isLazy,
+    isAuto,
   }: InfiniteConstructorArgs<S, Arg, Data, E>) {
-    super({ getState, modelSubscribe, onMount, onUnmount, arg, prefix, notifyModel, isLazy });
+    super({ getState, modelSubscribe, onMount, onUnmount, arg, prefix, notifyModel, isAuto });
     this.action = action;
     this.updateState = updateState;
     this.initialPageNum = initialPageNum;

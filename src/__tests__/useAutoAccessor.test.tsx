@@ -1,14 +1,14 @@
 import { act, fireEvent, renderHook, waitFor } from '@testing-library/react';
-import { createLazyModel, useLazyAccessor } from '../lib/index.js';
+import { createAutoModel, useAutoAccessor } from '../lib/index.js';
 import { renderWithOptionsProvider } from './utils.js';
 
-let model = createLazyModel();
+let model = createAutoModel();
 
 beforeEach(() => {
-  model = createLazyModel();
+  model = createAutoModel();
 });
 
-describe('lazyModel', () => {
+describe('autoModel', () => {
   test('should mutate the data correctly', () => {
     const getData = model.defineNormalAccessor<void, string>({
       fetchData: async () => {
@@ -28,14 +28,14 @@ describe('lazyModel', () => {
   });
 });
 
-describe('useLazyAccessor - normal', () => {
+describe('useAutoAccessor - normal', () => {
   test('should return correct data', async () => {
     const getData = model.defineNormalAccessor<void, string>({
       fetchData: async () => {
         return 'data';
       },
     });
-    const { result } = renderHook(() => useLazyAccessor(getData()));
+    const { result } = renderHook(() => useAutoAccessor(getData()));
 
     await waitFor(() => {
       expect(result.current.data).toBe('data');
@@ -49,7 +49,7 @@ describe('useLazyAccessor - normal', () => {
       },
     });
     const { result } = renderHook(() =>
-      useLazyAccessor(getData(), {
+      useAutoAccessor(getData(), {
         getSnapshot: data => data?.length,
       })
     );
@@ -73,7 +73,7 @@ describe('useLazyAccessor - normal', () => {
     });
 
     function StaticComponent() {
-      const { data } = useLazyAccessor(getStaticData(), {
+      const { data } = useAutoAccessor(getStaticData(), {
         getSnapshot: data => {
           notifiedCount += 1;
           return data;
@@ -84,7 +84,7 @@ describe('useLazyAccessor - normal', () => {
     }
 
     function DynamicComponent() {
-      const { accessor, data } = useLazyAccessor(getDynamicData());
+      const { accessor, data } = useAutoAccessor(getDynamicData());
 
       return (
         <div>
@@ -113,14 +113,14 @@ describe('useLazyAccessor - normal', () => {
   });
 });
 
-describe('useLazyAccessor - infinite', () => {
+describe('useAutoAccessor - infinite', () => {
   test('should return correct data', async () => {
     const getData = model.defineInfiniteAccessor<void, string[]>({
       fetchData: async () => {
         return ['data'];
       },
     });
-    const { result } = renderHook(() => useLazyAccessor(getData()));
+    const { result } = renderHook(() => useAutoAccessor(getData()));
 
     await waitFor(() => {
       expect(result.current.data).toEqual([['data']]);
@@ -145,7 +145,7 @@ describe('useLazyAccessor - infinite', () => {
       },
     });
     const { result } = renderHook(() =>
-      useLazyAccessor(getData(), {
+      useAutoAccessor(getData(), {
         revalidateOnMount: true,
         getSnapshot: data => {
           return (data ?? []).flat();

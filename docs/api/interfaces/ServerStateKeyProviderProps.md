@@ -16,4 +16,4 @@
 
 #### Defined in
 
-[contexts/ServerStateKeyContext.tsx:7](https://github.com/jason89521/react-fetch/blob/6f430a6/src/lib/contexts/ServerStateKeyContext.tsx#L7)
+[contexts/ServerStateKeyContext.tsx:7](https://github.com/jason89521/react-fetch/blob/6d3292c/src/lib/contexts/ServerStateKeyContext.tsx#L7)

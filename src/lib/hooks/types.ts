@@ -58,7 +58,7 @@ export interface AccessorOptions<S = any> {
   pollingWhenHidden?: boolean;
 }
 
-export interface LazyAccessorOptions<D, S = any> extends AccessorOptions<S> {
+export interface AutoAccessorOptions<D, S = any> extends AccessorOptions<S> {
   getSnapshot?: (data: D | undefined) => S;
 }
 

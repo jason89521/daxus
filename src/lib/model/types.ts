@@ -10,7 +10,7 @@ export interface BaseAction<Arg, D, E> {
   /**
    * @internal
    */
-  isLazy?: boolean;
+  isAuto?: boolean;
 }
 
 export interface NormalAction<S, Arg = any, Data = any, E = unknown>
@@ -52,7 +52,7 @@ export interface BaseConstructorArgs<S, Arg> {
   onMount: () => void;
   onUnmount: () => void;
   prefix: number;
-  isLazy: boolean;
+  isAuto: boolean;
 }
 
 export interface NormalConstructorArgs<S, Arg, Data, E> extends BaseConstructorArgs<S, Arg> {

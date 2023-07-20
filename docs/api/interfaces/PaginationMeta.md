@@ -19,7 +19,7 @@ Store the ids for each page index.
 
 #### Defined in
 
-[adapters/paginationAdapter.ts:7](https://github.com/jason89521/react-fetch/blob/6f430a6/src/lib/adapters/paginationAdapter.ts#L7)
+[adapters/paginationAdapter.ts:7](https://github.com/jason89521/react-fetch/blob/6d3292c/src/lib/adapters/paginationAdapter.ts#L7)
 
 ___
 
@@ -29,4 +29,4 @@ ___
 
 #### Defined in
 
-[adapters/paginationAdapter.ts:8](https://github.com/jason89521/react-fetch/blob/6f430a6/src/lib/adapters/paginationAdapter.ts#L8)
+[adapters/paginationAdapter.ts:8](https://github.com/jason89521/react-fetch/blob/6d3292c/src/lib/adapters/paginationAdapter.ts#L8)

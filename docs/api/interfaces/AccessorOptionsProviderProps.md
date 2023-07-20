@@ -17,7 +17,7 @@
 
 #### Defined in
 
-[contexts/AccessorOptionsContext.tsx:11](https://github.com/jason89521/react-fetch/blob/6f430a6/src/lib/contexts/AccessorOptionsContext.tsx#L11)
+[contexts/AccessorOptionsContext.tsx:11](https://github.com/jason89521/react-fetch/blob/6d3292c/src/lib/contexts/AccessorOptionsContext.tsx#L11)
 
 ___
 
@@ -27,4 +27,4 @@ ___
 
 #### Defined in
 
-[contexts/AccessorOptionsContext.tsx:10](https://github.com/jason89521/react-fetch/blob/6f430a6/src/lib/contexts/AccessorOptionsContext.tsx#L10)
+[contexts/AccessorOptionsContext.tsx:10](https://github.com/jason89521/react-fetch/blob/6d3292c/src/lib/contexts/AccessorOptionsContext.tsx#L10)

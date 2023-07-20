@@ -17,15 +17,15 @@ interface BaseAccessorCreator {
   invalidate(): void;
 }
 
-export type LazyState = Record<string, unknown>;
+export type AutoState = Record<string, unknown>;
 
-export type LazyNormalAction<Arg, Data, E> = Omit<
-  NormalAction<LazyState, Arg, Data, E>,
+export type AutoNormalAction<Arg, Data, E> = Omit<
+  NormalAction<AutoState, Arg, Data, E>,
   'syncState'
 >;
 
-export type LazyInfiniteAction<Arg, Data, E> = Omit<
-  InfiniteAction<LazyState, Arg, Data, E>,
+export type AutoInfiniteAction<Arg, Data, E> = Omit<
+  InfiniteAction<AutoState, Arg, Data, E>,
   'syncState'
 >;
 
@@ -55,20 +55,20 @@ export interface Model<S extends object> {
   subscribe(listener: () => void): () => void;
 }
 
-export interface LazyModel extends Pick<Model<LazyState>, 'invalidate' | 'subscribe'> {
+export interface AutoModel extends Pick<Model<AutoState>, 'invalidate' | 'subscribe'> {
   mutate<Arg, Data, E = unknown>(
-    accessor: Accessor<LazyState, Arg, Data, E>,
+    accessor: Accessor<AutoState, Arg, Data, E>,
     fn: (prevData: Data | undefined) => Data,
     serverStateKey?: object
   ): void;
   defineNormalAccessor<Arg, Data, E = unknown>(
-    action: LazyNormalAction<Arg, Data, E>
-  ): NormalAccessorCreator<LazyState, Arg, Data, E>;
+    action: AutoNormalAction<Arg, Data, E>
+  ): NormalAccessorCreator<AutoState, Arg, Data, E>;
   defineInfiniteAccessor<Arg, Data, E = unknown>(
-    action: LazyInfiniteAction<Arg, Data, E>
-  ): InfiniteAccessorCreator<LazyState, Arg, Data, E>;
+    action: AutoInfiniteAction<Arg, Data, E>
+  ): InfiniteAccessorCreator<AutoState, Arg, Data, E>;
   getState<Arg, Data, E = unknown>(
-    accessor: Accessor<LazyState, Arg, Data, E>,
+    accessor: Accessor<AutoState, Arg, Data, E>,
     serverStateKey?: object
   ): Data | undefined;
 }
@@ -163,7 +163,7 @@ export function createModel<S extends object>(initialState: S): Model<S> {
         onMount,
         onUnmount,
         prefix,
-        isLazy: action.isLazy ?? false,
+        isAuto: action.isAuto ?? false,
       };
 
       if (isServer()) {
@@ -232,7 +232,7 @@ export function createModel<S extends object>(initialState: S): Model<S> {
         onUnmount,
         prefix,
         initialPageNum: infiniteAccessorPageNumRecord[key] ?? 1,
-        isLazy: action.isLazy ?? false,
+        isAuto: action.isAuto ?? false,
       };
 
       if (isServer()) {
@@ -272,16 +272,16 @@ export function createModel<S extends object>(initialState: S): Model<S> {
   return { mutate, defineInfiniteAccessor, defineNormalAccessor, getState, invalidate, subscribe };
 }
 
-export function createLazyModel(): LazyModel {
-  const model = createModel<LazyState>({});
+export function createAutoModel(): AutoModel {
+  const model = createModel<AutoState>({});
   let prefixCounter = 0;
 
-  function defineNormalAccessor<Arg, Data, E = unknown>(action: LazyNormalAction<Arg, Data, E>) {
+  function defineNormalAccessor<Arg, Data, E = unknown>(action: AutoNormalAction<Arg, Data, E>) {
     const prefix = prefixCounter++;
     return model.defineNormalAccessor({
       ...action,
       prefix,
-      isLazy: true,
+      isAuto: true,
       syncState(draft, { data, arg }) {
         const key = getKey(prefix, arg);
         draft[key] = data;
@@ -290,13 +290,13 @@ export function createLazyModel(): LazyModel {
   }
 
   function defineInfiniteAccessor<Arg, Data, E = unknown>(
-    action: LazyInfiniteAction<Arg, Data, E>
+    action: AutoInfiniteAction<Arg, Data, E>
   ) {
     const prefix = prefixCounter++;
     return model.defineInfiniteAccessor({
       ...action,
       prefix,
-      isLazy: true,
+      isAuto: true,
       syncState(draft, { pageIndex, data, arg }) {
         const key = getKey(prefix, arg);
         if (pageIndex === 0) {
@@ -311,7 +311,7 @@ export function createLazyModel(): LazyModel {
   }
 
   function mutate<Arg, Data, E = unknown>(
-    accessor: Accessor<LazyState, Arg, Data, E>,
+    accessor: Accessor<AutoState, Arg, Data, E>,
     fn: (prevData: Data | undefined) => Data,
     serverStateKey?: object
   ) {
@@ -324,7 +324,7 @@ export function createLazyModel(): LazyModel {
   }
 
   function getState<Arg, Data, E = unknown>(
-    accessor: Accessor<LazyState, Arg, Data, E>,
+    accessor: Accessor<AutoState, Arg, Data, E>,
     serverStateKey?: object
   ) {
     const key = accessor.getKey();
