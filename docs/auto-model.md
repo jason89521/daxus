@@ -12,17 +12,17 @@ const getUser = userModel.defineNormalAccessor<string, User>({
 });
 
 function useUser(userId: string) {
-  return useAutoAccessor(getUser(userId));
+  return useAccessor(getUser(userId));
 }
 ```
 
 When using `createAutoModel`, you don't need to provide an initial state, and there's no need to create an adapter because you don't have to manage how the fetched data is synced to the model's state.
 
-It is recommended to use the `useAutoAccessor` hook with accessors defined using the auto model. This hook allows you to easily access the cached data without the need for a `getSnapshot` function. However, if desired, you can still provide a `getSnapshot` function to select specific data:
+When you are using the accessor defined by an auto model, you don't need to specify a `getSnapshot` function because Daxus handle it for you. However, you can also specify it to get the data you want:
 
 ```ts
 function useUserName(userId: string) {
-  return useAutoAccessor(getUser(userId), user => user?.name);
+  return useAccessor(getUser(userId), { getSnapshot: user => user?.name });
 }
 ```
 
