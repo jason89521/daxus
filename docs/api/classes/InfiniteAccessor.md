@@ -13,7 +13,7 @@
 
 ## Hierarchy
 
-- [`Accessor`](Accessor.md)<`S`, `Data`[], `E`, `Arg`\>
+- [`Accessor`](Accessor.md)<`S`, `Arg`, `Data`[], `E`\>
 
   ↳ **`InfiniteAccessor`**
 
@@ -59,7 +59,7 @@ Get the state of the corresponding model.
 
 #### Defined in
 
-[model/Accessor.ts:50](https://github.com/jason89521/react-fetch/blob/6f430a6/src/lib/model/Accessor.ts#L50)
+[model/Accessor.ts:59](https://github.com/jason89521/react-fetch/blob/6d3292c/src/lib/model/Accessor.ts#L59)
 
 ## Methods
 
@@ -77,7 +77,7 @@ The all pages if it is not interrupted by the other revalidation, otherwise retu
 
 #### Defined in
 
-[model/InfiniteAccessor.ts:67](https://github.com/jason89521/react-fetch/blob/6f430a6/src/lib/model/InfiniteAccessor.ts#L67)
+[model/InfiniteAccessor.ts:67](https://github.com/jason89521/react-fetch/blob/6d3292c/src/lib/model/InfiniteAccessor.ts#L67)
 
 ___
 
@@ -95,7 +95,7 @@ ___
 
 #### Defined in
 
-[model/Accessor.ts:85](https://github.com/jason89521/react-fetch/blob/6f430a6/src/lib/model/Accessor.ts#L85)
+[model/Accessor.ts:94](https://github.com/jason89521/react-fetch/blob/6d3292c/src/lib/model/Accessor.ts#L94)
 
 ___
 
@@ -113,7 +113,7 @@ ___
 
 #### Defined in
 
-[model/Accessor.ts:160](https://github.com/jason89521/react-fetch/blob/6f430a6/src/lib/model/Accessor.ts#L160)
+[model/Accessor.ts:164](https://github.com/jason89521/react-fetch/blob/6d3292c/src/lib/model/Accessor.ts#L164)
 
 ___
 
@@ -133,7 +133,7 @@ Accessor.revalidate
 
 #### Defined in
 
-[model/InfiniteAccessor.ts:58](https://github.com/jason89521/react-fetch/blob/6f430a6/src/lib/model/InfiniteAccessor.ts#L58)
+[model/InfiniteAccessor.ts:58](https://github.com/jason89521/react-fetch/blob/6d3292c/src/lib/model/InfiniteAccessor.ts#L58)
 
 ___
 
@@ -163,4 +163,4 @@ ___
 
 #### Defined in
 
-[model/Accessor.ts:140](https://github.com/jason89521/react-fetch/blob/6f430a6/src/lib/model/Accessor.ts#L140)
+[model/Accessor.ts:144](https://github.com/jason89521/react-fetch/blob/6d3292c/src/lib/model/Accessor.ts#L144)

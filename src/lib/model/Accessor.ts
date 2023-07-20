@@ -42,9 +42,9 @@ export abstract class Accessor<S, Arg, D, E> {
   private onMount: () => void;
   private onUnmount: () => void;
   private prefix: number;
-  private lazyListeners: (() => void)[] = [];
+  private autoListeners: (() => void)[] = [];
   private removeAllListeners: (() => void) | null = null;
-  private isLazy: boolean;
+  private isAuto: boolean;
 
   /**
    * Return the result of the revalidation.
@@ -69,7 +69,7 @@ export abstract class Accessor<S, Arg, D, E> {
     notifyModel,
     prefix,
     arg,
-    isLazy,
+    isAuto,
   }: Pick<
     BaseConstructorArgs<S, Arg>,
     | 'getState'
@@ -79,7 +79,7 @@ export abstract class Accessor<S, Arg, D, E> {
     | 'prefix'
     | 'arg'
     | 'notifyModel'
-    | 'isLazy'
+    | 'isAuto'
   >) {
     this.getState = getState;
     this.modelSubscribe = modelSubscribe;
@@ -88,7 +88,7 @@ export abstract class Accessor<S, Arg, D, E> {
     this.notifyModel = notifyModel;
     this.prefix = prefix;
     this.arg = arg;
-    this.isLazy = isLazy;
+    this.isAuto = isAuto;
   }
 
   getKey = () => {
@@ -142,7 +142,7 @@ export abstract class Accessor<S, Arg, D, E> {
   };
 
   subscribeData = (listener: () => void) => {
-    return this.isLazy ? this.subscribeLazyAccessor(listener) : this.subscribeModel(listener);
+    return this.isAuto ? this.subscribeAutoAccessor(listener) : this.subscribeModel(listener);
   };
 
   /**
@@ -187,8 +187,8 @@ export abstract class Accessor<S, Arg, D, E> {
   };
 
   protected notifyDataListeners = () => {
-    if (this.isLazy) {
-      this.notifyLazyAccessor();
+    if (this.isAuto) {
+      this.notifyAutoAccessor();
     } else {
       this.notifyModel();
     }
@@ -377,16 +377,16 @@ export abstract class Accessor<S, Arg, D, E> {
     return this.modelSubscribe(listener);
   };
 
-  private subscribeLazyAccessor = (listener: () => void) => {
-    this.lazyListeners.push(listener);
+  private subscribeAutoAccessor = (listener: () => void) => {
+    this.autoListeners.push(listener);
 
     return () => {
-      const index = this.lazyListeners.indexOf(listener);
-      this.lazyListeners.splice(index, 1);
+      const index = this.autoListeners.indexOf(listener);
+      this.autoListeners.splice(index, 1);
     };
   };
 
-  private notifyLazyAccessor = () => {
-    this.lazyListeners.forEach(l => l());
+  private notifyAutoAccessor = () => {
+    this.autoListeners.forEach(l => l());
   };
 }

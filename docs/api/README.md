@@ -34,12 +34,12 @@ daxus
 
 - [AccessorOptionsProvider](README.md#accessoroptionsprovider)
 - [ServerStateKeyProvider](README.md#serverstatekeyprovider)
-- [createLazyModel](README.md#createlazymodel)
+- [createAutoModel](README.md#createautomodel)
 - [createModel](README.md#createmodel)
 - [createPaginationAdapter](README.md#createpaginationadapter)
 - [useAccessor](README.md#useaccessor)
+- [useAutoAccessor](README.md#useautoaccessor)
 - [useHydrate](README.md#usehydrate)
-- [useLazyAccessor](README.md#uselazyaccessor)
 - [useModel](README.md#usemodel)
 - [useServerStateKeyContext](README.md#useserverstatekeycontext)
 
@@ -58,7 +58,7 @@ daxus
 
 #### Defined in
 
-[model/Accessor.ts:12](https://github.com/jason89521/react-fetch/blob/6f430a6/src/lib/model/Accessor.ts#L12)
+[model/Accessor.ts:12](https://github.com/jason89521/react-fetch/blob/6d3292c/src/lib/model/Accessor.ts#L12)
 
 ___
 
@@ -68,7 +68,7 @@ ___
 
 #### Defined in
 
-[adapters/paginationAdapter.ts:3](https://github.com/jason89521/react-fetch/blob/6f430a6/src/lib/adapters/paginationAdapter.ts#L3)
+[adapters/paginationAdapter.ts:3](https://github.com/jason89521/react-fetch/blob/6d3292c/src/lib/adapters/paginationAdapter.ts#L3)
 
 ___
 
@@ -82,7 +82,7 @@ ___
 | :------ | :------ |
 | `S` | `S` |
 | `E` | `E` |
-| `ACC` | extends [`Accessor`](classes/Accessor.md)<`any`, `any`, `E`\> \| ``null`` |
+| `ACC` | extends [`Accessor`](classes/Accessor.md)<`any`, `any`, `any`, `E`\> \| ``null`` |
 
 #### Type declaration
 
@@ -96,7 +96,7 @@ ___
 
 #### Defined in
 
-[hooks/types.ts:61](https://github.com/jason89521/react-fetch/blob/6f430a6/src/lib/hooks/types.ts#L61)
+[hooks/types.ts:67](https://github.com/jason89521/react-fetch/blob/6d3292c/src/lib/hooks/types.ts#L67)
 
 ## Functions
 
@@ -116,7 +116,7 @@ ___
 
 #### Defined in
 
-[contexts/AccessorOptionsContext.tsx:14](https://github.com/jason89521/react-fetch/blob/6f430a6/src/lib/contexts/AccessorOptionsContext.tsx#L14)
+[contexts/AccessorOptionsContext.tsx:14](https://github.com/jason89521/react-fetch/blob/6d3292c/src/lib/contexts/AccessorOptionsContext.tsx#L14)
 
 ___
 
@@ -136,21 +136,21 @@ ___
 
 #### Defined in
 
-[contexts/ServerStateKeyContext.tsx:14](https://github.com/jason89521/react-fetch/blob/6f430a6/src/lib/contexts/ServerStateKeyContext.tsx#L14)
+[contexts/ServerStateKeyContext.tsx:14](https://github.com/jason89521/react-fetch/blob/6d3292c/src/lib/contexts/ServerStateKeyContext.tsx#L14)
 
 ___
 
-### createLazyModel
+### createAutoModel
 
-▸ **createLazyModel**(): `LazyModel`
+▸ **createAutoModel**(): `AutoModel`
 
 #### Returns
 
-`LazyModel`
+`AutoModel`
 
 #### Defined in
 
-[model/Model.ts:277](https://github.com/jason89521/react-fetch/blob/6f430a6/src/lib/model/Model.ts#L277)
+[model/Model.ts:275](https://github.com/jason89521/react-fetch/blob/6d3292c/src/lib/model/Model.ts#L275)
 
 ___
 
@@ -176,7 +176,7 @@ ___
 
 #### Defined in
 
-[model/Model.ts:76](https://github.com/jason89521/react-fetch/blob/6f430a6/src/lib/model/Model.ts#L76)
+[model/Model.ts:76](https://github.com/jason89521/react-fetch/blob/6d3292c/src/lib/model/Model.ts#L76)
 
 ___
 
@@ -197,6 +197,7 @@ ___
 | :------ | :------ |
 | `«destructured»` | `Object` |
 | › `getId?` | (`data`: `Data`) => [`Id`](README.md#id) |
+| › `merge?` | (`from`: `Data`, `to`: `Partial`<`Data`\>) => `Data` |
 | › `transform?` | (`rawData`: `RawData`) => `Data` |
 
 #### Returns
@@ -205,7 +206,7 @@ ___
 
 #### Defined in
 
-[adapters/paginationAdapter.ts:130](https://github.com/jason89521/react-fetch/blob/6f430a6/src/lib/adapters/paginationAdapter.ts#L130)
+[adapters/paginationAdapter.ts:130](https://github.com/jason89521/react-fetch/blob/6d3292c/src/lib/adapters/paginationAdapter.ts#L130)
 
 ___
 
@@ -239,7 +240,7 @@ ___
 
 #### Defined in
 
-[hooks/useAccessor.ts:18](https://github.com/jason89521/react-fetch/blob/6f430a6/src/lib/hooks/useAccessor.ts#L18)
+[hooks/useAccessor.ts:18](https://github.com/jason89521/react-fetch/blob/6d3292c/src/lib/hooks/useAccessor.ts#L18)
 
 ▸ **useAccessor**<`S`, `Arg`, `RD`, `SS`, `E`\>(`accessor`, `getSnapshot`, `options?`): [`UseAccessorReturn`](README.md#useaccessorreturn)<`SS` \| `undefined`, `E`, [`NormalAccessor`](classes/NormalAccessor.md)<`S`, `Arg`, `RD`, `E`\> \| ``null``\>
 
@@ -269,7 +270,7 @@ ___
 
 #### Defined in
 
-[hooks/useAccessor.ts:29](https://github.com/jason89521/react-fetch/blob/6f430a6/src/lib/hooks/useAccessor.ts#L29)
+[hooks/useAccessor.ts:29](https://github.com/jason89521/react-fetch/blob/6d3292c/src/lib/hooks/useAccessor.ts#L29)
 
 ▸ **useAccessor**<`S`, `Arg`, `RD`, `SS`, `E`\>(`accessor`, `getSnapshot`, `options?`): [`UseAccessorReturn`](README.md#useaccessorreturn)<`SS`, `E`, [`InfiniteAccessor`](classes/InfiniteAccessor.md)<`S`, `Arg`, `RD`, `E`\>\>
 
@@ -299,7 +300,7 @@ ___
 
 #### Defined in
 
-[hooks/useAccessor.ts:40](https://github.com/jason89521/react-fetch/blob/6f430a6/src/lib/hooks/useAccessor.ts#L40)
+[hooks/useAccessor.ts:40](https://github.com/jason89521/react-fetch/blob/6d3292c/src/lib/hooks/useAccessor.ts#L40)
 
 ▸ **useAccessor**<`S`, `Arg`, `RD`, `SS`, `E`\>(`accessor`, `getSnapshot`, `options?`): [`UseAccessorReturn`](README.md#useaccessorreturn)<`SS` \| `undefined`, `E`, [`InfiniteAccessor`](classes/InfiniteAccessor.md)<`S`, `Arg`, `RD`, `E`\> \| ``null``\>
 
@@ -329,7 +330,115 @@ ___
 
 #### Defined in
 
-[hooks/useAccessor.ts:51](https://github.com/jason89521/react-fetch/blob/6f430a6/src/lib/hooks/useAccessor.ts#L51)
+[hooks/useAccessor.ts:51](https://github.com/jason89521/react-fetch/blob/6d3292c/src/lib/hooks/useAccessor.ts#L51)
+
+___
+
+### useAutoAccessor
+
+▸ **useAutoAccessor**<`Arg`, `D`, `E`, `SS`\>(`accessor`, `options?`): [`UseAccessorReturn`](README.md#useaccessorreturn)<`SS` \| `undefined`, `E`, [`NormalAccessor`](classes/NormalAccessor.md)<`AutoState`, `Arg`, `D`, `E`\>\>
+
+#### Type parameters
+
+| Name | Type |
+| :------ | :------ |
+| `Arg` | `Arg` |
+| `D` | `D` |
+| `E` | `E` |
+| `SS` | `undefined` \| `D` |
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `accessor` | [`NormalAccessor`](classes/NormalAccessor.md)<`AutoState`, `Arg`, `D`, `E`\> |
+| `options?` | `AutoAccessorOptions`<`D`, `SS`\> |
+
+#### Returns
+
+[`UseAccessorReturn`](README.md#useaccessorreturn)<`SS` \| `undefined`, `E`, [`NormalAccessor`](classes/NormalAccessor.md)<`AutoState`, `Arg`, `D`, `E`\>\>
+
+#### Defined in
+
+hooks/useAutoAccessor.ts:8
+
+▸ **useAutoAccessor**<`Arg`, `D`, `E`, `SS`\>(`accessor`, `options?`): [`UseAccessorReturn`](README.md#useaccessorreturn)<`SS` \| `undefined`, `E`, [`NormalAccessor`](classes/NormalAccessor.md)<`AutoState`, `Arg`, `D`, `E`\> \| ``null``\>
+
+#### Type parameters
+
+| Name | Type |
+| :------ | :------ |
+| `Arg` | `Arg` |
+| `D` | `D` |
+| `E` | `E` |
+| `SS` | `undefined` \| `D` |
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `accessor` | ``null`` \| [`NormalAccessor`](classes/NormalAccessor.md)<`AutoState`, `Arg`, `D`, `E`\> |
+| `options?` | `AutoAccessorOptions`<`D`, `SS`\> |
+
+#### Returns
+
+[`UseAccessorReturn`](README.md#useaccessorreturn)<`SS` \| `undefined`, `E`, [`NormalAccessor`](classes/NormalAccessor.md)<`AutoState`, `Arg`, `D`, `E`\> \| ``null``\>
+
+#### Defined in
+
+hooks/useAutoAccessor.ts:12
+
+▸ **useAutoAccessor**<`Arg`, `D`, `E`, `SS`\>(`accessor`, `options?`): [`UseAccessorReturn`](README.md#useaccessorreturn)<`SS` \| `undefined`, `E`, [`InfiniteAccessor`](classes/InfiniteAccessor.md)<`AutoState`, `Arg`, `D`, `E`\>\>
+
+#### Type parameters
+
+| Name | Type |
+| :------ | :------ |
+| `Arg` | `Arg` |
+| `D` | `D` |
+| `E` | `E` |
+| `SS` | `undefined` \| `D`[] |
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `accessor` | [`InfiniteAccessor`](classes/InfiniteAccessor.md)<`AutoState`, `Arg`, `D`, `E`\> |
+| `options?` | `AutoAccessorOptions`<`D`[], `SS`\> |
+
+#### Returns
+
+[`UseAccessorReturn`](README.md#useaccessorreturn)<`SS` \| `undefined`, `E`, [`InfiniteAccessor`](classes/InfiniteAccessor.md)<`AutoState`, `Arg`, `D`, `E`\>\>
+
+#### Defined in
+
+hooks/useAutoAccessor.ts:16
+
+▸ **useAutoAccessor**<`Arg`, `D`, `E`, `SS`\>(`accessor`, `options?`): [`UseAccessorReturn`](README.md#useaccessorreturn)<`SS` \| `undefined`, `E`, [`InfiniteAccessor`](classes/InfiniteAccessor.md)<`AutoState`, `Arg`, `D`, `E`\> \| ``null``\>
+
+#### Type parameters
+
+| Name | Type |
+| :------ | :------ |
+| `Arg` | `Arg` |
+| `D` | `D` |
+| `E` | `E` |
+| `SS` | `undefined` \| `D`[] |
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `accessor` | ``null`` \| [`InfiniteAccessor`](classes/InfiniteAccessor.md)<`AutoState`, `Arg`, `D`, `E`\> |
+| `options?` | `AutoAccessorOptions`<`D`[], `SS`\> |
+
+#### Returns
+
+[`UseAccessorReturn`](README.md#useaccessorreturn)<`SS` \| `undefined`, `E`, [`InfiniteAccessor`](classes/InfiniteAccessor.md)<`AutoState`, `Arg`, `D`, `E`\> \| ``null``\>
+
+#### Defined in
+
+hooks/useAutoAccessor.ts:20
 
 ___
 
@@ -350,7 +459,7 @@ You can use it for server side render.
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `data` | `T` | This data will be store in a weak set, if it doesn't appear in the weak set, the `update` function will be invoked. |
+| `data` | `undefined` \| `T` | This data will be store in a weak set, if it doesn't appear in the weak set, the `update` function will be invoked. |
 | `update` | (`serverStateKey?`: `object`) => `void` | A function which receive a server state key. You should pass this key when you mutate any model. |
 
 #### Returns
@@ -359,119 +468,7 @@ You can use it for server side render.
 
 #### Defined in
 
-[hooks/useHydrate.ts:11](https://github.com/jason89521/react-fetch/blob/6f430a6/src/lib/hooks/useHydrate.ts#L11)
-
-___
-
-### useLazyAccessor
-
-▸ **useLazyAccessor**<`Arg`, `Data`, `E`, `SS`\>(`accessor`, `getSnapshot?`, `options?`): [`UseAccessorReturn`](README.md#useaccessorreturn)<`SS` \| `undefined`, `E`, [`NormalAccessor`](classes/NormalAccessor.md)<`LazyState`, `Arg`, `Data`, `E`\>\>
-
-#### Type parameters
-
-| Name | Type |
-| :------ | :------ |
-| `Arg` | `Arg` |
-| `Data` | `Data` |
-| `E` | `E` |
-| `SS` | `undefined` \| `Data` |
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `accessor` | [`NormalAccessor`](classes/NormalAccessor.md)<`LazyState`, `Arg`, `Data`, `E`\> |
-| `getSnapshot?` | (`data`: `undefined` \| `Data`) => `SS` |
-| `options?` | [`AccessorOptions`](interfaces/AccessorOptions.md)<`SS`\> |
-
-#### Returns
-
-[`UseAccessorReturn`](README.md#useaccessorreturn)<`SS` \| `undefined`, `E`, [`NormalAccessor`](classes/NormalAccessor.md)<`LazyState`, `Arg`, `Data`, `E`\>\>
-
-#### Defined in
-
-[hooks/useLazyAccessor.ts:8](https://github.com/jason89521/react-fetch/blob/6f430a6/src/lib/hooks/useLazyAccessor.ts#L8)
-
-▸ **useLazyAccessor**<`Arg`, `Data`, `E`, `SS`\>(`accessor`, `getSnapshot?`, `options?`): [`UseAccessorReturn`](README.md#useaccessorreturn)<`SS` \| `undefined`, `E`, [`NormalAccessor`](classes/NormalAccessor.md)<`LazyState`, `Arg`, `Data`, `E`\> \| ``null``\>
-
-#### Type parameters
-
-| Name | Type |
-| :------ | :------ |
-| `Arg` | `Arg` |
-| `Data` | `Data` |
-| `E` | `E` |
-| `SS` | `undefined` \| `Data` |
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `accessor` | ``null`` \| [`NormalAccessor`](classes/NormalAccessor.md)<`LazyState`, `Arg`, `Data`, `E`\> |
-| `getSnapshot?` | (`data`: `undefined` \| `Data`) => `SS` |
-| `options?` | [`AccessorOptions`](interfaces/AccessorOptions.md)<`SS`\> |
-
-#### Returns
-
-[`UseAccessorReturn`](README.md#useaccessorreturn)<`SS` \| `undefined`, `E`, [`NormalAccessor`](classes/NormalAccessor.md)<`LazyState`, `Arg`, `Data`, `E`\> \| ``null``\>
-
-#### Defined in
-
-[hooks/useLazyAccessor.ts:13](https://github.com/jason89521/react-fetch/blob/6f430a6/src/lib/hooks/useLazyAccessor.ts#L13)
-
-▸ **useLazyAccessor**<`Arg`, `Data`, `E`, `SS`\>(`accessor`, `getSnapshot?`, `options?`): [`UseAccessorReturn`](README.md#useaccessorreturn)<`SS` \| `undefined`, `E`, [`InfiniteAccessor`](classes/InfiniteAccessor.md)<`LazyState`, `Arg`, `Data`, `E`\>\>
-
-#### Type parameters
-
-| Name | Type |
-| :------ | :------ |
-| `Arg` | `Arg` |
-| `Data` | `Data` |
-| `E` | `E` |
-| `SS` | `undefined` \| `Data`[] |
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `accessor` | [`InfiniteAccessor`](classes/InfiniteAccessor.md)<`LazyState`, `Arg`, `Data`, `E`\> |
-| `getSnapshot?` | (`data`: `undefined`[] \| `Data`) => `SS` |
-| `options?` | [`AccessorOptions`](interfaces/AccessorOptions.md)<`SS`\> |
-
-#### Returns
-
-[`UseAccessorReturn`](README.md#useaccessorreturn)<`SS` \| `undefined`, `E`, [`InfiniteAccessor`](classes/InfiniteAccessor.md)<`LazyState`, `Arg`, `Data`, `E`\>\>
-
-#### Defined in
-
-[hooks/useLazyAccessor.ts:18](https://github.com/jason89521/react-fetch/blob/6f430a6/src/lib/hooks/useLazyAccessor.ts#L18)
-
-▸ **useLazyAccessor**<`Arg`, `Data`, `E`, `SS`\>(`accessor`, `getSnapshot?`, `options?`): [`UseAccessorReturn`](README.md#useaccessorreturn)<`SS` \| `undefined`, `E`, [`InfiniteAccessor`](classes/InfiniteAccessor.md)<`LazyState`, `Arg`, `Data`, `E`\> \| ``null``\>
-
-#### Type parameters
-
-| Name | Type |
-| :------ | :------ |
-| `Arg` | `Arg` |
-| `Data` | `Data` |
-| `E` | `E` |
-| `SS` | `undefined` \| `Data`[] |
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `accessor` | ``null`` \| [`InfiniteAccessor`](classes/InfiniteAccessor.md)<`LazyState`, `Arg`, `Data`, `E`\> |
-| `getSnapshot?` | (`data`: `undefined`[] \| `Data`) => `SS` |
-| `options?` | [`AccessorOptions`](interfaces/AccessorOptions.md)<`SS`\> |
-
-#### Returns
-
-[`UseAccessorReturn`](README.md#useaccessorreturn)<`SS` \| `undefined`, `E`, [`InfiniteAccessor`](classes/InfiniteAccessor.md)<`LazyState`, `Arg`, `Data`, `E`\> \| ``null``\>
-
-#### Defined in
-
-[hooks/useLazyAccessor.ts:23](https://github.com/jason89521/react-fetch/blob/6f430a6/src/lib/hooks/useLazyAccessor.ts#L23)
+[hooks/useHydrate.ts:11](https://github.com/jason89521/react-fetch/blob/6d3292c/src/lib/hooks/useHydrate.ts#L11)
 
 ___
 
@@ -503,7 +500,7 @@ The return value of the `getSnapshot` function.
 
 #### Defined in
 
-[hooks/useModel.ts:15](https://github.com/jason89521/react-fetch/blob/6f430a6/src/lib/hooks/useModel.ts#L15)
+[hooks/useModel.ts:15](https://github.com/jason89521/react-fetch/blob/6d3292c/src/lib/hooks/useModel.ts#L15)
 
 ___
 
@@ -517,4 +514,4 @@ ___
 
 #### Defined in
 
-[contexts/ServerStateKeyContext.tsx:10](https://github.com/jason89521/react-fetch/blob/6f430a6/src/lib/contexts/ServerStateKeyContext.tsx#L10)
+[contexts/ServerStateKeyContext.tsx:10](https://github.com/jason89521/react-fetch/blob/6d3292c/src/lib/contexts/ServerStateKeyContext.tsx#L10)

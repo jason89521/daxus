@@ -260,7 +260,7 @@ flowchart TD
 - [Pagination](./docs/pagination.md)
 - [Conditional Fetching](./docs/conditional-fetching.md)
 - [SSR](./docs/ssr.md)
-- [Lazy Model](./docs/lazy-model.md)
+- [Auto Model](./docs/auto-model.md)
 
 ## Development Motivation
 

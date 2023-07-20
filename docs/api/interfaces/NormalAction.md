@@ -30,17 +30,19 @@
 
 ### fetchData
 
-• **fetchData**: (`arg`: `Arg`) => `Promise`<`Data`\>
+• **fetchData**: (`arg`: `Arg`, `context`: { `getState`: () => `S`  }) => `Promise`<`Data`\>
 
 #### Type declaration
 
-▸ (`arg`): `Promise`<`Data`\>
+▸ (`arg`, `context`): `Promise`<`Data`\>
 
 ##### Parameters
 
 | Name | Type |
 | :------ | :------ |
 | `arg` | `Arg` |
+| `context` | `Object` |
+| `context.getState` | () => `S` |
 
 ##### Returns
 
@@ -48,7 +50,7 @@
 
 #### Defined in
 
-[model/types.ts:18](https://github.com/jason89521/react-fetch/blob/6f430a6/src/lib/model/types.ts#L18)
+[model/types.ts:18](https://github.com/jason89521/react-fetch/blob/6d3292c/src/lib/model/types.ts#L18)
 
 ___
 
@@ -78,7 +80,7 @@ BaseAction.onError
 
 #### Defined in
 
-[model/types.ts:4](https://github.com/jason89521/react-fetch/blob/6f430a6/src/lib/model/types.ts#L4)
+[model/types.ts:4](https://github.com/jason89521/react-fetch/blob/6d3292c/src/lib/model/types.ts#L4)
 
 ___
 
@@ -108,13 +110,13 @@ BaseAction.onSuccess
 
 #### Defined in
 
-[model/types.ts:5](https://github.com/jason89521/react-fetch/blob/6f430a6/src/lib/model/types.ts#L5)
+[model/types.ts:5](https://github.com/jason89521/react-fetch/blob/6d3292c/src/lib/model/types.ts#L5)
 
 ___
 
 ### syncState
 
-• **syncState**: (`draft`: `Draft`<`S`\>, `payload`: { `arg`: `Arg` ; `data`: `Data` ; `startAt`: `number`  }) => `void`
+• **syncState**: (`draft`: `Draft`<`S`\>, `payload`: { `arg`: `Arg` ; `data`: `Data`  }) => `void`
 
 #### Type declaration
 
@@ -128,7 +130,6 @@ ___
 | `payload` | `Object` |
 | `payload.arg` | `Arg` |
 | `payload.data` | `Data` |
-| `payload.startAt` | `number` |
 
 ##### Returns
 
@@ -136,4 +137,4 @@ ___
 
 #### Defined in
 
-[model/types.ts:19](https://github.com/jason89521/react-fetch/blob/6f430a6/src/lib/model/types.ts#L19)
+[model/types.ts:19](https://github.com/jason89521/react-fetch/blob/6d3292c/src/lib/model/types.ts#L19)

@@ -18,8 +18,8 @@ import type {
   PaginationState,
   Id,
 } from './adapters/index.js';
-import { createModel, createLazyModel } from './model/index.js';
-import { useAccessor, useHydrate, useModel, useLazyAccessor } from './hooks/index.js';
+import { createModel, createAutoModel } from './model/index.js';
+import { useAccessor, useHydrate, useModel, useAutoAccessor } from './hooks/index.js';
 import { createPaginationAdapter } from './adapters/index.js';
 import {
   AccessorOptionsProvider,
@@ -52,13 +52,13 @@ export type {
 };
 export {
   createModel,
-  createLazyModel,
+  createAutoModel,
 
   // hook
   useAccessor,
   useHydrate,
   useModel,
-  useLazyAccessor,
+  useAutoAccessor,
 
   // adapter
   createPaginationAdapter,

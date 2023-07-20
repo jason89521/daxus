@@ -30,9 +30,9 @@ export class NormalAccessor<S, Arg = any, Data = any, E = unknown> extends Acces
     onMount,
     onUnmount,
     prefix,
-    isLazy,
+    isAuto,
   }: NormalConstructorArgs<S, Arg, Data, E>) {
-    super({ getState, modelSubscribe, onMount, onUnmount, arg, prefix, notifyModel, isLazy });
+    super({ getState, modelSubscribe, onMount, onUnmount, arg, prefix, notifyModel, isAuto });
     this.action = action;
     this.arg = arg;
     this.updateState = updateState;

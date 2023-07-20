@@ -30,20 +30,21 @@
 
 ### fetchData
 
-• **fetchData**: (`arg`: `Arg`, `meta`: { `pageIndex`: `number` ; `previousData`: ``null`` \| `Data`  }) => `Promise`<``null`` \| `Data`\>
+• **fetchData**: (`arg`: `Arg`, `context`: { `getState`: () => `S` ; `pageIndex`: `number` ; `previousData`: ``null`` \| `Data`  }) => `Promise`<``null`` \| `Data`\>
 
 #### Type declaration
 
-▸ (`arg`, `meta`): `Promise`<``null`` \| `Data`\>
+▸ (`arg`, `context`): `Promise`<``null`` \| `Data`\>
 
 ##### Parameters
 
 | Name | Type |
 | :------ | :------ |
 | `arg` | `Arg` |
-| `meta` | `Object` |
-| `meta.pageIndex` | `number` |
-| `meta.previousData` | ``null`` \| `Data` |
+| `context` | `Object` |
+| `context.getState` | () => `S` |
+| `context.pageIndex` | `number` |
+| `context.previousData` | ``null`` \| `Data` |
 
 ##### Returns
 
@@ -51,7 +52,7 @@
 
 #### Defined in
 
-[model/types.ts:31](https://github.com/jason89521/react-fetch/blob/6f430a6/src/lib/model/types.ts#L31)
+[model/types.ts:30](https://github.com/jason89521/react-fetch/blob/6d3292c/src/lib/model/types.ts#L30)
 
 ___
 
@@ -81,7 +82,7 @@ BaseAction.onError
 
 #### Defined in
 
-[model/types.ts:4](https://github.com/jason89521/react-fetch/blob/6f430a6/src/lib/model/types.ts#L4)
+[model/types.ts:4](https://github.com/jason89521/react-fetch/blob/6d3292c/src/lib/model/types.ts#L4)
 
 ___
 
@@ -111,7 +112,7 @@ BaseAction.onSuccess
 
 #### Defined in
 
-[model/types.ts:5](https://github.com/jason89521/react-fetch/blob/6f430a6/src/lib/model/types.ts#L5)
+[model/types.ts:5](https://github.com/jason89521/react-fetch/blob/6d3292c/src/lib/model/types.ts#L5)
 
 ___
 
@@ -140,4 +141,4 @@ ___
 
 #### Defined in
 
-[model/types.ts:35](https://github.com/jason89521/react-fetch/blob/6f430a6/src/lib/model/types.ts#L35)
+[model/types.ts:34](https://github.com/jason89521/react-fetch/blob/6d3292c/src/lib/model/types.ts#L34)
