@@ -1,5 +1,5 @@
 import { act, fireEvent, renderHook, waitFor } from '@testing-library/react';
-import { createAutoModel, useAutoAccessor } from '../lib/index.js';
+import { createAutoModel, useAccessor } from '../lib/index.js';
 import { renderWithOptionsProvider } from './utils.js';
 
 let model = createAutoModel();
@@ -28,14 +28,14 @@ describe('autoModel', () => {
   });
 });
 
-describe('useAutoAccessor - normal', () => {
+describe('useAccessor - normal with auto state', () => {
   test('should return correct data', async () => {
     const getData = model.defineNormalAccessor<void, string>({
       fetchData: async () => {
         return 'data';
       },
     });
-    const { result } = renderHook(() => useAutoAccessor(getData()));
+    const { result } = renderHook(() => useAccessor(getData()));
 
     await waitFor(() => {
       expect(result.current.data).toBe('data');
@@ -49,7 +49,7 @@ describe('useAutoAccessor - normal', () => {
       },
     });
     const { result } = renderHook(() =>
-      useAutoAccessor(getData(), {
+      useAccessor(getData(), {
         getSnapshot: data => data?.length,
       })
     );
@@ -73,7 +73,7 @@ describe('useAutoAccessor - normal', () => {
     });
 
     function StaticComponent() {
-      const { data } = useAutoAccessor(getStaticData(), {
+      const { data } = useAccessor(getStaticData(), {
         getSnapshot: data => {
           notifiedCount += 1;
           return data;
@@ -84,7 +84,7 @@ describe('useAutoAccessor - normal', () => {
     }
 
     function DynamicComponent() {
-      const { accessor, data } = useAutoAccessor(getDynamicData());
+      const { accessor, data } = useAccessor(getDynamicData());
 
       return (
         <div>
@@ -113,14 +113,14 @@ describe('useAutoAccessor - normal', () => {
   });
 });
 
-describe('useAutoAccessor - infinite', () => {
+describe('useAccessor - infinite with auto state', () => {
   test('should return correct data', async () => {
     const getData = model.defineInfiniteAccessor<void, string[]>({
       fetchData: async () => {
         return ['data'];
       },
     });
-    const { result } = renderHook(() => useAutoAccessor(getData()));
+    const { result } = renderHook(() => useAccessor(getData()));
 
     await waitFor(() => {
       expect(result.current.data).toEqual([['data']]);
@@ -145,7 +145,7 @@ describe('useAutoAccessor - infinite', () => {
       },
     });
     const { result } = renderHook(() =>
-      useAutoAccessor(getData(), {
+      useAccessor(getData(), {
         revalidateOnMount: true,
         getSnapshot: data => {
           return (data ?? []).flat();

@@ -91,6 +91,10 @@ export abstract class Accessor<S, Arg, D, E> {
     this.isAuto = isAuto;
   }
 
+  getIsAuto = () => {
+    return this.isAuto;
+  };
+
   getKey = () => {
     return getKey(this.prefix, this.arg);
   };

@@ -1,7 +1,18 @@
 import { useCallback, useContext, useEffect, useMemo, useRef, useSyncExternalStore } from 'react';
-import type { Accessor, InfiniteAccessor, NormalAccessor, Status } from '../model/index.js';
+import type {
+  Accessor,
+  AutoState,
+  InfiniteAccessor,
+  NormalAccessor,
+  Status,
+} from '../model/index.js';
 import { isUndefined, noop, objectKeys, stableHash, isNull } from '../utils/index.js';
-import type { AccessorOptions, RequiredAccessorOptions, UseAccessorReturn } from './types.js';
+import type {
+  AccessorOptions,
+  AutoAccessorOptions,
+  RequiredAccessorOptions,
+  UseAccessorReturn,
+} from './types.js';
 import { useUpdatedRef } from './useUpdatedRef.js';
 import { accessorOptionsContext, useServerStateKeyContext } from '../contexts/index.js';
 
@@ -53,11 +64,33 @@ export function useAccessor<S, Arg, RD, SS, E = unknown>(
   getSnapshot: (state: S) => SS,
   options?: AccessorOptions<SS>
 ): UseAccessorReturn<SS | undefined, E, InfiniteAccessor<S, Arg, RD, E> | null>;
-export function useAccessor<S, SS, E = unknown>(
-  accessor: Accessor<S, unknown, any, E> | null,
-  getSnapshot: (state: S) => SS,
-  options: AccessorOptions<SS> = {}
+
+export function useAccessor<Arg, D, E, SS = D | undefined>(
+  accessor: NormalAccessor<AutoState, Arg, D, E>,
+  options?: AutoAccessorOptions<D, SS>
+): UseAccessorReturn<SS | undefined, E, NormalAccessor<AutoState, Arg, D, E>>;
+
+export function useAccessor<Arg, D, E, SS = D | undefined>(
+  accessor: NormalAccessor<AutoState, Arg, D, E> | null,
+  options?: AutoAccessorOptions<D, SS>
+): UseAccessorReturn<SS | undefined, E, NormalAccessor<AutoState, Arg, D, E> | null>;
+
+export function useAccessor<Arg, D, E, SS = D[] | undefined>(
+  accessor: InfiniteAccessor<AutoState, Arg, D, E>,
+  options?: AutoAccessorOptions<D[], SS>
+): UseAccessorReturn<SS | undefined, E, InfiniteAccessor<AutoState, Arg, D, E>>;
+
+export function useAccessor<Arg, D, E, SS = D[] | undefined>(
+  accessor: InfiniteAccessor<AutoState, Arg, D, E> | null,
+  options?: AutoAccessorOptions<D[], SS>
+): UseAccessorReturn<SS | undefined, E, InfiniteAccessor<AutoState, Arg, D, E> | null>;
+
+export function useAccessor<S, D, SS, E = unknown>(
+  accessor: Accessor<S, any, D, E> | null,
+  maybeGetSnapshot: ((state: S) => SS) | AutoAccessorOptions<D, SS> = {},
+  accessorOptions: AccessorOptions<SS> = {}
 ): UseAccessorReturn<SS | undefined, E, Accessor<S, unknown, any, E> | null> {
+  const [getSnapshot, options] = normalizeArgs(accessor, maybeGetSnapshot, accessorOptions);
   const serverStateKey = useServerStateKeyContext();
   const defaultOptions = useContext(accessorOptionsContext);
   const requiredOptions = { ...defaultOptions, ...options };
@@ -173,4 +206,31 @@ export function useAccessor<S, SS, E = unknown>(
     },
     accessor,
   };
+}
+
+function normalizeArgs<S, D, SS, E>(
+  accessor: Accessor<S, any, D, E> | null,
+  maybeGetSnapshot: ((state: S) => SS) | AutoAccessorOptions<D, SS> = {},
+  accessorOptions: AccessorOptions<SS> = {}
+) {
+  const args = (() => {
+    if (typeof maybeGetSnapshot === 'function') {
+      return [maybeGetSnapshot, accessorOptions] as const;
+    }
+
+    const { getSnapshot = data => data as SS, ...options } = maybeGetSnapshot;
+
+    return [
+      (state: S) => {
+        const cache = accessor
+          ? ((state as AutoState)[accessor.getKey()] as D | undefined)
+          : undefined;
+
+        return getSnapshot(cache);
+      },
+      options,
+    ] as const;
+  })();
+
+  return args;
 }
