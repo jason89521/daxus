@@ -38,10 +38,10 @@ export interface InfiniteAccessorCreator<S, Arg, Data, E> extends BaseAccessorCr
 
 export interface Model<S extends object> {
   mutate(fn: (draft: Draft<S>) => void, serverStateKey?: object): void;
-  defineInfiniteAccessor<Arg, Data, E = any>(
+  defineInfiniteAccessor<Data, Arg = void, E = any>(
     action: InfiniteAction<S, Arg, Data, E>
   ): InfiniteAccessorCreator<S, Arg, Data, E>;
-  defineNormalAccessor<Arg, Data, E = any>(
+  defineNormalAccessor<Data, Arg = void, E = any>(
     action: NormalAction<S, Arg, Data, E>
   ): NormalAccessorCreator<S, Arg, Data, E>;
   getState(serverStateKey?: object): S;
@@ -61,10 +61,10 @@ export interface AutoModel extends Pick<Model<AutoState>, 'invalidate' | 'subscr
     fn: (prevData: Data | undefined) => Data,
     serverStateKey?: object
   ): void;
-  defineNormalAccessor<Arg, Data, E = unknown>(
+  defineNormalAccessor<Data, Arg = void, E = unknown>(
     action: AutoNormalAction<Arg, Data, E>
   ): NormalAccessorCreator<AutoState, Arg, Data, E>;
-  defineInfiniteAccessor<Arg, Data, E = unknown>(
+  defineInfiniteAccessor<Data, Arg = void, E = unknown>(
     action: AutoInfiniteAction<Arg, Data, E>
   ): InfiniteAccessorCreator<AutoState, Arg, Data, E>;
   getState<Arg, Data, E = unknown>(

@@ -45,7 +45,7 @@ export function createPostModel(control: PostModelControl) {
     },
   });
 
-  const getPostList = postModel.defineInfiniteAccessor<void, Post[]>({
+  const getPostList = postModel.defineInfiniteAccessor<Post[]>({
     async fetchData(_, { pageIndex }) {
       control.fetchDataMock?.();
 
