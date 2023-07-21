@@ -10,7 +10,7 @@ beforeEach(() => {
 
 describe('autoModel', () => {
   test('should mutate the data correctly', () => {
-    const getData = model.defineNormalAccessor<void, string>({
+    const getData = model.defineNormalAccessor<string>({
       fetchData: async () => {
         return 'data';
       },
@@ -30,7 +30,7 @@ describe('autoModel', () => {
 
 describe('useAccessor - normal with auto state', () => {
   test('should return correct data', async () => {
-    const getData = model.defineNormalAccessor<void, string>({
+    const getData = model.defineNormalAccessor<string>({
       fetchData: async () => {
         return 'data';
       },
@@ -43,7 +43,7 @@ describe('useAccessor - normal with auto state', () => {
   });
 
   test('should return selected data', async () => {
-    const getData = model.defineNormalAccessor<void, string>({
+    const getData = model.defineNormalAccessor<string>({
       fetchData: async () => {
         return 'data';
       },
@@ -61,12 +61,12 @@ describe('useAccessor - normal with auto state', () => {
 
   test('should notify accessor itself only', async () => {
     let notifiedCount = 0;
-    const getStaticData = model.defineNormalAccessor<void, string>({
+    const getStaticData = model.defineNormalAccessor<string>({
       fetchData: async () => {
         return 'static';
       },
     });
-    const getDynamicData = model.defineNormalAccessor<void, string>({
+    const getDynamicData = model.defineNormalAccessor<string>({
       fetchData: async () => {
         return `${notifiedCount}`;
       },
@@ -115,7 +115,7 @@ describe('useAccessor - normal with auto state', () => {
 
 describe('useAccessor - infinite with auto state', () => {
   test('should return correct data', async () => {
-    const getData = model.defineInfiniteAccessor<void, string[]>({
+    const getData = model.defineInfiniteAccessor<string[]>({
       fetchData: async () => {
         return ['data'];
       },
@@ -139,7 +139,7 @@ describe('useAccessor - infinite with auto state', () => {
   });
 
   test('should return selected data', async () => {
-    const getData = model.defineInfiniteAccessor<void, string[]>({
+    const getData = model.defineInfiniteAccessor<string[]>({
       fetchData: async () => {
         return ['data'];
       },
