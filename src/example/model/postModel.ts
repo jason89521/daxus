@@ -29,7 +29,7 @@ export const getPostById = postModel.defineNormalAccessor({
   },
 });
 
-export const getPostList = postModel.defineInfiniteAccessor<{ layout: PostLayout }, Post[]>({
+export const getPostList = postModel.defineInfiniteAccessor<Post[], { layout: PostLayout }>({
   fetchData: async ({ layout }, { pageIndex, previousData }) => {
     if (previousData?.length === 0) return null;
     const data = await getPostListRequest({ layout, page: pageIndex });
