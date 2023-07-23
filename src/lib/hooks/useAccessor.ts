@@ -208,7 +208,7 @@ export function useAccessor<S, D, SS, E = unknown>(
   };
 }
 
-function normalizeArgs<S, D, SS, E>(
+export function normalizeArgs<S, D, SS, E>(
   accessor: Accessor<S, any, D, E> | null,
   maybeGetSnapshot: ((state: S) => SS) | AutoAccessorOptions<D, SS> = {},
   accessorOptions: AccessorOptions<SS> = {}

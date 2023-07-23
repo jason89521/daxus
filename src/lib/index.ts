@@ -19,7 +19,7 @@ import type {
   Id,
 } from './adapters/index.js';
 import { createModel, createAutoModel } from './model/index.js';
-import { useAccessor, useHydrate, useModel } from './hooks/index.js';
+import { useAccessor, useHydrate, useModel, useSuspenseAccessor } from './hooks/index.js';
 import { createPaginationAdapter } from './adapters/index.js';
 import {
   AccessorOptionsProvider,
@@ -58,6 +58,7 @@ export {
   useAccessor,
   useHydrate,
   useModel,
+  useSuspenseAccessor,
 
   // adapter
   createPaginationAdapter,
