@@ -1,5 +1,5 @@
 import { Suspense, useState } from 'react';
-import { useSuspenseAccessor } from '../lib/index.js';
+import { createAutoModel, useSuspenseAccessor } from '../lib/index.js';
 import { createControl, createPostModel, renderWithOptionsProvider } from './utils.js';
 import { fireEvent } from '@testing-library/react';
 import { isUndefined } from '../lib/utils/isUndefined.js';
@@ -84,5 +84,69 @@ describe('useSuspenseAccessor-normal', () => {
     getByText('loading');
     fireEvent.click(getByText('next'));
     await findByText('title0');
+  });
+});
+
+describe('useSuspenseAccessor-auto state', () => {
+  let model = createAutoModel();
+
+  beforeEach(() => {
+    model = createAutoModel();
+  });
+
+  test('should show the data when fetching finish', async () => {
+    const getData = model.defineNormalAccessor({
+      async fetchData() {
+        return 'data';
+      },
+    });
+
+    function Data() {
+      const { data } = useSuspenseAccessor(getData());
+
+      return <div>{data}</div>;
+    }
+    function Page() {
+      return (
+        <Suspense fallback="loading">
+          <Data />
+        </Suspense>
+      );
+    }
+
+    const { getByText, findByText } = renderWithOptionsProvider(<Page />);
+    getByText('loading');
+    await findByText('data');
+  });
+
+  test('should update the data when the corresponding cache is updated', async () => {
+    let counter = 0;
+    const getData = model.defineNormalAccessor({
+      async fetchData() {
+        counter += 1;
+        return counter;
+      },
+    });
+    function Data() {
+      const { data } = useSuspenseAccessor(getData());
+
+      return <div>{data}</div>;
+    }
+    function Page() {
+      return (
+        <>
+          <button onClick={() => getData().revalidate()}>revalidate</button>
+          <Suspense fallback="loading">
+            <Data />
+          </Suspense>
+        </>
+      );
+    }
+
+    const { getByText, findByText } = renderWithOptionsProvider(<Page />);
+    getByText('loading');
+    await findByText('1');
+    fireEvent.click(getByText('revalidate'));
+    await findByText('2');
   });
 });
