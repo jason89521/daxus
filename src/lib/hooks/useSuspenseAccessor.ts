@@ -73,7 +73,7 @@ export function useSuspenseAccessor<S, D, SS, E = unknown>(
     error: E;
   };
 
-  if (!accessor) throw new Promise(noop);
+  if (!accessor) throw Promise.resolve()
 
   const hasData = !isUndefined(data) ? checkHasData(data) : false;
 
