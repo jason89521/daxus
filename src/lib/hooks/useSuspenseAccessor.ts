@@ -5,7 +5,7 @@ import { normalizeArgs, useAccessor } from './useAccessor.js';
 import { accessorOptionsContext } from '../contexts/AccessorOptionsContext.js';
 import { useContext } from 'react';
 import type { NonUndefined } from '../utils/index.js';
-import { isNonUndefined, isUndefined, noop } from '../utils/index.js';
+import { isNonUndefined, isUndefined } from '../utils/index.js';
 
 interface ReturnValue<S, ACC extends Accessor<any, any, any, any> | null> {
   data: S;
@@ -73,13 +73,13 @@ export function useSuspenseAccessor<S, D, SS, E = unknown>(
     error: E;
   };
 
-  if (!accessor) throw Promise.resolve()
+  if (!accessor) throw Promise.resolve();
 
   const hasData = !isUndefined(data) ? checkHasData(data) : false;
 
   if (!hasData || !isNonUndefined(data)) {
     if (accessor.getStatus().isFetching) {
-      throw new Promise(noop);
+      throw Promise.resolve();
     } else {
       throw accessor.revalidate();
     }
