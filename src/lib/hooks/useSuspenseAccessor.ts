@@ -64,8 +64,13 @@ export function useSuspenseAccessor<S, D, SS, E = unknown>(
   const [, options] = normalizeArgs(accessor, maybeGetSnapshot, accessorOptions);
   const defaultOptions = useContext(accessorOptionsContext);
   const { checkHasData } = { ...defaultOptions, ...options };
-  const { data } = useAccessor(accessor as any, maybeGetSnapshot as any, accessorOptions) as {
+  const { data, error } = useAccessor(
+    accessor as any,
+    maybeGetSnapshot as any,
+    accessorOptions
+  ) as {
     data: SS;
+    error: E;
   };
 
   if (!accessor) throw new Promise(noop);
@@ -78,6 +83,10 @@ export function useSuspenseAccessor<S, D, SS, E = unknown>(
     } else {
       throw accessor.revalidate();
     }
+  }
+
+  if (error && !hasData) {
+    throw error;
   }
 
   return {
