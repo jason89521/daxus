@@ -1,7 +1,7 @@
 import { getCurrentTime } from '../utils/index.js';
+import type { RevalidateContext } from './Accessor.js';
 import { Accessor } from './Accessor.js';
-import type { InfiniteAction, InfiniteConstructorArgs } from './types.js';
-import type { Draft } from 'immer';
+import type { InfiniteAction, InfiniteConstructorArgs, UpdateModelState } from './types.js';
 
 type Task = 'validate' | 'next' | 'idle';
 
@@ -12,7 +12,7 @@ export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Acc
   E
 > {
   protected action: InfiniteAction<S, Arg, Data, E>;
-  private updateState: (cb: (draft: Draft<S>) => void) => void;
+  private updateState: UpdateModelState<S>;
   private data: Data[] = [];
   /**
    * This property is used to reject ant ongoing fetching.
@@ -55,9 +55,9 @@ export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Acc
   /**
    * {@inheritDoc Accessor.revalidate}
    */
-  revalidate = () => {
+  revalidate = (context: RevalidateContext = {}) => {
     const pageNum = this.getPageNum() || this.initialPageNum;
-    return this.fetch({ pageNum, pageIndex: 0, task: 'validate' });
+    return this.fetch({ pageNum, pageIndex: 0, task: 'validate', ...context });
   };
 
   /**
@@ -145,11 +145,12 @@ export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Acc
     pageIndex,
     pageNum,
     task,
+    serverStateKey,
   }: {
     pageIndex: number;
     pageNum: number;
     task: Task;
-  }) => {
+  } & RevalidateContext) => {
     const startAt = getCurrentTime();
     if (!this.canFetch({ startAt })) {
       // If the next task is to fetch the next page, and the current task is validate,
@@ -169,7 +170,17 @@ export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Acc
         if (this.isExpiredFetching(startAt)) return this.fetchPromise;
 
         if (!error) {
-          this.flush(data, { start: pageIndex });
+          for (let i = 0; i < data.length; i++) {
+            if (i < pageIndex) continue;
+            this.updateState(draft => {
+              this.action.syncState(draft, {
+                arg: this.arg,
+                pageIndex: i,
+                pageSize: data.length,
+                data: data[i]!,
+              });
+            }, serverStateKey);
+          }
           this.data = data;
         }
         this.currentTask = 'idle';
@@ -182,24 +193,5 @@ export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Acc
     })();
     this.onFetchingStart({ fetchPromise, startAt });
     return fetchPromise;
-  };
-
-  /**
-   * Sync the data in `data` from the `start` index to the state,
-   * and notify the listeners which are listening this accessor.
-   */
-  private flush = (data: Data[], { start }: { start: number }) => {
-    const pageSize = data.length;
-    data.forEach((data, pageIndex) => {
-      if (pageIndex < start) return;
-      this.updateState(draft => {
-        this.action.syncState(draft, {
-          data,
-          arg: this.arg,
-          pageIndex,
-          pageSize,
-        });
-      });
-    });
   };
 }
