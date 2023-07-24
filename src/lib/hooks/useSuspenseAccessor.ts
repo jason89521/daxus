@@ -1,7 +1,7 @@
 import type { AccessorOptions, AutoAccessorOptions } from './types.js';
 import type { NormalAccessor, InfiniteAccessor, AutoState, Accessor } from '../model/index.js';
 
-import { normalizeArgs } from './useAccessor.js';
+import { normalizeArgs, useAccessor } from './useAccessor.js';
 import { accessorOptionsContext } from '../contexts/AccessorOptionsContext.js';
 import { useContext, useMemo, useSyncExternalStore } from 'react';
 import type { NonUndefined } from '../utils/index.js';
@@ -62,34 +62,12 @@ export function useSuspenseAccessor<S, D, SS, E = unknown>(
   maybeGetSnapshot: ((state: S) => SS) | AutoAccessorOptions<D, SS> = {},
   accessorOptions: AccessorOptions<SS> = {}
 ): ReturnValue<NonUndefined<SS>, Accessor<S, any, D, E>> {
-  const serverStateKey = useServerStateKeyContext();
-  const [getSnapshot, options] = normalizeArgs(accessor, maybeGetSnapshot, accessorOptions);
+  const [, options] = normalizeArgs(accessor, maybeGetSnapshot, accessorOptions);
   const defaultOptions = useContext(accessorOptionsContext);
-  const requiredOptions = { ...defaultOptions, ...options };
-  const { checkHasData } = requiredOptions;
-  const [subscribeData, getData] = useMemo(() => {
-    if (!accessor) return [() => noop, noop as () => undefined] as const;
-
-    const getState = () => {
-      return accessor.getState(serverStateKey);
-    };
-
-    let memoizedSnapshot = getSnapshot(getState());
-
-    return [
-      (listener: () => void) => {
-        return accessor.subscribeData(() => {
-          const snapshot = getSnapshot(getState());
-          if (stableHash(snapshot) !== stableHash(memoizedSnapshot)) {
-            memoizedSnapshot = snapshot;
-            listener();
-          }
-        });
-      },
-      () => memoizedSnapshot,
-    ] as const;
-  }, [accessor, serverStateKey]);
-  const data = useSyncExternalStore(subscribeData, getData, getData);
+  const { checkHasData } = { ...defaultOptions, ...options };
+  const { data } = useAccessor(accessor as any, maybeGetSnapshot as any, accessorOptions) as {
+    data: SS;
+  };
 
   if (!accessor) throw new Promise(noop);
 
