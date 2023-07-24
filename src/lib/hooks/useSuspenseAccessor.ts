@@ -3,10 +3,9 @@ import type { NormalAccessor, InfiniteAccessor, AutoState, Accessor } from '../m
 
 import { normalizeArgs, useAccessor } from './useAccessor.js';
 import { accessorOptionsContext } from '../contexts/AccessorOptionsContext.js';
-import { useContext, useMemo, useSyncExternalStore } from 'react';
+import { useContext } from 'react';
 import type { NonUndefined } from '../utils/index.js';
-import { isNonUndefined, isUndefined, noop, stableHash } from '../utils/index.js';
-import { useServerStateKeyContext } from '../index.js';
+import { isNonUndefined, isUndefined, noop } from '../utils/index.js';
 
 interface ReturnValue<S, ACC extends Accessor<any, any, any, any> | null> {
   data: S;
