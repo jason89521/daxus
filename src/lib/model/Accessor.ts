@@ -4,6 +4,10 @@ import type { MutableRefObject } from 'react';
 import { getKey, isUndefined } from '../utils/index.js';
 import type { BaseAction, BaseConstructorArgs, ModelSubscribe } from './types.js';
 
+export type RevalidateContext = {
+  serverStateKey?: object;
+};
+
 export type Status<E = unknown> = {
   isFetching: boolean;
   error: E | null;
@@ -49,7 +53,7 @@ export abstract class Accessor<S, Arg, D, E> {
   /**
    * Return the result of the revalidation.
    */
-  abstract revalidate: () => Promise<FetchPromiseResult<E, D>>;
+  abstract revalidate: (context?: RevalidateContext) => Promise<FetchPromiseResult<E, D>>;
 
   protected abstract action: BaseAction<Arg, D, E>;
 

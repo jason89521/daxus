@@ -1,7 +1,7 @@
 import { getCurrentTime } from '../utils/index.js';
+import type { RevalidateContext } from './Accessor.js';
 import { Accessor } from './Accessor.js';
-import type { NormalAction, NormalConstructorArgs } from './types.js';
-import type { Draft } from 'immer';
+import type { NormalAction, NormalConstructorArgs, UpdateModelState } from './types.js';
 
 /**
  * [`data`, `error`]
@@ -15,7 +15,7 @@ export class NormalAccessor<S, Arg = any, Data = any, E = unknown> extends Acces
   E
 > {
   protected action: NormalAction<S, Arg, Data, E>;
-  private updateState: (cb: (draft: Draft<S>) => void) => void;
+  private updateState: UpdateModelState<S>;
 
   /**
    * @internal
@@ -41,7 +41,7 @@ export class NormalAccessor<S, Arg = any, Data = any, E = unknown> extends Acces
   /**
    * {@inheritDoc Accessor.revalidate}
    */
-  revalidate = () => {
+  revalidate = ({ serverStateKey }: RevalidateContext = {}) => {
     const startAt = getCurrentTime();
 
     if (!this.canFetch({ startAt })) {
@@ -62,7 +62,7 @@ export class NormalAccessor<S, Arg = any, Data = any, E = unknown> extends Acces
         if (data) {
           this.updateState(draft => {
             this.action.syncState(draft, { data, arg });
-          });
+          }, serverStateKey);
         }
         return this.onFetchingFinish({ error, data });
       } catch (error) {

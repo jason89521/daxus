@@ -45,7 +45,7 @@ export type ModelSubscribe = (listener: () => void) => () => void;
 
 export interface BaseConstructorArgs<S, Arg> {
   arg: Arg;
-  updateState: (cb: (draft: Draft<S>) => void) => void;
+  updateState: UpdateModelState<S>;
   getState: (serverStateKey?: object) => S;
   modelSubscribe: ModelSubscribe;
   notifyModel: () => void;
@@ -63,3 +63,5 @@ export interface InfiniteConstructorArgs<S, Arg, Data, E> extends BaseConstructo
   action: InfiniteAction<S, Arg, Data, E>;
   initialPageNum: number;
 }
+
+export type UpdateModelState<S> = (cb: (draft: Draft<S>) => void, serverStateKey?: object) => void;
