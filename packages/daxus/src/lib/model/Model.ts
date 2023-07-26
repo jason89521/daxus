@@ -5,16 +5,20 @@ import type {
   NormalAction,
   InfiniteConstructorArgs,
   NormalConstructorArgs,
+  UpdateModelState,
+  UpdateModelStateContext,
 } from './types.js';
 import { NormalAccessor } from './NormalAccessor.js';
 import { InfiniteAccessor } from './InfiniteAccessor.js';
-import { getKey, isServer } from '../utils/index.js';
+import { getKey, isServer, objectKeys } from '../utils/index.js';
 import type { Accessor } from './Accessor.js';
 
 const CLEAR_ACCESSOR_CACHE_TIME = 60 * 1000;
 
-interface BaseAccessorCreator {
+interface BaseAccessorCreator<S> {
+  mutate: (fn: (draft: Draft<S>) => void) => void;
   invalidate(): void;
+  isAuto: boolean;
 }
 
 export type AutoState = Record<string, unknown>;
@@ -29,14 +33,21 @@ export type AutoInfiniteAction<Arg, Data, E> = Omit<
   'syncState'
 >;
 
-export interface NormalAccessorCreator<S, Arg, Data, E> extends BaseAccessorCreator {
+export interface NormalAccessorCreator<S, Arg = any, Data = any, E = any>
+  extends BaseAccessorCreator<S> {
   (arg: Arg): NormalAccessor<S, Arg, Data, E>;
+  syncState: NormalAction<S, Arg, Data, E>['syncState'];
 }
-export interface InfiniteAccessorCreator<S, Arg, Data, E> extends BaseAccessorCreator {
+export interface InfiniteAccessorCreator<S, Arg = any, Data = any, E = any>
+  extends BaseAccessorCreator<S> {
   (arg: Arg): InfiniteAccessor<S, Arg, Data, E>;
+  syncState: InfiniteAction<S, Arg, Data, E>['syncState'];
 }
 
 export interface Model<S extends object> {
+  getCreator(
+    creatorName: string
+  ): InfiniteAccessorCreator<S> | NormalAccessorCreator<S> | undefined;
   mutate(fn: (draft: Draft<S>) => void, serverStateKey?: object): void;
   defineInfiniteAccessor<Data, Arg = void, E = any>(
     action: InfiniteAction<S, Arg, Data, E>
@@ -55,7 +66,8 @@ export interface Model<S extends object> {
   subscribe(listener: () => void): () => void;
 }
 
-export interface AutoModel extends Pick<Model<AutoState>, 'invalidate' | 'subscribe'> {
+export interface AutoModel
+  extends Pick<Model<AutoState>, 'invalidate' | 'subscribe' | 'getCreator'> {
   mutate<Arg, Data, E = unknown>(
     accessor: Accessor<AutoState, Arg, Data, E>,
     fn: (prevData: Data | undefined) => Data,
@@ -73,34 +85,49 @@ export interface AutoModel extends Pick<Model<AutoState>, 'invalidate' | 'subscr
   ): Data | undefined;
 }
 
-export function createModel<S extends object>(initialState: S): Model<S> {
+export function createModel<S extends object>(
+  initialState: S,
+  onStateChange: (ctx: UpdateModelStateContext) => void
+): Model<S> {
   type Accessor<Arg = any, Data = any> =
     | NormalAccessor<S, Arg, Data, any>
     | InfiniteAccessor<S, Arg, Data, any>;
 
-  let prefixCounter = 0;
   const serverStateRecord = new WeakMap<object, S>();
   let clientState = { ...initialState };
   const listeners: (() => void)[] = [];
   const accessorRecord = {} as Record<string, Accessor | undefined>;
+  const creatorRecord = {} as Record<
+    string,
+    NormalAccessorCreator<S, any, any, any> | InfiniteAccessorCreator<S, any, any, any> | undefined
+  >;
+
+  function assertDuplicateName(name: string) {
+    if (objectKeys(creatorRecord).includes(name)) {
+      throw new Error(`The creator name: ${name} has already existed!`);
+    }
+  }
+
   /**
    * instead of recording the whole data, we only record the pages number to save the memory usage
    */
   const infiniteAccessorPageNumRecord = {} as Record<string, number | undefined>;
 
-  function updateState(fn: (draft: Draft<S>) => void, serverStateKey?: object) {
+  const updateState: UpdateModelState<S> = (fn, { serverStateKey, ...ctx }) => {
     if (isServer() && serverStateKey) {
       const serverState = serverStateRecord.get(serverStateKey) ?? { ...initialState };
       const draft = createDraft(serverState);
       fn(draft);
       serverStateRecord.set(serverStateKey, finishDraft(draft) as S);
+      onStateChange(ctx);
       return;
     }
 
     const draft = createDraft(clientState);
     fn(draft);
     clientState = finishDraft(draft) as S;
-  }
+    onStateChange(ctx);
+  };
 
   function getState(serverStateKey?: object) {
     if (isServer() && serverStateKey) {
@@ -125,17 +152,18 @@ export function createModel<S extends object>(initialState: S): Model<S> {
   }
 
   function mutate(fn: (draft: Draft<S>) => void, serverStateKey?: object) {
-    updateState(fn, serverStateKey);
+    updateState(fn, { serverStateKey });
     notifyListeners();
   }
 
   function defineNormalAccessor<Arg, Data, E = unknown>(
     action: NormalAction<S, Arg, Data, E>
   ): NormalAccessorCreator<S, Arg, Data, E> {
-    const prefix = action.prefix ?? prefixCounter++;
+    const { name } = action;
+    assertDuplicateName(name);
     let timeoutId: number | undefined;
     const main = (arg: Arg) => {
-      const key = getKey(prefix, arg);
+      const key = getKey(name, arg);
 
       const clearAccessorCache = () => {
         const accessor = accessorRecord[key];
@@ -162,7 +190,6 @@ export function createModel<S extends object>(initialState: S): Model<S> {
         notifyModel: notifyListeners,
         onMount,
         onUnmount,
-        prefix,
         isAuto: action.isAuto ?? false,
       };
 
@@ -185,24 +212,32 @@ export function createModel<S extends object>(initialState: S): Model<S> {
       return newAccessor;
     };
 
-    return Object.assign(main, {
+    const creator = Object.assign(main, {
       invalidate: () => {
         Object.entries(accessorRecord).forEach(([key, accessor]) => {
-          if (key.startsWith(`${prefix}/`)) {
+          if (key.startsWith(`${name}/`)) {
             accessor?.invalidate();
           }
         });
       },
+      isAuto: action.isAuto ?? false,
+      mutate,
+      syncState: action.syncState,
     });
+
+    creatorRecord[name] = creator;
+
+    return creator;
   }
 
   function defineInfiniteAccessor<Arg, Data, E = unknown>(
     action: InfiniteAction<S, Arg, Data, E>
   ): InfiniteAccessorCreator<S, Arg, Data, E> {
-    const prefix = action.prefix ?? prefixCounter++;
+    const { name } = action;
+    assertDuplicateName(name);
     let timeoutId: number | undefined;
     const main = (arg: Arg) => {
-      const key = getKey(prefix, arg);
+      const key = getKey(name, arg);
 
       const clearAccessorCache = () => {
         const accessor = accessorRecord[key] as InfiniteAccessor<S>;
@@ -230,7 +265,6 @@ export function createModel<S extends object>(initialState: S): Model<S> {
         updateState,
         onMount,
         onUnmount,
-        prefix,
         initialPageNum: infiniteAccessorPageNumRecord[key] ?? 1,
         isAuto: action.isAuto ?? false,
       };
@@ -252,15 +286,21 @@ export function createModel<S extends object>(initialState: S): Model<S> {
       return newAccessor;
     };
 
-    return Object.assign(main, {
+    const creator = Object.assign(main, {
       invalidate: () => {
         Object.entries(accessorRecord).forEach(([key, accessor]) => {
-          if (key.startsWith(`${prefix}/`)) {
+          if (key.startsWith(`${name}/`)) {
             accessor?.invalidate();
           }
         });
       },
+      isAuto: action.isAuto ?? false,
+      mutate,
+      syncState: action.syncState,
     });
+    creatorRecord[name] = creator;
+
+    return creator;
   }
 
   function invalidate() {
@@ -269,21 +309,29 @@ export function createModel<S extends object>(initialState: S): Model<S> {
     });
   }
 
-  return { mutate, defineInfiniteAccessor, defineNormalAccessor, getState, invalidate, subscribe };
+  return {
+    mutate,
+    defineInfiniteAccessor,
+    defineNormalAccessor,
+    getState,
+    invalidate,
+    subscribe,
+    getCreator(creatorName) {
+      return creatorRecord[creatorName];
+    },
+  };
 }
 
-export function createAutoModel(): AutoModel {
-  const model = createModel<AutoState>({});
-  let prefixCounter = 0;
+export function createAutoModel(onStateChange: (ctx: UpdateModelStateContext) => void): AutoModel {
+  const model = createModel<AutoState>({}, onStateChange);
 
   function defineNormalAccessor<Arg, Data, E = unknown>(action: AutoNormalAction<Arg, Data, E>) {
-    const prefix = prefixCounter++;
+    const { name } = action;
     return model.defineNormalAccessor({
       ...action,
-      prefix,
       isAuto: true,
       syncState(draft, { data, arg }) {
-        const key = getKey(prefix, arg);
+        const key = getKey(name, arg);
         draft[key] = data;
       },
     });
@@ -292,13 +340,13 @@ export function createAutoModel(): AutoModel {
   function defineInfiniteAccessor<Arg, Data, E = unknown>(
     action: AutoInfiniteAction<Arg, Data, E>
   ) {
-    const prefix = prefixCounter++;
+    const { name } = action;
+
     return model.defineInfiniteAccessor({
       ...action,
-      prefix,
       isAuto: true,
       syncState(draft, { pageIndex, data, arg }) {
-        const key = getKey(prefix, arg);
+        const key = getKey(name, arg);
         if (pageIndex === 0) {
           draft[key] = [data];
           return;

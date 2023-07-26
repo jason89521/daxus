@@ -17,6 +17,7 @@ export function createPostModel(control: PostModelControl) {
   const postAdapter = createPaginationAdapter<Post>({});
   const postModel = createModel(postAdapter.initialState);
   const getPostById = postModel.defineNormalAccessor({
+    name: 'getPostById',
     fetchData: async (id: number) => {
       control.fetchDataMock?.();
 
@@ -46,6 +47,7 @@ export function createPostModel(control: PostModelControl) {
   });
 
   const getPostList = postModel.defineInfiniteAccessor<Post[]>({
+    name: 'getPostList',
     async fetchData(_, { pageIndex }) {
       control.fetchDataMock?.();
 

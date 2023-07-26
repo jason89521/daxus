@@ -29,10 +29,18 @@ export class NormalAccessor<S, Arg = any, Data = any, E = unknown> extends Acces
     notifyModel,
     onMount,
     onUnmount,
-    prefix,
     isAuto,
   }: NormalConstructorArgs<S, Arg, Data, E>) {
-    super({ getState, modelSubscribe, onMount, onUnmount, arg, prefix, notifyModel, isAuto });
+    super({
+      getState,
+      modelSubscribe,
+      onMount,
+      onUnmount,
+      arg,
+      creatorName: action.name,
+      notifyModel,
+      isAuto,
+    });
     this.action = action;
     this.arg = arg;
     this.updateState = updateState;
@@ -60,9 +68,12 @@ export class NormalAccessor<S, Arg = any, Data = any, E = unknown> extends Acces
         this.updateStartAt(startAt);
 
         if (data) {
-          this.updateState(draft => {
-            this.action.syncState(draft, { data, arg });
-          }, serverStateKey);
+          this.updateState(
+            draft => {
+              this.action.syncState(draft, { data, arg });
+            },
+            { serverStateKey, data, arg, creatorName: this.creatorName }
+          );
         }
         return this.onFetchingFinish({ error, data });
       } catch (error) {
