@@ -1,11 +1,13 @@
 import { act, fireEvent, renderHook, waitFor } from '@testing-library/react';
-import { createAutoModel, useAccessor } from '../lib/index.js';
+import { createDatabase, useAccessor } from '../lib/index.js';
 import { renderWithOptionsProvider } from './utils.js';
 
-let model = createAutoModel();
+let db = createDatabase();
+let model = db.createAutoModel({ name: 'test' });
 
 beforeEach(() => {
-  model = createAutoModel();
+  db = createDatabase();
+  model = db.createAutoModel({ name: 'test' });
 });
 
 describe('autoModel', () => {
