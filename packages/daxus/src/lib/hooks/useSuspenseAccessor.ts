@@ -2,10 +2,10 @@ import type { AccessorOptions, AutoAccessorOptions } from './types.js';
 import type { NormalAccessor, InfiniteAccessor, AutoState, Accessor } from '../model/index.js';
 
 import { normalizeArgs, useAccessor } from './useAccessor.js';
-import { accessorOptionsContext } from '../contexts/AccessorOptionsContext.js';
 import { useContext } from 'react';
 import type { NonUndefined } from '../utils/index.js';
 import { isNonUndefined, isUndefined } from '../utils/index.js';
+import { useServerStateKeyContext, accessorOptionsContext } from '../contexts/index.js';
 
 interface ReturnValue<S, ACC extends Accessor<any, any, any, any> | null> {
   data: S;
@@ -61,6 +61,7 @@ export function useSuspenseAccessor<S, D, SS, E = unknown>(
   maybeGetSnapshot: ((state: S) => SS) | AutoAccessorOptions<D, SS> = {},
   accessorOptions: AccessorOptions<SS> = {}
 ): ReturnValue<NonUndefined<SS>, Accessor<S, any, D, E>> {
+  const serverStateKey = useServerStateKeyContext();
   const [, options] = normalizeArgs(accessor, maybeGetSnapshot, accessorOptions);
   const defaultOptions = useContext(accessorOptionsContext);
   const { checkHasData } = { ...defaultOptions, ...options };
@@ -81,7 +82,7 @@ export function useSuspenseAccessor<S, D, SS, E = unknown>(
     if (accessor.getStatus().isFetching) {
       throw Promise.resolve();
     } else {
-      throw accessor.revalidate();
+      throw accessor.revalidate({ serverStateKey });
     }
   }
 

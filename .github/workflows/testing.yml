@@ -14,9 +14,9 @@ jobs:
           node-version: 18
           cache: 'pnpm'
       - run: pnpm install
-      - run: pnpm run test --coverage
-      - run: pnpm build-lib
-      - run: pnpm lint
+      - run: pnpm --filter=daxus run test --coverage
+      - run: pnpm --filter=daxus build-lib
+      - run: pnpm --filter=daxus lint
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3

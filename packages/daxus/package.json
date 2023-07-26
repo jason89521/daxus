@@ -1,0 +1,70 @@
+{
+  "name": "daxus",
+  "version": "0.6.0-beta.3",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "react",
+    "data fetching",
+    "auto revalidate",
+    "pagination"
+  ],
+  "author": {
+    "name": "Yu Xuan",
+    "email": "97ssps30212@gmail.com",
+    "url": "https://github.com/jason89521"
+  },
+  "types": "./dist/index.d.ts",
+  "module": "./dist/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jason89521/daxus"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "build-lib": " rimraf dist && tsc --project tsconfig.lib.json",
+    "lint": "eslint src",
+    "preview": "vite preview",
+    "gen-api": "typedoc --options ./typedoc.json",
+    "test": "vitest run",
+    "test-watch": "vitest watch",
+    "prepublishOnly": "pnpm run build-lib"
+  },
+  "dependencies": {
+    "immer": "^10.0.2"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^5.17.0",
+    "@testing-library/react": "^14.0.0",
+    "@types/react": "^18.2.15",
+    "@types/react-dom": "^18.2.7",
+    "@typescript-eslint/eslint-plugin": "^5.62.0",
+    "@typescript-eslint/parser": "^5.62.0",
+    "@vitejs/plugin-react": "^4.0.3",
+    "@vitest/coverage-v8": "^0.33.0",
+    "axios": "^1.4.0",
+    "eslint": "^8.45.0",
+    "eslint-plugin-react": "^7.33.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "jsdom": "^22.1.0",
+    "msw": "^1.2.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "rimraf": "^5.0.1",
+    "typedoc": "^0.24.8",
+    "typedoc-plugin-markdown": "^3.15.3",
+    "typescript": "^5.1.6",
+    "vite": "^4.4.7",
+    "vitest": "^0.33.0"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0"
+  },
+  "msw": {
+    "workerDirectory": "public"
+  }
+}
