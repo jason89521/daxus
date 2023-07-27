@@ -84,9 +84,13 @@ export interface AutoModel
   ): Data | undefined;
 }
 
+interface ServerStateChangeContext extends Omit<UpdateModelStateContext, 'serverStateKey'> {
+  serverStateKey: object;
+}
+
 export function createModel<S extends object>(
   initialState: S,
-  onServerStateChange: (ctx: UpdateModelStateContext) => void
+  onServerStateChange: (ctx: ServerStateChangeContext) => void
 ): Model<S> {
   type Accessor<Arg = any, Data = any> =
     | NormalAccessor<S, Arg, Data, any>
@@ -95,10 +99,10 @@ export function createModel<S extends object>(
   const serverStateRecord = new WeakMap<object, S>();
   let clientState = { ...initialState };
   const listeners: (() => void)[] = [];
-  const accessorRecord = {} as Record<string, Accessor | undefined>;
+  const accessorRecord = {} as Record<string, Accessor>;
   const creatorRecord = {} as Record<
     string,
-    NormalAccessorCreator<S, any, any, any> | InfiniteAccessorCreator<S, any, any, any> | undefined
+    NormalAccessorCreator<S, any, any, any> | InfiniteAccessorCreator<S, any, any, any>
   >;
 
   function assertDuplicateName(name: string) {
@@ -113,11 +117,18 @@ export function createModel<S extends object>(
   const infiniteAccessorPageNumRecord = {} as Record<string, number | undefined>;
 
   const updateState: UpdateModelState<S> = (fn, { serverStateKey, ...ctx }) => {
-    if (isServer() && serverStateKey) {
+    if (isServer()) {
+      if (!serverStateKey) {
+        throw new Error(
+          'Should provide a server state key if you want to update the state in the server!'
+        );
+      }
+
       const serverState = serverStateRecord.get(serverStateKey) ?? { ...initialState };
       const draft = createDraft(serverState);
       fn(draft);
       serverStateRecord.set(serverStateKey, finishDraft(draft) as S);
+      // Only invoke this callback in the server.
       onServerStateChange({ ...ctx, serverStateKey });
       return;
     }
@@ -214,7 +225,7 @@ export function createModel<S extends object>(
       invalidate: () => {
         Object.entries(accessorRecord).forEach(([key, accessor]) => {
           if (key.startsWith(`${name}/`)) {
-            accessor?.invalidate();
+            accessor.invalidate();
           }
         });
       },
@@ -287,7 +298,7 @@ export function createModel<S extends object>(
       invalidate: () => {
         Object.entries(accessorRecord).forEach(([key, accessor]) => {
           if (key.startsWith(`${name}/`)) {
-            accessor?.invalidate();
+            accessor.invalidate();
           }
         });
       },
@@ -301,7 +312,7 @@ export function createModel<S extends object>(
 
   function invalidate() {
     Object.values(accessorRecord).forEach(accessor => {
-      accessor?.invalidate();
+      accessor.invalidate();
     });
   }
 
@@ -319,7 +330,7 @@ export function createModel<S extends object>(
 }
 
 export function createAutoModel(
-  onServerStateChange: (ctx: UpdateModelStateContext) => void
+  onServerStateChange: (ctx: ServerStateChangeContext) => void
 ): AutoModel {
   const model = createModel<AutoState>({}, onServerStateChange);
 

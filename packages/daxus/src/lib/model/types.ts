@@ -63,8 +63,8 @@ export interface InfiniteConstructorArgs<S, Arg, Data, E> extends BaseConstructo
 export type NotifyDatabaseContext = {
   serverStateKey: object;
   modelName: string;
-  creatorName?: string;
-  data?: any;
+  creatorName: string;
+  data: any;
   arg?: any;
   pageSize?: number;
   pageIndex?: number;

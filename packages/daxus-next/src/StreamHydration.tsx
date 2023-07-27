@@ -81,7 +81,6 @@ export function StreamHydration({ children }: Props) {
     const onPush = (...ctxs: NotifyDatabaseContext[]) => {
       ctxs.forEach(ctx => {
         const model = database.getModel(ctx.modelName);
-        if (isUndefined(ctx.creatorName) || isUndefined(ctx.data)) return;
         const creator = model?.getCreator(ctx.creatorName);
         if (!creator) return;
         creator.mutate(draft => {
