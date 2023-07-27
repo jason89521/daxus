@@ -10,6 +10,20 @@ interface Props {
   children: ReactNode;
 }
 
+const ESCAPE_LOOKUP: { [match: string]: string } = {
+  '&': '\\u0026',
+  '>': '\\u003e',
+  '<': '\\u003c',
+  '\u2028': '\\u2028',
+  '\u2029': '\\u2029',
+};
+
+const ESCAPE_REGEX = /[&><\u2028\u2029]/g;
+
+function htmlEscapeJsonString(str: string): string {
+  return str.replace(ESCAPE_REGEX, match => ESCAPE_LOOKUP[match]!);
+}
+
 function isServer() {
   return typeof window === 'undefined';
 }
@@ -51,7 +65,7 @@ export function StreamHydration({ children }: Props) {
         dangerouslySetInnerHTML={{
           __html: `
         window['__daxus'] = window['__daxus'] ?? [];
-        window['__daxus'].push(${serializedCtxs})
+        window['__daxus'].push(${htmlEscapeJsonString(serializedCtxs)})
       `,
         }}
       />
