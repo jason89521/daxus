@@ -18,7 +18,6 @@ const CLEAR_ACCESSOR_CACHE_TIME = 60 * 1000;
 interface BaseAccessorCreator<S> {
   mutate: (fn: (draft: Draft<S>) => void) => void;
   invalidate(): void;
-  isAuto: boolean;
 }
 
 export type AutoState = Record<string, unknown>;
@@ -219,7 +218,6 @@ export function createModel<S extends object>(
           }
         });
       },
-      isAuto: action.isAuto ?? false,
       mutate,
       syncState: action.syncState,
     });
@@ -293,7 +291,6 @@ export function createModel<S extends object>(
           }
         });
       },
-      isAuto: action.isAuto ?? false,
       mutate,
       syncState: action.syncState,
     });
