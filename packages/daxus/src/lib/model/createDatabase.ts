@@ -6,13 +6,13 @@ import type { NotifyDatabaseContext } from './types.js';
 export interface Database {
   createModel<S extends object>(ctx: { name: string; initialState: S }): Model<S>;
   createAutoModel(ctx: { name: string }): AutoModel;
-  subscribe(cb: (ctx: NotifyDatabaseContext) => void): void;
+  subscribe(serverStateKey: object, cb: (ctx: NotifyDatabaseContext) => void): void;
   getModel(modelName: string): Model<any> | AutoModel | undefined;
 }
 
 export function createDatabase(): Database {
   const modelRecord: Record<string, Model<any> | AutoModel | undefined> = {};
-  const listeners: ((ctx: NotifyDatabaseContext) => void)[] = [];
+  const serverStateListenerRecord = new WeakMap<object, (ctx: NotifyDatabaseContext) => void>();
 
   function assertDuplicateName(name: string) {
     if (objectKeys(modelRecord).includes(name)) {
@@ -20,16 +20,14 @@ export function createDatabase(): Database {
     }
   }
 
-  function subscribe(cb: (ctx: NotifyDatabaseContext) => void) {
-    listeners.push(cb);
-    return () => {
-      const index = listeners.indexOf(cb);
-      listeners.splice(index, 1);
-    };
+  function subscribe(serverStateKey: object, cb: (ctx: NotifyDatabaseContext) => void) {
+    serverStateListenerRecord.set(serverStateKey, cb);
   }
 
-  function onStateChange(ctx: NotifyDatabaseContext) {
-    listeners.forEach(l => l(ctx));
+  function onServerStateChange(ctx: NotifyDatabaseContext) {
+    const cb = serverStateListenerRecord.get(ctx.serverStateKey);
+    if (!cb) return;
+    cb(ctx);
   }
 
   function createModel<S extends object>({
@@ -40,8 +38,8 @@ export function createDatabase(): Database {
     initialState: S;
   }) {
     assertDuplicateName(name);
-    const model = origCreateModel(initialState, ctx => {
-      onStateChange({ ...ctx, modelName: name });
+    const model = origCreateModel(initialState, ({ serverStateKey, ...ctx }) => {
+      if (serverStateKey) onServerStateChange({ ...ctx, modelName: name, serverStateKey });
     });
     modelRecord[name] = model;
     return model;
@@ -49,8 +47,8 @@ export function createDatabase(): Database {
 
   function createAutoModel({ name }: { name: string }) {
     assertDuplicateName(name);
-    const model = origCreateAutoModel(ctx => {
-      onStateChange({ ...ctx, modelName: name });
+    const model = origCreateAutoModel(({ serverStateKey, ...ctx }) => {
+      if (serverStateKey) onServerStateChange({ ...ctx, modelName: name, serverStateKey });
     });
     modelRecord[name] = model;
     return model;

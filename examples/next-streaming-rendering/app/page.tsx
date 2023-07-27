@@ -43,9 +43,9 @@ function MyComponent({ wait }: { wait: number }) {
 
 export default function Home() {
   return (
-    <DatabaseProvider database={db}>
-      <StreamHydration>
-        <ServerStateKeyProvider>
+    <ServerStateKeyProvider value={{}}>
+      <DatabaseProvider database={db}>
+        <StreamHydration>
           <Suspense fallback={<div>waiting 100...</div>}>
             <MyComponent wait={100} />
           </Suspense>
@@ -86,8 +86,8 @@ export default function Home() {
               <MyComponent wait={1000} />
             </Suspense>
           </fieldset>
-        </ServerStateKeyProvider>
-      </StreamHydration>
-    </DatabaseProvider>
+        </StreamHydration>
+      </DatabaseProvider>
+    </ServerStateKeyProvider>
   );
 }

@@ -87,7 +87,7 @@ export interface AutoModel
 
 export function createModel<S extends object>(
   initialState: S,
-  onStateChange: (ctx: UpdateModelStateContext) => void
+  onServerStateChange: (ctx: UpdateModelStateContext) => void
 ): Model<S> {
   type Accessor<Arg = any, Data = any> =
     | NormalAccessor<S, Arg, Data, any>
@@ -119,14 +119,13 @@ export function createModel<S extends object>(
       const draft = createDraft(serverState);
       fn(draft);
       serverStateRecord.set(serverStateKey, finishDraft(draft) as S);
-      onStateChange(ctx);
+      onServerStateChange({ ...ctx, serverStateKey });
       return;
     }
 
     const draft = createDraft(clientState);
     fn(draft);
     clientState = finishDraft(draft) as S;
-    onStateChange(ctx);
   };
 
   function getState(serverStateKey?: object) {
@@ -322,8 +321,10 @@ export function createModel<S extends object>(
   };
 }
 
-export function createAutoModel(onStateChange: (ctx: UpdateModelStateContext) => void): AutoModel {
-  const model = createModel<AutoState>({}, onStateChange);
+export function createAutoModel(
+  onServerStateChange: (ctx: UpdateModelStateContext) => void
+): AutoModel {
+  const model = createModel<AutoState>({}, onServerStateChange);
 
   function defineNormalAccessor<Arg, Data, E = unknown>(action: AutoNormalAction<Arg, Data, E>) {
     const { name } = action;

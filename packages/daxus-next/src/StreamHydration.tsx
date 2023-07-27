@@ -1,6 +1,6 @@
 'use client';
 
-import { useDatabaseContext } from 'daxus';
+import { useDatabaseContext, useServerStateKeyContext } from 'daxus';
 import type { NotifyDatabaseContext } from 'daxus/dist/model/types.js';
 import { InfiniteAccessor } from 'daxus/dist/model/index.js';
 import { useState, type ReactNode, useEffect, useRef } from 'react';
@@ -20,12 +20,14 @@ function isUndefined(value: unknown): value is undefined {
 
 export function StreamHydration({ children }: Props) {
   const database = useDatabaseContext();
+  const serverStateKey = useServerStateKeyContext();
   const [trackedCtx] = useState(() => new Set<NotifyDatabaseContext>());
   if (!database) throw new Error('Should be wrapped with a database provider!');
+  if (!serverStateKey) throw new Error('Should be wrapped with a serverStateKey provider');
 
   // server stuff
   if (isServer()) {
-    database.subscribe(ctx => {
+    database.subscribe(serverStateKey, ctx => {
       trackedCtx.add(ctx);
     });
   }
