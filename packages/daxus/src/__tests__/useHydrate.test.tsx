@@ -1,5 +1,5 @@
 import { act, render } from '@testing-library/react';
-import { useAccessor, useHydrate } from '../lib/index.js';
+import { useAccessor, useHydrate } from '../index.js';
 import type { Post } from '../types.js';
 import { createPost, createPostModel, createControl, sleep } from './utils.js';
 import { renderToString } from 'react-dom/server';

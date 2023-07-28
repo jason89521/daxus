@@ -1,6 +1,6 @@
 import { renderHook, waitFor } from '@testing-library/react';
 import { createPostModel } from './utils.js';
-import { useAccessor } from '../lib/index.js';
+import { useAccessor } from '../index.js';
 
 describe('useAccessor placeholderData', () => {
   test('should get the placeholder data', async () => {

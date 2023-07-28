@@ -1,5 +1,5 @@
 import { createControl, createPost, createPostModel } from './utils.js';
-import { useModel } from '../lib/index.js';
+import { useModel } from '../index.js';
 import { act, renderHook } from '@testing-library/react';
 
 describe('useModel', () => {

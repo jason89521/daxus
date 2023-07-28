@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, act, waitFor } from '@testing-library/react';
-import { useAccessor } from '../lib/index.js';
+import { useAccessor } from '../index.js';
 import { createPost, createPostModel, createControl, sleep } from './utils.js';
 import type { PostModelControl } from './types.js';
 

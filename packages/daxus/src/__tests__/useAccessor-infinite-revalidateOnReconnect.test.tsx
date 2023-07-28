@@ -1,6 +1,6 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { createPostModel, createControl, sleep } from './utils.js';
-import { useAccessor } from '../lib/index.js';
+import { useAccessor } from '../index.js';
 
 describe('useAccessor-infinite revalidateOnReconnect', () => {
   test('should revalidate when network reconnect', async () => {

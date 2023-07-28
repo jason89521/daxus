@@ -1,8 +1,8 @@
 import { Suspense, useState } from 'react';
-import { createDatabase, useSuspenseAccessor } from '../lib/index.js';
+import { createDatabase, useSuspenseAccessor } from '../index.js';
 import { createControl, createPostModel, renderWithOptionsProvider } from './utils.js';
 import { fireEvent } from '@testing-library/react';
-import { isUndefined } from '../lib/utils/isUndefined.js';
+import { isUndefined } from '../utils/isUndefined.js';
 
 describe('useSuspenseAccessor-normal', () => {
   test('should show the data when fetching finish', async () => {

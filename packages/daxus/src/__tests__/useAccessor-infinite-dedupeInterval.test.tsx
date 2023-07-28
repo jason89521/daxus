@@ -1,4 +1,4 @@
-import { useAccessor } from '../lib/index.js';
+import { useAccessor } from '../index.js';
 import type { PostModelControl } from './types.js';
 import { createPost, createPostModel, sleep } from './utils.js';
 import { render, act, screen } from '@testing-library/react';

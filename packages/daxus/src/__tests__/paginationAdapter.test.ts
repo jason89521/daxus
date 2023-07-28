@@ -1,4 +1,4 @@
-import { createPaginationAdapter } from '../lib/index.js';
+import { createPaginationAdapter } from '../index.js';
 import type { Post } from '../types.js';
 import { createPost } from './utils.js';
 

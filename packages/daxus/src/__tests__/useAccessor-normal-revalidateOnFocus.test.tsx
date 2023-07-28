@@ -1,5 +1,5 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import { useAccessor } from '../lib/index.js';
+import { useAccessor } from '../index.js';
 import { createPostModel, createControl, sleep } from './utils.js';
 
 describe('useAccessor-normal revalidateOnFocus', () => {

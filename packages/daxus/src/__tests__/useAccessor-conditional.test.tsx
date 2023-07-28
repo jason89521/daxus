@@ -1,5 +1,5 @@
 import { waitFor } from '@testing-library/react';
-import { useAccessor } from '../lib/index.js';
+import { useAccessor } from '../index.js';
 import { createControl, createPostModel, renderWithOptionsProvider } from './utils.js';
 
 describe('useAccessor-normal conditional accessor', () => {

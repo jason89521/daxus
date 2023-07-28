@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useAccessor } from '../lib/index.js';
+import { useAccessor } from '../index.js';
 import { createControl, createPostModel, renderWithOptionsProvider } from './utils.js';
 import { fireEvent } from '@testing-library/react';
 
