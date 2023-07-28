@@ -19,6 +19,6 @@
     "jsx": "react-jsx",
     "outDir": "dist"
   },
-  "include": ["src/lib/index.ts"],
+  "include": ["src/index.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

@@ -1,5 +1,5 @@
 import { screen, waitFor } from '@testing-library/react';
-import { useAccessor } from '../lib/index.js';
+import { useAccessor } from '../index.js';
 import type { PostModelControl } from './types.js';
 import { createPost, createPostModel, renderWithOptionsProvider } from './utils.js';
 

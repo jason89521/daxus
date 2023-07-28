@@ -1,7 +1,7 @@
 import { screen, fireEvent, act, waitFor } from '@testing-library/react';
 import { createPostModel, createControl, sleep, renderWithOptionsProvider } from './utils.js';
 import { useState } from 'react';
-import { useAccessor } from '../lib/index.js';
+import { useAccessor } from '../index.js';
 
 describe('useAccessor-normal', () => {
   test('should be able to update the cache', async () => {

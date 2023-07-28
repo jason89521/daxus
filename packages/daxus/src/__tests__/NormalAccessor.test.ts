@@ -1,4 +1,4 @@
-import { defaultOptions } from '../lib/constants.js';
+import { defaultOptions } from '../constants.js';
 import { createControl, createPost, createPostModel, sleep } from './utils.js';
 
 let control = createControl({});

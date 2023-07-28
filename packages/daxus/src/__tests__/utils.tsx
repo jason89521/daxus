@@ -1,9 +1,9 @@
 import type { ReactNode } from 'react';
-import { AccessorOptionsProvider, createDatabase, createPaginationAdapter } from '../lib/index.js';
+import { AccessorOptionsProvider, createDatabase, createPaginationAdapter } from '../index.js';
 import type { PostModelControl } from './types.js';
 import type { Post, PostLayout } from '../types.js';
 import { render } from '@testing-library/react';
-import type { AccessorOptions } from '../lib/index.js';
+import type { AccessorOptions } from '../index.js';
 
 export function sleep(time: number) {
   return new Promise<void>(resolve => setTimeout(resolve, time));

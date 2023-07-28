@@ -1,5 +1,5 @@
 import { act, fireEvent, renderHook, waitFor } from '@testing-library/react';
-import { createDatabase, useAccessor } from '../lib/index.js';
+import { createDatabase, useAccessor } from '../index.js';
 import { renderWithOptionsProvider } from './utils.js';
 
 let db = createDatabase();
