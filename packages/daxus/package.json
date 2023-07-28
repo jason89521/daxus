@@ -1,6 +1,6 @@
 {
   "name": "daxus",
-  "version": "0.6.0-beta.3",
+  "version": "0.6.0",
   "type": "module",
   "files": [
     "dist"
@@ -25,14 +25,13 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
-    "build-lib": " rimraf dist && tsc --project tsconfig.lib.json",
+    "build": "rimraf dist && tsc --project tsconfig.lib.json",
     "lint": "eslint src",
     "preview": "vite preview",
     "gen-api": "typedoc --options ./typedoc.json",
     "test": "vitest run",
     "test-watch": "vitest watch",
-    "prepublishOnly": "pnpm run build-lib"
+    "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
     "immer": "^10.0.2"

@@ -15,6 +15,6 @@ jobs:
           cache: 'pnpm'
       - run: pnpm install
       - name: Publish package on NPM 📦
-        run: pnpm run build-lib && npm publish
+        run: pnpm --filter=daxus publish && pnpm --filter=daxus-next publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
