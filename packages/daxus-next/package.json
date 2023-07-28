@@ -34,11 +34,11 @@
     "react-dom": "^18.2.0",
     "typescript": "^5.1.6",
     "daxus": "workspace:*",
-    "next": "13.4.12"
+    "next": "^13.4.12"
   },
   "peerDependencies": {
     "react": ">=18.0.0",
     "daxus": "workspace:*",
-    "next": "13.4.12"
+    "next": "^13.4.12"
   }
 }
