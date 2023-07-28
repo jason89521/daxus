@@ -48,6 +48,8 @@ export interface BaseConstructorArgs<S, Arg> {
   notifyModel: () => void;
   onMount: () => void;
   onUnmount: () => void;
+  setStaleTime: (staleTime: number) => void;
+  getIsStale: () => boolean;
   isAuto: boolean;
 }
 

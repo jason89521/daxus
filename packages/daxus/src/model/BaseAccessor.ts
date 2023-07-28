@@ -43,12 +43,12 @@ export abstract class BaseAccessor<S, Arg, D, E> {
   private removeOnReconnectListener: (() => void) | null = null;
   private removeOnVisibilityChangeListener: (() => void) | null = null;
   private pollingTimeoutId: number | undefined;
-  private isStale = false;
   private onMount: () => void;
   private onUnmount: () => void;
   private autoListeners: (() => void)[] = [];
   private removeAllListeners: (() => void) | null = null;
   private isAuto: boolean;
+  private setStaleTime: (staleTime: number) => void;
 
   /**
    * Return the result of the revalidation.
@@ -61,6 +61,7 @@ export abstract class BaseAccessor<S, Arg, D, E> {
    * Get the state of the corresponding model.
    */
   getState: (serverStateKey?: object) => S;
+  isStale: () => boolean;
 
   /**
    * @internal
@@ -74,10 +75,9 @@ export abstract class BaseAccessor<S, Arg, D, E> {
     arg,
     isAuto,
     creatorName,
-  }: Pick<
-    BaseConstructorArgs<S, Arg>,
-    'getState' | 'modelSubscribe' | 'onMount' | 'onUnmount' | 'arg' | 'notifyModel' | 'isAuto'
-  > & { creatorName: string }) {
+    setStaleTime,
+    getIsStale,
+  }: Omit<BaseConstructorArgs<S, Arg>, 'updateState'> & { creatorName: string }) {
     this.getState = getState;
     this.modelSubscribe = modelSubscribe;
     this.onMount = onMount;
@@ -86,6 +86,8 @@ export abstract class BaseAccessor<S, Arg, D, E> {
     this.arg = arg;
     this.isAuto = isAuto;
     this.creatorName = creatorName;
+    this.isStale = getIsStale;
+    this.setStaleTime = setStaleTime;
   }
 
   getIsAuto = () => {
@@ -153,17 +155,8 @@ export abstract class BaseAccessor<S, Arg, D, E> {
     return this.status;
   };
 
-  /**
-   * Get whether this accessor is stale or not.
-   *
-   * @internal
-   */
-  getIsStale = () => {
-    return this.isStale;
-  };
-
   invalidate = () => {
-    this.isStale = true;
+    this.setStaleTime(0);
     if (this.isMounted()) {
       this.revalidate();
     }
@@ -272,12 +265,12 @@ export abstract class BaseAccessor<S, Arg, D, E> {
     error,
     data,
   }: OnFetchingFinishContext<D, E>): FetchPromiseResult<E, D> => {
-    const { pollingInterval } = this.getOptions();
+    const { pollingInterval, staleTime } = this.getOptions();
     if (pollingInterval > 0) {
       this.pollingTimeoutId = window.setTimeout(this.invokePollingRevalidation, pollingInterval);
     }
 
-    this.isStale = true;
+    this.setStaleTime(staleTime);
     if (error) {
       this.action.onError?.({ error, arg: this.arg });
       this.updateStatus({ isFetching: false, error });

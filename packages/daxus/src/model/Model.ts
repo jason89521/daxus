@@ -104,6 +104,10 @@ export function createModel<S extends object>(
     NormalAccessorCreator<S, any, any, any> | InfiniteAccessorCreator<S, any, any, any>
   >;
 
+  // Since accessors may be deleted from cache, we need to save the stale time in the model.
+  const staleTimeoutIdRecord = {} as Record<string, number>;
+  const isStaleRecord = {} as Record<string, boolean>;
+
   function assertDuplicateName(name: string) {
     if (objectKeys(creatorRecord).includes(name)) {
       throw new Error(`The creator name: ${name} has already existed!`);
@@ -199,6 +203,22 @@ export function createModel<S extends object>(
         onMount,
         onUnmount,
         isAuto: action.isAuto ?? false,
+        setStaleTime(staleTime) {
+          const timeoutId = staleTimeoutIdRecord[key];
+          clearTimeout(timeoutId);
+          // reset the stale state
+          isStaleRecord[key] = false;
+          if (staleTime === 0) {
+            isStaleRecord[key] = true;
+          } else if (staleTime > 0) {
+            staleTimeoutIdRecord[key] = window.setTimeout(() => {
+              isStaleRecord[key] = true;
+            }, staleTime);
+          }
+        },
+        getIsStale() {
+          return isStaleRecord[key] ?? false;
+        },
       };
 
       if (isServer()) {
@@ -274,6 +294,22 @@ export function createModel<S extends object>(
         onUnmount,
         initialPageNum: infiniteAccessorPageNumRecord[key] ?? 1,
         isAuto: action.isAuto ?? false,
+        setStaleTime(staleTime) {
+          const timeoutId = staleTimeoutIdRecord[key];
+          clearTimeout(timeoutId);
+          // reset the stale state
+          isStaleRecord[key] = false;
+          if (staleTime === 0) {
+            isStaleRecord[key] = true;
+          } else if (staleTime > 0) {
+            staleTimeoutIdRecord[key] = window.setTimeout(() => {
+              isStaleRecord[key] = true;
+            }, staleTime);
+          }
+        },
+        getIsStale() {
+          return isStaleRecord[key] ?? false;
+        },
       };
 
       if (isServer()) {

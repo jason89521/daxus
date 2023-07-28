@@ -146,7 +146,8 @@ export function useAccessor<S, D, SS, E = unknown>(
       () => memoizedSnapshot,
     ] as const;
     // We assume the `getSnapshot` is depending on `accessor` so we don't put it in the dependencies array.
-  }, [accessor, stateDeps, serverStateKey]);
+    // ServerStateKey doesn't matter when we are in the client side.
+  }, [accessor, stateDeps]);
 
   const data = useSyncExternalStore(subscribeData, getData, getData);
   const hasData = !isUndefined(data) ? checkHasData(data) : false;
@@ -155,7 +156,7 @@ export function useAccessor<S, D, SS, E = unknown>(
     // Always revalidate when this hook is mounted.
     if (revalidateOnMount) return true;
     // If the accessor is stale, then we should revalidate.
-    if (revalidateIfStale && accessor?.getIsStale()) return true;
+    if (revalidateIfStale && accessor?.isStale()) return true;
     // If there is no data, we should fetch the data.
     if (!hasData) return true;
     // This condition is useful when `pollingInterval` changes.
