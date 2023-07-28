@@ -1,5 +1,5 @@
 import { Suspense, useState } from 'react';
-import { createAutoModel, useSuspenseAccessor } from '../lib/index.js';
+import { createDatabase, useSuspenseAccessor } from '../lib/index.js';
 import { createControl, createPostModel, renderWithOptionsProvider } from './utils.js';
 import { fireEvent } from '@testing-library/react';
 import { isUndefined } from '../lib/utils/isUndefined.js';
@@ -88,14 +88,17 @@ describe('useSuspenseAccessor-normal', () => {
 });
 
 describe('useSuspenseAccessor-auto state', () => {
-  let model = createAutoModel();
+  let db = createDatabase();
+  let model = db.createAutoModel({ name: 'test' });
 
   beforeEach(() => {
-    model = createAutoModel();
+    db = createDatabase();
+    model = db.createAutoModel({ name: 'test' });
   });
 
   test('should show the data when fetching finish', async () => {
     const getData = model.defineNormalAccessor({
+      name: 'getData',
       async fetchData() {
         return 'data';
       },
@@ -122,6 +125,7 @@ describe('useSuspenseAccessor-auto state', () => {
   test('should update the data when the corresponding cache is updated', async () => {
     let counter = 0;
     const getData = model.defineNormalAccessor({
+      name: 'getData',
       async fetchData() {
         counter += 1;
         return counter;

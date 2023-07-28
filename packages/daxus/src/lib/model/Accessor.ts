@@ -33,6 +33,7 @@ export abstract class Accessor<S, Arg, D, E> {
   protected statusListeners: ((prev: Status, current: Status) => void)[] = [];
   protected fetchPromise!: Promise<FetchPromiseResult<E, D>>;
   protected arg: Arg;
+  protected creatorName: string;
   private notifyModel: () => void;
   private retryTimeoutMeta: RetryTimeoutMeta | null = null;
   private startAt = 0;
@@ -45,7 +46,6 @@ export abstract class Accessor<S, Arg, D, E> {
   private isStale = false;
   private onMount: () => void;
   private onUnmount: () => void;
-  private prefix: number;
   private autoListeners: (() => void)[] = [];
   private removeAllListeners: (() => void) | null = null;
   private isAuto: boolean;
@@ -71,28 +71,21 @@ export abstract class Accessor<S, Arg, D, E> {
     onMount,
     onUnmount,
     notifyModel,
-    prefix,
     arg,
     isAuto,
+    creatorName,
   }: Pick<
     BaseConstructorArgs<S, Arg>,
-    | 'getState'
-    | 'modelSubscribe'
-    | 'onMount'
-    | 'onUnmount'
-    | 'prefix'
-    | 'arg'
-    | 'notifyModel'
-    | 'isAuto'
-  >) {
+    'getState' | 'modelSubscribe' | 'onMount' | 'onUnmount' | 'arg' | 'notifyModel' | 'isAuto'
+  > & { creatorName: string }) {
     this.getState = getState;
     this.modelSubscribe = modelSubscribe;
     this.onMount = onMount;
     this.onUnmount = onUnmount;
     this.notifyModel = notifyModel;
-    this.prefix = prefix;
     this.arg = arg;
     this.isAuto = isAuto;
+    this.creatorName = creatorName;
   }
 
   getIsAuto = () => {
@@ -100,7 +93,7 @@ export abstract class Accessor<S, Arg, D, E> {
   };
 
   getKey = () => {
-    return getKey(this.prefix, this.arg);
+    return getKey(this.creatorName, this.arg);
   };
 
   /**

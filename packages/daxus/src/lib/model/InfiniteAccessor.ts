@@ -35,11 +35,19 @@ export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Acc
     notifyModel,
     onMount,
     onUnmount,
-    prefix,
     initialPageNum,
     isAuto,
   }: InfiniteConstructorArgs<S, Arg, Data, E>) {
-    super({ getState, modelSubscribe, onMount, onUnmount, arg, prefix, notifyModel, isAuto });
+    super({
+      getState,
+      modelSubscribe,
+      onMount,
+      onUnmount,
+      arg,
+      creatorName: action.name,
+      notifyModel,
+      isAuto,
+    });
     this.action = action;
     this.updateState = updateState;
     this.initialPageNum = initialPageNum;
@@ -172,14 +180,18 @@ export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Acc
         if (!error) {
           for (let i = 0; i < data.length; i++) {
             if (i < pageIndex) continue;
-            this.updateState(draft => {
-              this.action.syncState(draft, {
-                arg: this.arg,
-                pageIndex: i,
-                pageSize: data.length,
-                data: data[i]!,
-              });
-            }, serverStateKey);
+            const payload = {
+              arg: this.arg,
+              pageIndex: i,
+              pageSize: data.length,
+              data: data[i]!,
+            };
+            this.updateState(
+              draft => {
+                this.action.syncState(draft, payload);
+              },
+              { serverStateKey, ...payload, creatorName: this.creatorName }
+            );
           }
           this.data = data;
         }

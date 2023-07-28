@@ -18,13 +18,15 @@ import type {
   PaginationState,
   Id,
 } from './adapters/index.js';
-import { createModel, createAutoModel } from './model/index.js';
+import { createModel, createAutoModel, createDatabase } from './model/index.js';
 import { useAccessor, useHydrate, useModel, useSuspenseAccessor } from './hooks/index.js';
 import { createPaginationAdapter } from './adapters/index.js';
 import {
   AccessorOptionsProvider,
   ServerStateKeyProvider,
   useServerStateKeyContext,
+  DatabaseProvider,
+  useDatabaseContext,
 } from './contexts/index.js';
 
 export type {
@@ -53,6 +55,7 @@ export type {
 export {
   createModel,
   createAutoModel,
+  createDatabase,
 
   // hook
   useAccessor,
@@ -67,4 +70,6 @@ export {
   AccessorOptionsProvider,
   ServerStateKeyProvider,
   useServerStateKeyContext,
+  DatabaseProvider,
+  useDatabaseContext,
 };

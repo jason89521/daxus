@@ -1,5 +1,5 @@
 import { stableHash } from './stableHash.js';
 
-export function getKey(prefix: number, arg: unknown) {
-  return `${prefix}/${stableHash(arg)}`;
+export function getKey(creatorName: string, arg: unknown) {
+  return `${creatorName}/${stableHash(arg)}`;
 }

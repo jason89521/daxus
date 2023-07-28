@@ -1,12 +1,9 @@
 import type { Draft } from 'immer';
 
 export interface BaseAction<Arg, D, E> {
+  name: string;
   onError?: (info: { error: E; arg: Arg }) => void;
   onSuccess?: (info: { data: D; arg: Arg }) => void;
-  /**
-   * @internal
-   */
-  prefix?: number;
   /**
    * @internal
    */
@@ -51,7 +48,6 @@ export interface BaseConstructorArgs<S, Arg> {
   notifyModel: () => void;
   onMount: () => void;
   onUnmount: () => void;
-  prefix: number;
   isAuto: boolean;
 }
 
@@ -64,4 +60,26 @@ export interface InfiniteConstructorArgs<S, Arg, Data, E> extends BaseConstructo
   initialPageNum: number;
 }
 
-export type UpdateModelState<S> = (cb: (draft: Draft<S>) => void, serverStateKey?: object) => void;
+export type NotifyDatabaseContext = {
+  serverStateKey: object;
+  modelName: string;
+  creatorName: string;
+  data: any;
+  arg?: any;
+  pageSize?: number;
+  pageIndex?: number;
+};
+
+export type UpdateModelStateContext = {
+  serverStateKey?: object;
+  creatorName?: string;
+  data?: any;
+  arg?: any;
+  pageSize?: number;
+  pageIndex?: number;
+};
+
+export type UpdateModelState<S> = (
+  cb: (draft: Draft<S>) => void,
+  context: UpdateModelStateContext
+) => void;

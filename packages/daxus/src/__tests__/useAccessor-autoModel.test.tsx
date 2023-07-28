@@ -1,16 +1,19 @@
 import { act, fireEvent, renderHook, waitFor } from '@testing-library/react';
-import { createAutoModel, useAccessor } from '../lib/index.js';
+import { createDatabase, useAccessor } from '../lib/index.js';
 import { renderWithOptionsProvider } from './utils.js';
 
-let model = createAutoModel();
+let db = createDatabase();
+let model = db.createAutoModel({ name: 'test' });
 
 beforeEach(() => {
-  model = createAutoModel();
+  db = createDatabase();
+  model = db.createAutoModel({ name: 'test' });
 });
 
 describe('autoModel', () => {
   test('should mutate the data correctly', () => {
     const getData = model.defineNormalAccessor<string>({
+      name: 'getData',
       fetchData: async () => {
         return 'data';
       },
@@ -31,6 +34,7 @@ describe('autoModel', () => {
 describe('useAccessor - normal with auto state', () => {
   test('should return correct data', async () => {
     const getData = model.defineNormalAccessor<string>({
+      name: 'getData',
       fetchData: async () => {
         return 'data';
       },
@@ -44,6 +48,7 @@ describe('useAccessor - normal with auto state', () => {
 
   test('should return selected data', async () => {
     const getData = model.defineNormalAccessor<string>({
+      name: 'getData',
       fetchData: async () => {
         return 'data';
       },
@@ -62,11 +67,13 @@ describe('useAccessor - normal with auto state', () => {
   test('should notify accessor itself only', async () => {
     let notifiedCount = 0;
     const getStaticData = model.defineNormalAccessor<string>({
+      name: 'getStaticData',
       fetchData: async () => {
         return 'static';
       },
     });
     const getDynamicData = model.defineNormalAccessor<string>({
+      name: 'getDynamicData',
       fetchData: async () => {
         return `${notifiedCount}`;
       },
@@ -116,6 +123,7 @@ describe('useAccessor - normal with auto state', () => {
 describe('useAccessor - infinite with auto state', () => {
   test('should return correct data', async () => {
     const getData = model.defineInfiniteAccessor<string[]>({
+      name: 'getData',
       fetchData: async () => {
         return ['data'];
       },
@@ -140,6 +148,7 @@ describe('useAccessor - infinite with auto state', () => {
 
   test('should return selected data', async () => {
     const getData = model.defineInfiniteAccessor<string[]>({
+      name: 'getData',
       fetchData: async () => {
         return ['data'];
       },

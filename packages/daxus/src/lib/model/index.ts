@@ -3,3 +3,4 @@ export * from './Model.js';
 export * from './NormalAccessor.js';
 export * from './types.js';
 export * from './Accessor.js';
+export * from './createDatabase.js';
