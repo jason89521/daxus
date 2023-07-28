@@ -1,6 +1,6 @@
 import { useCallback, useContext, useEffect, useMemo, useRef, useSyncExternalStore } from 'react';
 import type {
-  Accessor,
+  BaseAccessor,
   AutoState,
   InfiniteAccessor,
   NormalAccessor,
@@ -86,10 +86,10 @@ export function useAccessor<Arg, D, E, SS = D[] | undefined>(
 ): UseAccessorReturn<SS | undefined, E, InfiniteAccessor<AutoState, Arg, D, E> | null>;
 
 export function useAccessor<S, D, SS, E = unknown>(
-  accessor: Accessor<S, any, D, E> | null,
+  accessor: BaseAccessor<S, any, D, E> | null,
   maybeGetSnapshot: ((state: S) => SS) | AutoAccessorOptions<D, SS> = {},
   accessorOptions: AccessorOptions<SS> = {}
-): UseAccessorReturn<SS | undefined, E, Accessor<S, unknown, any, E> | null> {
+): UseAccessorReturn<SS | undefined, E, BaseAccessor<S, unknown, any, E> | null> {
   const [getSnapshot, options] = normalizeArgs(accessor, maybeGetSnapshot, accessorOptions);
   const serverStateKey = useServerStateKeyContext();
   const defaultOptions = useContext(accessorOptionsContext);
@@ -209,7 +209,7 @@ export function useAccessor<S, D, SS, E = unknown>(
 }
 
 export function normalizeArgs<S, D, SS, E>(
-  accessor: Accessor<S, any, D, E> | null,
+  accessor: BaseAccessor<S, any, D, E> | null,
   maybeGetSnapshot: ((state: S) => SS) | AutoAccessorOptions<D, SS> = {},
   accessorOptions: AccessorOptions<SS> = {}
 ) {

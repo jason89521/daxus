@@ -1,5 +1,5 @@
 import type { AccessorOptions, AutoAccessorOptions } from './types.js';
-import type { NormalAccessor, InfiniteAccessor, AutoState, Accessor } from '../model/index.js';
+import type { NormalAccessor, InfiniteAccessor, AutoState, BaseAccessor } from '../model/index.js';
 
 import { normalizeArgs, useAccessor } from './useAccessor.js';
 import { useContext } from 'react';
@@ -7,7 +7,7 @@ import type { NonUndefined } from '../utils/index.js';
 import { isNonUndefined, isUndefined } from '../utils/index.js';
 import { useServerStateKeyContext, accessorOptionsContext } from '../contexts/index.js';
 
-interface ReturnValue<S, ACC extends Accessor<any, any, any, any> | null> {
+interface ReturnValue<S, ACC extends BaseAccessor<any, any, any, any> | null> {
   data: S;
   accessor: ACC;
 }
@@ -57,10 +57,10 @@ export function useSuspenseAccessor<Arg, D, E, SS = D[] | undefined>(
 ): ReturnValue<NonUndefined<SS>, InfiniteAccessor<AutoState, Arg, D, E>>;
 
 export function useSuspenseAccessor<S, D, SS, E = unknown>(
-  accessor: Accessor<S, any, D, E> | null,
+  accessor: BaseAccessor<S, any, D, E> | null,
   maybeGetSnapshot: ((state: S) => SS) | AutoAccessorOptions<D, SS> = {},
   accessorOptions: AccessorOptions<SS> = {}
-): ReturnValue<NonUndefined<SS>, Accessor<S, any, D, E>> {
+): ReturnValue<NonUndefined<SS>, BaseAccessor<S, any, D, E>> {
   const serverStateKey = useServerStateKeyContext();
   const [, options] = normalizeArgs(accessor, maybeGetSnapshot, accessorOptions);
   const defaultOptions = useContext(accessorOptionsContext);

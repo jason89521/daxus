@@ -1,6 +1,6 @@
 import { getCurrentTime } from '../utils/index.js';
-import type { RevalidateContext } from './Accessor.js';
-import { Accessor } from './Accessor.js';
+import type { RevalidateContext } from './BaseAccessor.js';
+import { BaseAccessor } from './BaseAccessor.js';
 import type { NormalAction, NormalConstructorArgs, UpdateModelState } from './types.js';
 
 /**
@@ -8,7 +8,7 @@ import type { NormalAction, NormalConstructorArgs, UpdateModelState } from './ty
  */
 type FetchResult<D, E> = [D | null, E | null];
 
-export class NormalAccessor<S, Arg = any, Data = any, E = unknown> extends Accessor<
+export class NormalAccessor<S, Arg = any, Data = any, E = unknown> extends BaseAccessor<
   S,
   Arg,
   Data,
@@ -47,7 +47,7 @@ export class NormalAccessor<S, Arg = any, Data = any, E = unknown> extends Acces
   }
 
   /**
-   * {@inheritDoc Accessor.revalidate}
+   * {@inheritDoc BaseAccessor.revalidate}
    */
   revalidate = ({ serverStateKey }: RevalidateContext = {}) => {
     const startAt = getCurrentTime();

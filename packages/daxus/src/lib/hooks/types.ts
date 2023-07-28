@@ -1,4 +1,4 @@
-import type { Accessor } from '../model/index.js';
+import type { BaseAccessor } from '../model/index.js';
 
 /**
  * @typeParam S The snapshot of the state.
@@ -64,7 +64,7 @@ export interface AutoAccessorOptions<D, S = any> extends AccessorOptions<S> {
 
 export type RequiredAccessorOptions<S = unknown> = Required<AccessorOptions<S>>;
 
-export type UseAccessorReturn<S, E, ACC extends Accessor<any, any, any, E> | null> = {
+export type UseAccessorReturn<S, E, ACC extends BaseAccessor<any, any, any, E> | null> = {
   /**
    * Whether the accessor is currently fetching data.
    */

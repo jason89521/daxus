@@ -28,7 +28,7 @@ type RetryTimeoutMeta = {
 type Options = Required<AccessorOptions>;
 type OptionsRef = MutableRefObject<Options>;
 
-export abstract class Accessor<S, Arg, D, E> {
+export abstract class BaseAccessor<S, Arg, D, E> {
   protected status: Status<E> = { isFetching: false, error: null };
   protected statusListeners: ((prev: Status, current: Status) => void)[] = [];
   protected fetchPromise!: Promise<FetchPromiseResult<E, D>>;

@@ -11,7 +11,7 @@ import type {
 import { NormalAccessor } from './NormalAccessor.js';
 import { InfiniteAccessor } from './InfiniteAccessor.js';
 import { getKey, isServer, objectKeys } from '../utils/index.js';
-import type { Accessor } from './Accessor.js';
+import type { BaseAccessor } from './BaseAccessor.js';
 
 const CLEAR_ACCESSOR_CACHE_TIME = 60 * 1000;
 
@@ -68,7 +68,7 @@ export interface Model<S extends object> {
 export interface AutoModel
   extends Pick<Model<AutoState>, 'invalidate' | 'subscribe' | 'getCreator'> {
   mutate<Arg, Data, E = unknown>(
-    accessor: Accessor<AutoState, Arg, Data, E>,
+    accessor: BaseAccessor<AutoState, Arg, Data, E>,
     fn: (prevData: Data | undefined) => Data,
     serverStateKey?: object
   ): void;
@@ -79,7 +79,7 @@ export interface AutoModel
     action: AutoInfiniteAction<Arg, Data, E>
   ): InfiniteAccessorCreator<AutoState, Arg, Data, E>;
   getState<Arg, Data, E = unknown>(
-    accessor: Accessor<AutoState, Arg, Data, E>,
+    accessor: BaseAccessor<AutoState, Arg, Data, E>,
     serverStateKey?: object
   ): Data | undefined;
 }
@@ -368,7 +368,7 @@ export function createAutoModel(
   }
 
   function mutate<Arg, Data, E = unknown>(
-    accessor: Accessor<AutoState, Arg, Data, E>,
+    accessor: BaseAccessor<AutoState, Arg, Data, E>,
     fn: (prevData: Data | undefined) => Data,
     serverStateKey?: object
   ) {
@@ -381,7 +381,7 @@ export function createAutoModel(
   }
 
   function getState<Arg, Data, E = unknown>(
-    accessor: Accessor<AutoState, Arg, Data, E>,
+    accessor: BaseAccessor<AutoState, Arg, Data, E>,
     serverStateKey?: object
   ) {
     const key = accessor.getKey();

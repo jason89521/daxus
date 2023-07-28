@@ -4,7 +4,7 @@ import type { AccessorOptions, UseAccessorReturn } from './hooks/types.js';
 import type {
   NormalAccessor,
   InfiniteAccessor,
-  Accessor,
+  BaseAccessor,
   FetchPromiseResult,
 } from './model/index.js';
 import type {
@@ -34,7 +34,7 @@ export type {
   UseAccessorReturn,
   NormalAccessor,
   InfiniteAccessor,
-  Accessor,
+  BaseAccessor,
   InfiniteAccessorCreator,
   NormalAccessorCreator,
   InfiniteAction,
