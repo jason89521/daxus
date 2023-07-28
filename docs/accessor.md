@@ -1,12 +1,13 @@
 # Model and Accessor
 
-In Daxus, you need to create different models for different types of data. For example, you can create a model for post data and another model for comment data.
+In Daxus, you need to create a database, then create different models for different types of data. For example, you can create a model for post data and another model for comment data.
 
 The reason for creating different models is that different data may require different data structures. Pagination structure is suitable for post data, while it may not be as suitable for user data.
 
 ```ts
+const db = createDatabase();
 const postAdapter = createPaginationAdapter<Post>();
-const postModel = createModel(postAdapter.initialState);
+const postModel = db.createModel({ name: 'post', initialState: postAdapter.initialState });
 ```
 
 Daxus provides a pagination helper function called `createPaginationAdapter`. It helps you build and easily read/write pagination structures. For more information, you can refer to the [pagination page](./pagination.md).
@@ -18,7 +19,8 @@ Daxus provides a pagination helper function called `createPaginationAdapter`. It
 Accessors play a crucial role in Daxus. Almost all functionality is built upon them, including deduplication, revalidation on focus, and subscribing to the state of the model.
 
 ```ts
-const getPostById = postModel.defineNormalAccessor<string, Post>({
+const getPostById = postModel.defineAccessor<Post, string>({
+  name: 'getPostById',
   fetchData: postId => {
     return getPostApi({ postId });
   },
@@ -34,13 +36,13 @@ const getPostById = postModel.defineNormalAccessor<string, Post>({
 });
 ```
 
-To define an accessor, you need to provide two pieces of information to your model. The `fetchData` function specifies how to fetch the remote data, while the `syncState` function determines how to sync the fetched data to the state of the model.
+To define an accessor, you need to provide three pieces of information to your model. The `name` property is the name of its creator. The `fetchData` function specifies how to fetch the remote data, while the `syncState` function determines how to sync the fetched data to the state of the model.
 
 Moreover, you can specify `onSuccess` and `onError` to perform some side effect when fetching success or fail.
 
-`defineNormalAccessor` returns an accessor creator that you can use to create an accessor. We encourage you to name the creator based on its purpose. In the example above, the accessor fetches post based on the given ID, so it is named `getPostById`.
+`defineAccessor` returns an accessor creator that you can use to create an accessor. We encourage you to name the creator based on its purpose. In the example above, the accessor fetches post based on the given ID, so it is named `getPostById`.
 
-> There is another method called `defineInfiniteAccessor` that is useful when implementing infinite scrolling. For more information, please refer to its [API documentation](./api/README.md#createmodel).
+> There is another method called `defineInfiniteAccessor` that is useful when implementing infinite scrolling.
 
 ### `useAccessor`
 
@@ -63,6 +65,7 @@ When using the `useAccessor` hook, revalidation occurs in the following cases:
 
 - The return value of `checkHasData` is `false`.
 - The accessor is stale, and `revalidateIfStale` is `true`.
+- The accessor is changed, and `revalidateOnMount` is `true`.
 - The window regains focus, and `revalidateOnFocus` is `true`.
 - The network is reconnected, and `revalidateOnReconnect` is `true`.
 

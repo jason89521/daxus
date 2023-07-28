@@ -5,6 +5,9 @@ import { getKey, isUndefined } from '../utils/index.js';
 import type { BaseAction, BaseConstructorArgs, ModelSubscribe } from './types.js';
 
 export type RevalidateContext = {
+  /**
+   * @internal
+   */
   serverStateKey?: object;
 };
 

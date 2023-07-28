@@ -5,7 +5,7 @@
 [![PR's Welcome][pr-welcoming-image]][pr-welcoming-url]
 [![Test coverage][codecov-image]][codecov-url]
 
-Daxus is a server state management library for building a single source of truth of state.
+Daxus is a server state management library for building a single source of truth.
 
 - Customizable data structure
   - This feature enable you to build a single source of truth
@@ -27,7 +27,6 @@ Daxus is a server state management library for building a single source of truth
   - [Mutation](#mutation)
   - [Pagination](#pagination)
   - [Invalidate Accessor](#invalidate-accessor)
-- [FlowChart](#flowchart)
 - [Documents](#documents)
 - [Development Motivation](#development-motivation)
   - [Why not use React Query?](#why-not-use-react-query)
@@ -69,11 +68,13 @@ npm install daxus
 ## Simple Example
 
 ```typescript
+export const db = createDatabase();
 // You don't have to use createPaginationAdapter specifically.
 // You can use any data structure that meets your requirements.
 export const postAdapter = createPaginationAdapter<Post>();
-export const postModel = createModel(postAdapter.initialState);
-export const getPostById = postModel.defineNormalAccessor<number, Post>({
+export const postModel = db.createModel({ name: 'post', initialState: postAdapter.initialState });
+export const getPostById = postModel.defineAccessor<Post, number>({
+  name: 'getPostById',
   fetchData: async arg => {
     const data = await getPostApi({ id: arg });
     return data;
@@ -98,7 +99,8 @@ export function usePost(id: number) {
   return { data, error, isFetching, revalidate: () => accessor.revalidate() };
 }
 
-export const getPostList = postModel.defineInfiniteAccessor<string, Post[]>({
+export const getPostList = postModel.defineInfiniteAccessor<Post[], string>({
+  name: 'getPostList',
   fetchData: async filter => {
     return getPostListApi({ filter });
   },
@@ -115,13 +117,20 @@ export function usePostList(filter: string) {
 
 ## Getting Started
 
+First of all, let's create a database for daxus:
+
+```ts
+import { createDatabase } from 'daxus';
+export const db = createDatabase();
+```
+
 When using Daxus, you need to create models for different types of data. Taking our company as an example, the backend data includes posts, comments, forums, and more. You must create separate models for them when using Daxus.
 
 Different models can use different data structures. For example, posts are suitable for storing data using a pagination data structure, while user settings may not be. You need to create different data structures for your models based on different requirements.
 
 ```typescript
 const postAdapter = createPaginationAdapter<Post>();
-const postModel = createModel(postAdapter.initialState);
+const postModel = db.createModel({ name: 'post', initialState: postAdapter.initialState });
 ```
 
 > The object returned by `createPaginationAdapter` provides not only the initial state but also various operation functions for handling pagination. This allows developers to manipulate pagination easily. Of course, you can design your own pagination if desired, as Daxus gives developers complete control over data.
@@ -131,7 +140,8 @@ const postModel = createModel(postAdapter.initialState);
 After creating the model, you can start defining accessors. Accessors play a significant role in Daxus as they help fetch data from the server and synchronize it with your model once the data is obtained. Then, after your model is updated, it notifies the components that use the corresponding model to check if rerendering is necessary.
 
 ```typescript
-const getPostById = postModel.defineNormalAccessor<number, Post>({
+const getPostById = postModel.defineAccessor<Post, number>({
+  name: 'getPostById',
   fetchData: async id => {
     const data = await getPostApi(id);
     return data;
@@ -142,16 +152,15 @@ const getPostById = postModel.defineNormalAccessor<number, Post>({
 });
 ```
 
-There are two type of the accessors. One is `normal`, the other one is `infinite`. You can use `model.defineNormalAccessor` to define a normal accessor, and use `model.defineInfiniteAccessor` to define an infinite accessor. Typically, you would only use `infinite` when implementing infinite loading. In most cases, `normal` is sufficient.
+There are two type of the accessors. One is `normal`, the other one is `infinite`. You can use `model.defineAccessor` to define a normal accessor, and use `model.defineInfiniteAccessor` to define an infinite accessor. Typically, you would only use `infinite` when implementing infinite loading. In most cases, `normal` is sufficient.
 
-The argument is the accessor's **action**. `fetchData` tells the accessor how to fetch data from the server, while `syncState` specifies how to synchronize the obtained data with the model's state.
+The argument is the accessor's **action**. `name` is the name of the creator, `fetchData` tells the accessor how to fetch data from the server, while `syncState` specifies how to synchronize the obtained data with the model's state.
 
-`defineNormalAccessor` and `defineInfiniteAccessor` returns an accessor creator function. Next, we will use the accessor created by `defineNormalAccessor` with the `useAccessor` hook.
+`defineAccessor` and `defineInfiniteAccessor` returns an accessor creator function. Next, we will use the accessor created by `defineAccessor` with the `useAccessor` hook.
 
 ```typescript
 function usePost(id: number) {
-  const accessor = getPostById(id);
-  const { data, error, isFetching } = useAccessor(accessor, state =>
+  const { data, error, isFetching, accessor } = useAccessor(getPostById(id), state =>
     postAdapter.tryReadOne(state, id)
   );
 
@@ -163,8 +172,7 @@ The second argument of `useAccessor` determines the shape of the `data`. You can
 
 ```typescript
 function usePostTitle(id: number) {
-  const accessor = getPostById(id);
-  const { data } = useAccessor(accessor, state => postAdapter.tryReadOne(state, id)?.title);
+  const { data } = useAccessor(getPostById(id), state => postAdapter.tryReadOne(state, id)?.title);
 
   return data;
 }
@@ -197,7 +205,8 @@ Daxus provides the `createPaginationAdapter` to help developers easily handle pa
 Since pagination uses ID to reference all entities, when any entity updates, all paginations that include this entity will receive the latest data. Developers don't have to worry about inconsistent data across multiple lists.
 
 ```typescript
-const getPostList = postModel.defineInfiniteAccessor<{ layout: string }, Post[]>({
+const getPostList = postModel.defineInfiniteAccessor<Post[], { layout: string }>({
+  name: 'getPostList',
   fetchData: async ({ layout }, { previousData }) => {
     if (previousData.length === 0) return null; // Reaching end.
     const data = await getPostListApi({ layout });
@@ -210,8 +219,7 @@ const getPostList = postModel.defineInfiniteAccessor<{ layout: string }, Post[]>
 });
 
 function usePostList(layout: string) {
-  const accessor = getPostList({ layout });
-  const { data, error, isFetching } = useAccessor(accessor, state => {
+  const { data, error, isFetching, accessor } = useAccessor(getPostList({ layout }), state => {
     const key = `layout=${layout}`;
     // A rerender will be triggered if any entity is updated
     // Don't worry that the user might see inconsistent results
@@ -230,26 +238,6 @@ If you have used React Query before, you probably know that it can invalidate qu
 getPostById(0).invalidate(); // invalidate a single accessor
 getPostById.invalidate(); // invalidate all accessors generated by this accessor creator
 postModel.invalidate(); // invalidate all accessors related to this model
-```
-
-## FlowChart
-
-```mermaid
-flowchart TD
-  subgraph createModel
-    direction LR
-    m(model)
-    state[(state)]
-  end
-  s[(server)]
-  NAC(normalAccessorCreator)
-  NA(normalAccessor)
-  m --> |defineNormalAccessor| NAC
-  NAC -->  NA
-  NA --> |fetchData| s
-  s --> |Data| NA
-  NA --> |syncState| state
-
 ```
 
 ## Documents

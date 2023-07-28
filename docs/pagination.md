@@ -32,10 +32,12 @@ In this data structure, all data instances will be stored in the `entityRecord`.
 `createPaginationAdapter` will return an object that contains the initial state and various operation functions. You can pass the initial state when you create a model and use the operation functions to read or write the model's state.
 
 ```ts
+const db = createDatabase();
 const postAdapter = createPaginationAdapter<Post>();
-const postModel = createModel(postAdapter.initialState);
+const postModel = createModel({ name: 'post', initialState: postAdapter.initialState });
 
-const getPost = postModel.defineNormalAccessor<string, Post>({
+const getPost = postModel.defineAccessor<Post, string>({
+  name: 'getPost',
   fetchData: postId => {
     return getPostApi(postId);
   },
@@ -55,9 +57,10 @@ If the API is cursor-based, you may need to define an infinite accessor:
 
 ```ts
 const getPostList = postModel.defineInfiniteAccessor<
-  string,
-  { items: Post[]; nextKey: string | null }
+  { items: Post[]; nextKey: string | null },
+  string
 >({
+  name: 'getPostList',
   fetchData: (filter, { previousData }) => {
     if (previousData.nextKey === null) return null;
     return getPostListApi({ filter, nextKey: previousData?.nextKey });
