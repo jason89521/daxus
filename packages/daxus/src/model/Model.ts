@@ -108,16 +108,32 @@ export function createModel<S extends object>(
   const staleTimeoutIdRecord = {} as Record<string, number>;
   const isStaleRecord = {} as Record<string, boolean>;
 
+  /**
+   * instead of recording the whole data, we only record the pages number to save the memory usage
+   */
+  const infiniteAccessorPageNumRecord = {} as Record<string, number | undefined>;
+
   function assertDuplicateName(name: string) {
     if (objectKeys(creatorRecord).includes(name)) {
       throw new Error(`The creator name: ${name} has already existed!`);
     }
   }
 
-  /**
-   * instead of recording the whole data, we only record the pages number to save the memory usage
-   */
-  const infiniteAccessorPageNumRecord = {} as Record<string, number | undefined>;
+  function compositeSetStale(key: string) {
+    return function setStale(staleTime: number) {
+      const timeoutId = staleTimeoutIdRecord[key];
+      clearTimeout(timeoutId);
+      // reset the stale state
+      isStaleRecord[key] = false;
+      if (staleTime === 0) {
+        isStaleRecord[key] = true;
+      } else if (staleTime > 0) {
+        staleTimeoutIdRecord[key] = window.setTimeout(() => {
+          isStaleRecord[key] = true;
+        }, staleTime);
+      }
+    };
+  }
 
   const updateState: UpdateModelState<S> = (fn, { serverStateKey, ...ctx }) => {
     if (isServer()) {
@@ -203,19 +219,7 @@ export function createModel<S extends object>(
         onMount,
         onUnmount,
         isAuto: action.isAuto ?? false,
-        setStaleTime(staleTime) {
-          const timeoutId = staleTimeoutIdRecord[key];
-          clearTimeout(timeoutId);
-          // reset the stale state
-          isStaleRecord[key] = false;
-          if (staleTime === 0) {
-            isStaleRecord[key] = true;
-          } else if (staleTime > 0) {
-            staleTimeoutIdRecord[key] = window.setTimeout(() => {
-              isStaleRecord[key] = true;
-            }, staleTime);
-          }
-        },
+        setStaleTime: compositeSetStale(key),
         getIsStale() {
           return isStaleRecord[key] ?? false;
         },
@@ -265,6 +269,10 @@ export function createModel<S extends object>(
     let timeoutId: number | undefined;
     const main = (arg: Arg) => {
       const key = getKey(name, arg);
+      const accessor = accessorRecord[key];
+      if (accessor) {
+        return accessor as InfiniteAccessor<S, Arg, Data, E>;
+      }
 
       const clearAccessorCache = () => {
         const accessor = accessorRecord[key] as InfiniteAccessor<S>;
@@ -294,19 +302,7 @@ export function createModel<S extends object>(
         onUnmount,
         initialPageNum: infiniteAccessorPageNumRecord[key] ?? 1,
         isAuto: action.isAuto ?? false,
-        setStaleTime(staleTime) {
-          const timeoutId = staleTimeoutIdRecord[key];
-          clearTimeout(timeoutId);
-          // reset the stale state
-          isStaleRecord[key] = false;
-          if (staleTime === 0) {
-            isStaleRecord[key] = true;
-          } else if (staleTime > 0) {
-            staleTimeoutIdRecord[key] = window.setTimeout(() => {
-              isStaleRecord[key] = true;
-            }, staleTime);
-          }
-        },
+        setStaleTime: compositeSetStale(key),
         getIsStale() {
           return isStaleRecord[key] ?? false;
         },
@@ -320,10 +316,7 @@ export function createModel<S extends object>(
       // Remove the clear cache timeout since the accessor is being used.
       window.clearTimeout(timeoutId);
       timeoutId = window.setTimeout(clearAccessorCache, CLEAR_ACCESSOR_CACHE_TIME);
-      const accessor = accessorRecord[key];
-      if (accessor) {
-        return accessor as InfiniteAccessor<S, Arg, Data, E>;
-      }
+
       const newAccessor = new InfiniteAccessor(constructorArgs);
       accessorRecord[key] = newAccessor;
       return newAccessor;
