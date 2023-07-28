@@ -1,5 +1,5 @@
 import type { AccessorOptions, AutoAccessorOptions } from './types.js';
-import type { NormalAccessor, InfiniteAccessor, AutoState, BaseAccessor } from '../model/index.js';
+import type { Accessor, InfiniteAccessor, AutoState, BaseAccessor } from '../model/index.js';
 
 import { normalizeArgs, useAccessor } from './useAccessor.js';
 import { useContext } from 'react';
@@ -13,16 +13,16 @@ interface ReturnValue<S, ACC extends BaseAccessor<any, any, any, any> | null> {
 }
 
 export function useSuspenseAccessor<S, Arg, RD, SS, E = unknown>(
-  accessor: NormalAccessor<S, Arg, RD, E>,
+  accessor: Accessor<S, Arg, RD, E>,
   getSnapshot: (state: S) => SS,
   options?: AccessorOptions<SS>
-): ReturnValue<NonUndefined<SS>, NormalAccessor<S, Arg, RD, E>>;
+): ReturnValue<NonUndefined<SS>, Accessor<S, Arg, RD, E>>;
 
 export function useSuspenseAccessor<S, Arg, RD, SS, E = unknown>(
-  accessor: NormalAccessor<S, Arg, RD, E> | null,
+  accessor: Accessor<S, Arg, RD, E> | null,
   getSnapshot: (state: S) => SS,
   options?: AccessorOptions<SS>
-): ReturnValue<NonUndefined<SS>, NormalAccessor<S, Arg, RD, E>>;
+): ReturnValue<NonUndefined<SS>, Accessor<S, Arg, RD, E>>;
 
 export function useSuspenseAccessor<S, Arg, RD, SS, E = unknown>(
   accessor: InfiniteAccessor<S, Arg, RD, E>,
@@ -37,14 +37,14 @@ export function useSuspenseAccessor<S, Arg, RD, SS, E = unknown>(
 ): ReturnValue<NonUndefined<SS>, InfiniteAccessor<S, Arg, RD, E>>;
 
 export function useSuspenseAccessor<Arg, D, E, SS = D | undefined>(
-  accessor: NormalAccessor<AutoState, Arg, D, E>,
+  accessor: Accessor<AutoState, Arg, D, E>,
   options?: AutoAccessorOptions<D, SS>
-): ReturnValue<NonUndefined<SS>, NormalAccessor<AutoState, Arg, D, E>>;
+): ReturnValue<NonUndefined<SS>, Accessor<AutoState, Arg, D, E>>;
 
 export function useSuspenseAccessor<Arg, D, E, SS = D | undefined>(
-  accessor: NormalAccessor<AutoState, Arg, D, E> | null,
+  accessor: Accessor<AutoState, Arg, D, E> | null,
   options?: AutoAccessorOptions<D, SS>
-): ReturnValue<NonUndefined<SS>, NormalAccessor<AutoState, Arg, D, E>>;
+): ReturnValue<NonUndefined<SS>, Accessor<AutoState, Arg, D, E>>;
 
 export function useSuspenseAccessor<Arg, D, E, SS = D[] | undefined>(
   accessor: InfiniteAccessor<AutoState, Arg, D, E>,

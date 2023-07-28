@@ -97,7 +97,7 @@ describe('useSuspenseAccessor-auto state', () => {
   });
 
   test('should show the data when fetching finish', async () => {
-    const getData = model.defineNormalAccessor({
+    const getData = model.defineAccessor({
       name: 'getData',
       async fetchData() {
         return 'data';
@@ -124,7 +124,7 @@ describe('useSuspenseAccessor-auto state', () => {
 
   test('should update the data when the corresponding cache is updated', async () => {
     let counter = 0;
-    const getData = model.defineNormalAccessor({
+    const getData = model.defineAccessor({
       name: 'getData',
       async fetchData() {
         counter += 1;

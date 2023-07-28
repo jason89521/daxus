@@ -3,7 +3,7 @@ import type {
   BaseAccessor,
   AutoState,
   InfiniteAccessor,
-  NormalAccessor,
+  Accessor,
   Status,
 } from '../model/index.js';
 import { isUndefined, noop, objectKeys, stableHash, isNull } from '../utils/index.js';
@@ -27,10 +27,10 @@ const defaultStatus = { isFetching: false, error: null } satisfies Status;
  * @param options Additional options for controlling the behavior of the accessor.
  */
 export function useAccessor<S, Arg, RD, SS, E = unknown>(
-  accessor: NormalAccessor<S, Arg, RD, E>,
+  accessor: Accessor<S, Arg, RD, E>,
   getSnapshot: (state: S) => SS,
   options?: AccessorOptions<SS>
-): UseAccessorReturn<SS, E, NormalAccessor<S, Arg, RD, E>>;
+): UseAccessorReturn<SS, E, Accessor<S, Arg, RD, E>>;
 /**
  * `useAccessor` hook provides a way to access and manage data fetched by an accessor.
  * @param accessor A normal accessor or `null`. It is useful when you want conditional fetching.
@@ -38,10 +38,10 @@ export function useAccessor<S, Arg, RD, SS, E = unknown>(
  * @param options Additional options for controlling the behavior of the accessor.
  */
 export function useAccessor<S, Arg, RD, SS, E = unknown>(
-  accessor: NormalAccessor<S, Arg, RD, E> | null,
+  accessor: Accessor<S, Arg, RD, E> | null,
   getSnapshot: (state: S) => SS,
   options?: AccessorOptions<SS>
-): UseAccessorReturn<SS | undefined, E, NormalAccessor<S, Arg, RD, E> | null>;
+): UseAccessorReturn<SS | undefined, E, Accessor<S, Arg, RD, E> | null>;
 /**
  * `useAccessor` hook provides a way to access and manage data fetched by an accessor.
  * @param accessor A infinite accessor.
@@ -66,14 +66,14 @@ export function useAccessor<S, Arg, RD, SS, E = unknown>(
 ): UseAccessorReturn<SS | undefined, E, InfiniteAccessor<S, Arg, RD, E> | null>;
 
 export function useAccessor<Arg, D, E, SS = D | undefined>(
-  accessor: NormalAccessor<AutoState, Arg, D, E>,
+  accessor: Accessor<AutoState, Arg, D, E>,
   options?: AutoAccessorOptions<D, SS>
-): UseAccessorReturn<SS | undefined, E, NormalAccessor<AutoState, Arg, D, E>>;
+): UseAccessorReturn<SS | undefined, E, Accessor<AutoState, Arg, D, E>>;
 
 export function useAccessor<Arg, D, E, SS = D | undefined>(
-  accessor: NormalAccessor<AutoState, Arg, D, E> | null,
+  accessor: Accessor<AutoState, Arg, D, E> | null,
   options?: AutoAccessorOptions<D, SS>
-): UseAccessorReturn<SS | undefined, E, NormalAccessor<AutoState, Arg, D, E> | null>;
+): UseAccessorReturn<SS | undefined, E, Accessor<AutoState, Arg, D, E> | null>;
 
 export function useAccessor<Arg, D, E, SS = D[] | undefined>(
   accessor: InfiniteAccessor<AutoState, Arg, D, E>,

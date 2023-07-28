@@ -8,12 +8,7 @@ import type { NormalAction, NormalConstructorArgs, UpdateModelState } from './ty
  */
 type FetchResult<D, E> = [D | null, E | null];
 
-export class NormalAccessor<S, Arg = any, Data = any, E = unknown> extends BaseAccessor<
-  S,
-  Arg,
-  Data,
-  E
-> {
+export class Accessor<S, Arg = any, Data = any, E = unknown> extends BaseAccessor<S, Arg, Data, E> {
   protected action: NormalAction<S, Arg, Data, E>;
   private updateState: UpdateModelState<S>;
 

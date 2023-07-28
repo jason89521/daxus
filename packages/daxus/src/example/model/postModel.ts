@@ -11,7 +11,7 @@ export const postAdapter = createPaginationAdapter<Post>({});
 
 export const postModel = createModel(postAdapter.initialState);
 
-export const getPostById = postModel.defineNormalAccessor({
+export const getPostById = postModel.defineAccessor({
   fetchData: async (id: number) => {
     const data = await getPostByIdRequest(id);
     return data;
