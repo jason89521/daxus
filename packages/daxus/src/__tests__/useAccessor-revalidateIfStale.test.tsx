@@ -1,4 +1,4 @@
-import { fireEvent, renderHook, waitFor } from '@testing-library/react';
+import { act, fireEvent, renderHook, waitFor } from '@testing-library/react';
 import { useAccessor } from '../index.js';
 import {
   createControl,
@@ -49,6 +49,17 @@ describe('useAccessor-normal revalidateIfStale', () => {
 
     expect(result.current.accessor.isStale()).toBe(false);
     await sleep(50);
+    expect(result.current.accessor.isStale()).toBe(false);
+    await waitFor(() => {
+      expect(result.current.accessor.isStale()).toBe(true);
+    });
+
+    await act(() => result.current.accessor.revalidate());
+    expect(result.current.accessor.isStale()).toBe(false);
+    await sleep(50);
+    // refetch the data. This action should postpone the stale state being set to true.
+    await act(() => result.current.accessor.revalidate());
+    await sleep(60);
     expect(result.current.accessor.isStale()).toBe(false);
     await waitFor(() => {
       expect(result.current.accessor.isStale()).toBe(true);
