@@ -17,7 +17,7 @@ export function createPostModel(control: PostModelControl) {
   const db = createDatabase();
   const postAdapter = createPaginationAdapter<Post>({});
   const postModel = db.createModel({ name: 'post', initialState: postAdapter.initialState });
-  const getPostById = postModel.defineNormalAccessor({
+  const getPostById = postModel.defineAccessor({
     name: 'getPostById',
     fetchData: async (id: number) => {
       control.fetchDataMock?.();

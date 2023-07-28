@@ -1,11 +1,11 @@
 import { getCurrentTime } from '../utils/index.js';
-import type { RevalidateContext } from './Accessor.js';
-import { Accessor } from './Accessor.js';
+import type { RevalidateContext } from './BaseAccessor.js';
+import { BaseAccessor } from './BaseAccessor.js';
 import type { InfiniteAction, InfiniteConstructorArgs, UpdateModelState } from './types.js';
 
 type Task = 'validate' | 'next' | 'idle';
 
-export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Accessor<
+export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends BaseAccessor<
   S,
   Arg,
   Data[],
@@ -61,7 +61,7 @@ export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Acc
   };
 
   /**
-   * {@inheritDoc Accessor.revalidate}
+   * {@inheritDoc BaseAccessor.revalidate}
    */
   revalidate = (context: RevalidateContext = {}) => {
     const pageNum = this.getPageNum() || this.initialPageNum;

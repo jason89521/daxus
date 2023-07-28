@@ -8,10 +8,10 @@ import type {
   UpdateModelState,
   UpdateModelStateContext,
 } from './types.js';
-import { NormalAccessor } from './NormalAccessor.js';
+import { Accessor } from './Accessor.js';
 import { InfiniteAccessor } from './InfiniteAccessor.js';
 import { getKey, isServer, objectKeys } from '../utils/index.js';
-import type { Accessor } from './Accessor.js';
+import type { BaseAccessor } from './BaseAccessor.js';
 
 const CLEAR_ACCESSOR_CACHE_TIME = 60 * 1000;
 
@@ -34,7 +34,7 @@ export type AutoInfiniteAction<Arg, Data, E> = Omit<
 
 export interface NormalAccessorCreator<S, Arg = any, Data = any, E = any>
   extends BaseAccessorCreator<S> {
-  (arg: Arg): NormalAccessor<S, Arg, Data, E>;
+  (arg: Arg): Accessor<S, Arg, Data, E>;
   syncState: NormalAction<S, Arg, Data, E>['syncState'];
 }
 export interface InfiniteAccessorCreator<S, Arg = any, Data = any, E = any>
@@ -51,7 +51,7 @@ export interface Model<S extends object> {
   defineInfiniteAccessor<Data, Arg = void, E = any>(
     action: InfiniteAction<S, Arg, Data, E>
   ): InfiniteAccessorCreator<S, Arg, Data, E>;
-  defineNormalAccessor<Data, Arg = void, E = any>(
+  defineAccessor<Data, Arg = void, E = any>(
     action: NormalAction<S, Arg, Data, E>
   ): NormalAccessorCreator<S, Arg, Data, E>;
   getState(serverStateKey?: object): S;
@@ -68,18 +68,18 @@ export interface Model<S extends object> {
 export interface AutoModel
   extends Pick<Model<AutoState>, 'invalidate' | 'subscribe' | 'getCreator'> {
   mutate<Arg, Data, E = unknown>(
-    accessor: Accessor<AutoState, Arg, Data, E>,
+    accessor: BaseAccessor<AutoState, Arg, Data, E>,
     fn: (prevData: Data | undefined) => Data,
     serverStateKey?: object
   ): void;
-  defineNormalAccessor<Data, Arg = void, E = unknown>(
+  defineAccessor<Data, Arg = void, E = unknown>(
     action: AutoNormalAction<Arg, Data, E>
   ): NormalAccessorCreator<AutoState, Arg, Data, E>;
   defineInfiniteAccessor<Data, Arg = void, E = unknown>(
     action: AutoInfiniteAction<Arg, Data, E>
   ): InfiniteAccessorCreator<AutoState, Arg, Data, E>;
   getState<Arg, Data, E = unknown>(
-    accessor: Accessor<AutoState, Arg, Data, E>,
+    accessor: BaseAccessor<AutoState, Arg, Data, E>,
     serverStateKey?: object
   ): Data | undefined;
 }
@@ -92,14 +92,13 @@ export function createModel<S extends object>(
   initialState: S,
   onServerStateChange: (ctx: ServerStateChangeContext) => void
 ): Model<S> {
-  type Accessor<Arg = any, Data = any> =
-    | NormalAccessor<S, Arg, Data, any>
-    | InfiniteAccessor<S, Arg, Data, any>;
-
   const serverStateRecord = new WeakMap<object, S>();
   let clientState = { ...initialState };
   const listeners: (() => void)[] = [];
-  const accessorRecord = {} as Record<string, Accessor>;
+  const accessorRecord = {} as Record<
+    string,
+    Accessor<S, any, any, any> | InfiniteAccessor<S, any, any, any>
+  >;
   const creatorRecord = {} as Record<
     string,
     NormalAccessorCreator<S, any, any, any> | InfiniteAccessorCreator<S, any, any, any>
@@ -165,7 +164,7 @@ export function createModel<S extends object>(
     notifyListeners();
   }
 
-  function defineNormalAccessor<Arg, Data, E = unknown>(
+  function defineAccessor<Arg, Data, E = unknown>(
     action: NormalAction<S, Arg, Data, E>
   ): NormalAccessorCreator<S, Arg, Data, E> {
     const { name } = action;
@@ -204,7 +203,7 @@ export function createModel<S extends object>(
 
       if (isServer()) {
         // We don't need to cache the accessor in server side.
-        return new NormalAccessor(constructorArgs);
+        return new Accessor(constructorArgs);
       }
 
       // Remove the clear cache timeout since the accessor is being used.
@@ -213,10 +212,10 @@ export function createModel<S extends object>(
 
       const accessor = accessorRecord[key];
       if (accessor) {
-        return accessor as NormalAccessor<S, Arg, Data, E>;
+        return accessor as Accessor<S, Arg, Data, E>;
       }
 
-      const newAccessor = new NormalAccessor(constructorArgs);
+      const newAccessor = new Accessor(constructorArgs);
       accessorRecord[key] = newAccessor;
       return newAccessor;
     };
@@ -319,7 +318,7 @@ export function createModel<S extends object>(
   return {
     mutate,
     defineInfiniteAccessor,
-    defineNormalAccessor,
+    defineAccessor,
     getState,
     invalidate,
     subscribe,
@@ -334,9 +333,9 @@ export function createAutoModel(
 ): AutoModel {
   const model = createModel<AutoState>({}, onServerStateChange);
 
-  function defineNormalAccessor<Arg, Data, E = unknown>(action: AutoNormalAction<Arg, Data, E>) {
+  function defineAccessor<Arg, Data, E = unknown>(action: AutoNormalAction<Arg, Data, E>) {
     const { name } = action;
-    return model.defineNormalAccessor({
+    return model.defineAccessor({
       ...action,
       isAuto: true,
       syncState(draft, { data, arg }) {
@@ -368,7 +367,7 @@ export function createAutoModel(
   }
 
   function mutate<Arg, Data, E = unknown>(
-    accessor: Accessor<AutoState, Arg, Data, E>,
+    accessor: BaseAccessor<AutoState, Arg, Data, E>,
     fn: (prevData: Data | undefined) => Data,
     serverStateKey?: object
   ) {
@@ -381,7 +380,7 @@ export function createAutoModel(
   }
 
   function getState<Arg, Data, E = unknown>(
-    accessor: Accessor<AutoState, Arg, Data, E>,
+    accessor: BaseAccessor<AutoState, Arg, Data, E>,
     serverStateKey?: object
   ) {
     const key = accessor.getKey();
@@ -392,7 +391,7 @@ export function createAutoModel(
 
   return {
     ...model,
-    defineNormalAccessor,
+    defineAccessor,
     defineInfiniteAccessor,
     mutate,
     getState,

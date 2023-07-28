@@ -1,66 +1,16 @@
-import { defaultOptions } from '../constants.js';
-import type { AccessorOptions } from '../hooks/types.js';
-import type { MutableRefObject } from 'react';
-import { getKey, isUndefined } from '../utils/index.js';
-import type { BaseAction, BaseConstructorArgs, ModelSubscribe } from './types.js';
+import { getCurrentTime } from '../utils/index.js';
+import type { RevalidateContext } from './BaseAccessor.js';
+import { BaseAccessor } from './BaseAccessor.js';
+import type { NormalAction, NormalConstructorArgs, UpdateModelState } from './types.js';
 
-export type RevalidateContext = {
-  serverStateKey?: object;
-};
+/**
+ * [`data`, `error`]
+ */
+type FetchResult<D, E> = [D | null, E | null];
 
-export type Status<E = unknown> = {
-  isFetching: boolean;
-  error: E | null;
-};
-
-export type FetchPromiseResult<E, D> = readonly [E] | readonly [null, D];
-
-export type OnFetchingFinishContext<D, E> = {
-  error: E | null;
-  data: D | null;
-};
-
-type RetryTimeoutMeta = {
-  timeoutId: number;
-  reject: () => void;
-};
-
-type Options = Required<AccessorOptions>;
-type OptionsRef = MutableRefObject<Options>;
-
-export abstract class Accessor<S, Arg, D, E> {
-  protected status: Status<E> = { isFetching: false, error: null };
-  protected statusListeners: ((prev: Status, current: Status) => void)[] = [];
-  protected fetchPromise!: Promise<FetchPromiseResult<E, D>>;
-  protected arg: Arg;
-  protected creatorName: string;
-  private notifyModel: () => void;
-  private retryTimeoutMeta: RetryTimeoutMeta | null = null;
-  private startAt = 0;
-  private modelSubscribe: ModelSubscribe;
-  private optionsRefSet = new Set<OptionsRef>();
-  private removeOnFocusListener: (() => void) | null = null;
-  private removeOnReconnectListener: (() => void) | null = null;
-  private removeOnVisibilityChangeListener: (() => void) | null = null;
-  private pollingTimeoutId: number | undefined;
-  private isStale = false;
-  private onMount: () => void;
-  private onUnmount: () => void;
-  private autoListeners: (() => void)[] = [];
-  private removeAllListeners: (() => void) | null = null;
-  private isAuto: boolean;
-
-  /**
-   * Return the result of the revalidation.
-   */
-  abstract revalidate: (context?: RevalidateContext) => Promise<FetchPromiseResult<E, D>>;
-
-  protected abstract action: BaseAction<Arg, D, E>;
-
-  /**
-   * Get the state of the corresponding model.
-   */
-  getState: (serverStateKey?: object) => S;
+export class Accessor<S, Arg = any, Data = any, E = unknown> extends BaseAccessor<S, Arg, Data, E> {
+  protected action: NormalAction<S, Arg, Data, E>;
+  private updateState: UpdateModelState<S>;
 
   /**
    * @internal
@@ -68,326 +18,98 @@ export abstract class Accessor<S, Arg, D, E> {
   constructor({
     getState,
     modelSubscribe,
+    action,
+    arg,
+    updateState,
+    notifyModel,
     onMount,
     onUnmount,
-    notifyModel,
-    arg,
     isAuto,
-    creatorName,
-  }: Pick<
-    BaseConstructorArgs<S, Arg>,
-    'getState' | 'modelSubscribe' | 'onMount' | 'onUnmount' | 'arg' | 'notifyModel' | 'isAuto'
-  > & { creatorName: string }) {
-    this.getState = getState;
-    this.modelSubscribe = modelSubscribe;
-    this.onMount = onMount;
-    this.onUnmount = onUnmount;
-    this.notifyModel = notifyModel;
+  }: NormalConstructorArgs<S, Arg, Data, E>) {
+    super({
+      getState,
+      modelSubscribe,
+      onMount,
+      onUnmount,
+      arg,
+      creatorName: action.name,
+      notifyModel,
+      isAuto,
+    });
+    this.action = action;
     this.arg = arg;
-    this.isAuto = isAuto;
-    this.creatorName = creatorName;
+    this.updateState = updateState;
   }
 
-  getIsAuto = () => {
-    return this.isAuto;
-  };
-
-  getKey = () => {
-    return getKey(this.creatorName, this.arg);
-  };
-
   /**
-   * @internal
+   * {@inheritDoc BaseAccessor.revalidate}
    */
-  mount = ({ optionsRef }: { optionsRef: OptionsRef }) => {
-    this.optionsRefSet.add(optionsRef);
-    this.onMount();
+  revalidate = ({ serverStateKey }: RevalidateContext = {}) => {
+    const startAt = getCurrentTime();
 
-    if (this.getFirstOptionsRef() === optionsRef) {
-      this.registerAllListeners();
+    if (!this.canFetch({ startAt })) {
+      return this.fetchPromise;
     }
 
-    return () => {
-      // Remove the optionRef and remove the listeners.
-      // If it is the first optionsRef, remove the listeners (if exist).
-      const isFirstOptionsRef = this.getFirstOptionsRef() === optionsRef;
-      if (isFirstOptionsRef) {
-        this.removeAllListeners?.();
+    const fetchPromise = (async () => {
+      try {
+        const arg = this.arg;
+        const [data, error] = await this.internalFetch(this.getRetryCount());
+
+        // expired means that there is an another valid `revalidation` is fetching.
+        if (this.isExpiredFetching(startAt)) {
+          return this.fetchPromise;
+        }
+        this.updateStartAt(startAt);
+
+        if (data) {
+          this.updateState(
+            draft => {
+              this.action.syncState(draft, { data, arg });
+            },
+            { serverStateKey, data, arg, creatorName: this.creatorName }
+          );
+        }
+        return this.onFetchingFinish({ error, data });
+      } catch (error) {
+        // This error happens when any fetching is aborted.
+        // We don't need to handle this.
+        return this.fetchPromise;
       }
-      this.optionsRefSet.delete(optionsRef);
-
-      // If it is not the first optionsRef, do nothing.
-      if (!isFirstOptionsRef) return;
-      const firstOptionRef = this.getFirstOptionsRef();
-      // If it is the last mounted accessor, call onUnmount.
-      if (!firstOptionRef) {
-        this.onUnmount();
-        return;
-      }
-
-      // Register new listeners if there is a optionsRef existed after unmounting the previous one.
-      this.registerAllListeners();
-      clearTimeout(this.pollingTimeoutId);
-    };
+    })();
+    this.onFetchingStart({ fetchPromise, startAt });
+    return this.fetchPromise;
   };
 
   /**
-   * @internal
-   */
-  subscribeStatus = (listener: (prev: Status, current: Status) => void) => {
-    this.statusListeners.push(listener);
-    return () => {
-      const index = this.statusListeners.indexOf(listener);
-      this.statusListeners.splice(index, 1);
-    };
-  };
-
-  subscribeData = (listener: () => void) => {
-    return this.isAuto ? this.subscribeAutoAccessor(listener) : this.subscribeModel(listener);
-  };
-
-  /**
-   * @internal
-   */
-  getStatus = () => {
-    return this.status;
-  };
-
-  /**
-   * Get whether this accessor is stale or not.
-   *
-   * @internal
-   */
-  getIsStale = () => {
-    return this.isStale;
-  };
-
-  invalidate = () => {
-    this.isStale = true;
-    if (this.isMounted()) {
-      this.revalidate();
-    }
-  };
-
-  /**
-   * Determine whether this accessor is mounted by check whether there is an options ref.
-   * @internal
-   */
-  isMounted = () => {
-    return !isUndefined(this.getFirstOptionsRef());
-  };
-
-  protected updateStatus = (partialStatus: Partial<Status<E>>) => {
-    const newStatus = { ...this.status, ...partialStatus };
-    this.notifyStatusListeners(newStatus);
-    this.status = newStatus;
-  };
-
-  protected notifyStatusListeners = (newCache: Status) => {
-    this.statusListeners.forEach(l => l(this.status, newCache));
-  };
-
-  protected notifyDataListeners = () => {
-    if (this.isAuto) {
-      this.notifyAutoAccessor();
-    } else {
-      this.notifyModel();
-    }
-  };
-
-  protected getOptions = (): Required<AccessorOptions> => {
-    const firstOptionsRef = this.getFirstOptionsRef();
-    if (!firstOptionsRef) return defaultOptions;
-
-    return firstOptionsRef.current;
-  };
-
-  protected getRetryCount = () => {
-    return this.getOptions().retryCount;
-  };
-
-  protected getDedupeInterval = () => {
-    return this.getOptions().dedupeInterval;
-  };
-
-  protected getRetryInterval = () => {
-    return this.getOptions().retryInterval;
-  };
-
-  protected canFetch({ startAt }: { startAt: number }) {
-    if (!this.shouldDedupe(startAt)) return true;
-    if (!this.status.isFetching) return true;
-    return false;
-  }
-
-  protected shouldDedupe(time: number) {
-    return time - this.startAt < this.getDedupeInterval();
-  }
-
-  protected updateStartAt(time: number) {
-    this.startAt = time;
-  }
-
-  protected isExpiredFetching(time: number) {
-    return time < this.startAt;
-  }
-
-  protected setRetryTimeoutMeta(meta: RetryTimeoutMeta) {
-    this.retryTimeoutMeta = meta;
-  }
-
-  /**
-   * Call this method before fetching start.
-   * This method would:
-   * - clear the polling timeout
-   * - abort the error retry
-   * - update the `fetchPromise`
-   * - update the `startAt`
-   * - update the status with `{ isFetching: true }`
-   */
-  protected onFetchingStart = ({
-    fetchPromise,
-    startAt,
-  }: {
-    fetchPromise: Promise<FetchPromiseResult<E, D>>;
-    startAt: number;
-  }) => {
-    this.fetchPromise = fetchPromise;
-    clearTimeout(this.pollingTimeoutId);
-    this.abortRetry();
-    this.updateStartAt(startAt);
-    this.updateStatus({ isFetching: true });
-  };
-
-  /**
-   * Call this method after the fetching is done.
-   * This method would
-   * - Check whether it need to start polling
-   * - Update the status
-   * - Mark this accessor to be stale
-   * - Notify the model if data is not `null`
-   * - Return the fetchPromise result
-   */
-  protected onFetchingFinish = ({
-    error,
-    data,
-  }: OnFetchingFinishContext<D, E>): FetchPromiseResult<E, D> => {
-    const { pollingInterval } = this.getOptions();
-    if (pollingInterval > 0) {
-      this.pollingTimeoutId = window.setTimeout(this.invokePollingRevalidation, pollingInterval);
-    }
-
-    this.isStale = true;
-    if (error) {
-      this.action.onError?.({ error, arg: this.arg });
-      this.updateStatus({ isFetching: false, error });
-      return [error];
-    } else if (data) {
-      this.action.onSuccess?.({ data, arg: this.arg });
-      this.updateStatus({ isFetching: false, error: null });
-      this.notifyDataListeners();
-      return [null, data];
-    } else {
-      throw new Error('It is impossible that data and error are both null');
-    }
-  };
-
-  private getFirstOptionsRef = () => {
-    const { value } = this.optionsRefSet.values().next() as IteratorReturnResult<
-      OptionsRef | undefined
-    >;
-    return value;
-  };
-
-  private registerOnFocus = () => {
-    const revalidate = () => {
-      if (this.getOptions().revalidateOnFocus) {
-        this.revalidate();
-      }
-    };
-
-    window.addEventListener('focus', revalidate);
-
-    return () => {
-      window.removeEventListener('focus', revalidate);
-    };
-  };
-
-  private registerOnReconnect = () => {
-    const revalidate = () => {
-      if (this.getOptions().revalidateOnReconnect) {
-        this.revalidate();
-      }
-    };
-
-    window.addEventListener('online', revalidate);
-
-    return () => {
-      window.removeEventListener('online', revalidate);
-    };
-  };
-
-  private registerOnVisibilityChange = () => {
-    const polling = () => {
-      if (document.visibilityState === 'visible') {
-        this.invokePollingRevalidation();
-      }
-    };
-
-    document.addEventListener('visibilitychange', polling);
-
-    return () => {
-      document.removeEventListener('visibilitychange', polling);
-    };
-  };
-
-  private registerAllListeners = () => {
-    this.removeAllListeners?.();
-    this.removeOnFocusListener = this.registerOnFocus();
-    this.removeOnReconnectListener = this.registerOnReconnect();
-    this.removeOnVisibilityChangeListener = this.registerOnVisibilityChange();
-
-    this.removeAllListeners = () => {
-      this.removeOnFocusListener?.();
-      this.removeOnReconnectListener?.();
-      this.removeOnVisibilityChangeListener?.();
-    };
-  };
-
-  /**
-   * invoke `this.revalidate` if `options.pollingInterval` is larger than 0.
+   * Throw an error when the error retry is aborted.
+   * @param remainRetryCount
    * @returns
    */
-  private invokePollingRevalidation = () => {
-    const { pollingInterval, pollingWhenHidden } = this.getOptions();
-    if (pollingInterval <= 0) return;
-    if (!pollingWhenHidden && document.visibilityState === 'hidden') return;
-    this.revalidate();
-  };
+  private internalFetch = async (remainRetryCount: number): Promise<FetchResult<Data, E>> => {
+    const result: FetchResult<Data, E> = [null, null];
+    const arg = this.arg;
+    try {
+      const data = await this.action.fetchData(arg, { getState: () => this.getState() });
+      result[0] = data;
+    } catch (error) {
+      if (remainRetryCount <= 0) {
+        result[1] = error as E;
+        return result;
+      }
+      // Call reject in order to abort this retry and the revalidate.
+      const retryResult = await new Promise<FetchResult<Data, E>>((resolve, reject) => {
+        const timeoutId = window.setTimeout(() => {
+          this.internalFetch(remainRetryCount - 1)
+            .then(resolve)
+            .catch(reject);
+        }, this.getRetryInterval());
 
-  /**
-   * Reject the current error retry and clear the error retry timeout.
-   */
-  private abortRetry = (): void => {
-    if (!this.retryTimeoutMeta) return;
-    clearTimeout(this.retryTimeoutMeta.timeoutId);
-    this.retryTimeoutMeta.reject();
-  };
+        this.setRetryTimeoutMeta({ timeoutId, reject });
+      });
+      return retryResult;
+    }
 
-  private subscribeModel = (listener: () => void) => {
-    return this.modelSubscribe(listener);
-  };
-
-  private subscribeAutoAccessor = (listener: () => void) => {
-    this.autoListeners.push(listener);
-
-    return () => {
-      const index = this.autoListeners.indexOf(listener);
-      this.autoListeners.splice(index, 1);
-    };
-  };
-
-  private notifyAutoAccessor = () => {
-    this.autoListeners.forEach(l => l());
+    return result;
   };
 }

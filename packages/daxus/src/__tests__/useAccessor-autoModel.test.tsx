@@ -12,7 +12,7 @@ beforeEach(() => {
 
 describe('autoModel', () => {
   test('should mutate the data correctly', () => {
-    const getData = model.defineNormalAccessor<string>({
+    const getData = model.defineAccessor<string>({
       name: 'getData',
       fetchData: async () => {
         return 'data';
@@ -33,7 +33,7 @@ describe('autoModel', () => {
 
 describe('useAccessor - normal with auto state', () => {
   test('should return correct data', async () => {
-    const getData = model.defineNormalAccessor<string>({
+    const getData = model.defineAccessor<string>({
       name: 'getData',
       fetchData: async () => {
         return 'data';
@@ -47,7 +47,7 @@ describe('useAccessor - normal with auto state', () => {
   });
 
   test('should return selected data', async () => {
-    const getData = model.defineNormalAccessor<string>({
+    const getData = model.defineAccessor<string>({
       name: 'getData',
       fetchData: async () => {
         return 'data';
@@ -66,13 +66,13 @@ describe('useAccessor - normal with auto state', () => {
 
   test('should notify accessor itself only', async () => {
     let notifiedCount = 0;
-    const getStaticData = model.defineNormalAccessor<string>({
+    const getStaticData = model.defineAccessor<string>({
       name: 'getStaticData',
       fetchData: async () => {
         return 'static';
       },
     });
-    const getDynamicData = model.defineNormalAccessor<string>({
+    const getDynamicData = model.defineAccessor<string>({
       name: 'getDynamicData',
       fetchData: async () => {
         return `${notifiedCount}`;
