@@ -14,4 +14,5 @@ export const defaultOptions: RequiredAccessorOptions<any> = {
   keepPreviousData: false,
   placeholderData: undefined,
   pollingWhenHidden: false,
+  staleTime: 0,
 };

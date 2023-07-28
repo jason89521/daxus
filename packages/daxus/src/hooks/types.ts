@@ -56,6 +56,7 @@ export interface AccessorOptions<S = any> {
   keepPreviousData?: boolean;
   placeholderData?: S;
   pollingWhenHidden?: boolean;
+  staleTime?: number;
 }
 
 export interface AutoAccessorOptions<D, S = any> extends AccessorOptions<S> {

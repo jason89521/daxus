@@ -25,6 +25,8 @@ export class Accessor<S, Arg = any, Data = any, E = unknown> extends BaseAccesso
     onMount,
     onUnmount,
     isAuto,
+    setStaleTime,
+    getIsStale,
   }: NormalConstructorArgs<S, Arg, Data, E>) {
     super({
       getState,
@@ -35,6 +37,8 @@ export class Accessor<S, Arg = any, Data = any, E = unknown> extends BaseAccesso
       creatorName: action.name,
       notifyModel,
       isAuto,
+      setStaleTime,
+      getIsStale,
     });
     this.action = action;
     this.arg = arg;

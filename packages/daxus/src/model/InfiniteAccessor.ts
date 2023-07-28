@@ -37,6 +37,8 @@ export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Bas
     onUnmount,
     initialPageNum,
     isAuto,
+    setStaleTime,
+    getIsStale,
   }: InfiniteConstructorArgs<S, Arg, Data, E>) {
     super({
       getState,
@@ -47,6 +49,8 @@ export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Bas
       creatorName: action.name,
       notifyModel,
       isAuto,
+      setStaleTime,
+      getIsStale,
     });
     this.action = action;
     this.updateState = updateState;
