@@ -127,7 +127,7 @@ export function createModel<S extends object>(
       isStaleRecord[key] = false;
       if (staleTime === 0) {
         isStaleRecord[key] = true;
-      } else if (staleTime > 0) {
+      } else if (staleTime > 0 && staleTime !== Number.POSITIVE_INFINITY) {
         staleTimeoutIdRecord[key] = window.setTimeout(() => {
           isStaleRecord[key] = true;
         }, staleTime);
