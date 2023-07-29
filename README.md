@@ -68,6 +68,8 @@ npm install daxus
 ## Simple Example
 
 ```typescript
+import { createDatabase, createPaginationAdapter, useAccessor } from 'daxus';
+
 export const db = createDatabase();
 // You don't have to use createPaginationAdapter specifically.
 // You can use any data structure that meets your requirements.
@@ -129,6 +131,7 @@ When using Daxus, you need to create models for different types of data. Taking 
 Different models can use different data structures. For example, posts are suitable for storing data using a pagination data structure, while user settings may not be. You need to create different data structures for your models based on different requirements.
 
 ```typescript
+import { createPaginationAdapter } from 'daxus';
 const postAdapter = createPaginationAdapter<Post>();
 const postModel = db.createModel({ name: 'post', initialState: postAdapter.initialState });
 ```
@@ -159,6 +162,8 @@ The argument is the accessor's **action**. `name` is the name of the creator, `f
 `defineAccessor` and `defineInfiniteAccessor` returns an accessor creator function. Next, we will use the accessor created by `defineAccessor` with the `useAccessor` hook.
 
 ```typescript
+import { useAccessor } from 'daxus';
+
 function usePost(id: number) {
   const { data, error, isFetching, accessor } = useAccessor(getPostById(id), state =>
     postAdapter.tryReadOne(state, id)
