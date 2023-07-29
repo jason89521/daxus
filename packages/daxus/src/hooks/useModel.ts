@@ -33,7 +33,8 @@ export function useModel<S extends object, SS>(model: Model<S>, getSnapshot: (st
       },
       () => memoizedSnapshot,
     ] as const;
-  }, [model, serverStateKey, getSnapshot]);
+    // ServerStateKey doesn't matter when we are in the client side.
+  }, [model, getSnapshot]);
 
   return useSyncExternalStore(subscribe, getData, getData);
 }

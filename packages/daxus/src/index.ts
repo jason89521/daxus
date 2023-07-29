@@ -18,7 +18,7 @@ import type {
   PaginationState,
   Id,
 } from './adapters/index.js';
-import { createModel, createAutoModel, createDatabase } from './model/index.js';
+import { createDatabase } from './model/index.js';
 import { useAccessor, useHydrate, useModel, useSuspenseAccessor } from './hooks/index.js';
 import { createPaginationAdapter } from './adapters/index.js';
 import {
@@ -53,8 +53,6 @@ export type {
   Id,
 };
 export {
-  createModel,
-  createAutoModel,
   createDatabase,
 
   // hook
