@@ -24,7 +24,7 @@ const db = createDatabase();
 
 const model = db.createAutoModel({ name: 'test' });
 
-const getData = model.defineNormalAccessor({
+const getData = model.defineAccessor({
   name: 'getData',
   async fetchData(wait: number) {
     const path = `/api/wait?wait=${wait}`;
