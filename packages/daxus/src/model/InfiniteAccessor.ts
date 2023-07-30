@@ -68,7 +68,7 @@ export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Bas
    * {@inheritDoc BaseAccessor.revalidate}
    */
   revalidate = (context: RevalidateContext = {}) => {
-    const pageNum = this.getPageNum() || this.initialPageNum;
+    const pageNum = context.pageNum || this.getPageNum() || this.initialPageNum || 1;
     return this.fetch({ pageNum, pageIndex: 0, task: 'validate', ...context });
   };
 

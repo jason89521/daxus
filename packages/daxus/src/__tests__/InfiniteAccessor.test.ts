@@ -94,4 +94,13 @@ describe('InfiniteAccessor', () => {
 
     expect(newAccessor.getPageNum()).toBe(2);
   });
+
+  test('should set the page number when context is specified', async () => {
+    const accessor = getPostList();
+    await accessor.revalidate();
+    await accessor.fetchNext();
+
+    const result = await accessor.revalidate({ pageNum: 1 });
+    expect(result).toEqual([null, [page0]]);
+  });
 });

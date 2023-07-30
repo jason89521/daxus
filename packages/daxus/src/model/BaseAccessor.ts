@@ -9,6 +9,11 @@ export type RevalidateContext = {
    * @internal
    */
   serverStateKey?: object;
+  /**
+   * This property is only useful when using infinite accessor.
+   * It specify how many pages should be fetched.
+   */
+  pageNum?: number;
 };
 
 export type Status<E = unknown> = {
