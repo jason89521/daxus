@@ -2,9 +2,9 @@ import { createDraft, finishDraft } from 'immer';
 import type { Draft } from 'immer';
 import type {
   InfiniteAction,
-  NormalAction,
+  Action,
   InfiniteConstructorArgs,
-  NormalConstructorArgs,
+  ConstructorArgs,
   UpdateModelState,
   UpdateModelStateContext,
 } from './types.js';
@@ -22,20 +22,16 @@ interface BaseAccessorCreator<S> {
 
 export type AutoState = Record<string, unknown>;
 
-export type AutoNormalAction<Arg, Data, E> = Omit<
-  NormalAction<AutoState, Arg, Data, E>,
-  'syncState'
->;
+export type AutoAction<Arg, Data, E> = Omit<Action<AutoState, Arg, Data, E>, 'syncState'>;
 
 export type AutoInfiniteAction<Arg, Data, E> = Omit<
   InfiniteAction<AutoState, Arg, Data, E>,
   'syncState'
 >;
 
-export interface NormalAccessorCreator<S, Arg = any, Data = any, E = any>
-  extends BaseAccessorCreator<S> {
+export interface AccessorCreator<S, Arg = any, Data = any, E = any> extends BaseAccessorCreator<S> {
   (arg: Arg): Accessor<S, Arg, Data, E>;
-  syncState: NormalAction<S, Arg, Data, E>['syncState'];
+  syncState: Action<S, Arg, Data, E>['syncState'];
 }
 export interface InfiniteAccessorCreator<S, Arg = any, Data = any, E = any>
   extends BaseAccessorCreator<S> {
@@ -44,16 +40,14 @@ export interface InfiniteAccessorCreator<S, Arg = any, Data = any, E = any>
 }
 
 export interface Model<S extends object> {
-  getCreator(
-    creatorName: string
-  ): InfiniteAccessorCreator<S> | NormalAccessorCreator<S> | undefined;
+  getCreator(creatorName: string): InfiniteAccessorCreator<S> | AccessorCreator<S> | undefined;
   mutate(fn: (draft: Draft<S>) => void, serverStateKey?: object): void;
   defineInfiniteAccessor<Data, Arg = void, E = any>(
     action: InfiniteAction<S, Arg, Data, E>
   ): InfiniteAccessorCreator<S, Arg, Data, E>;
   defineAccessor<Data, Arg = void, E = any>(
-    action: NormalAction<S, Arg, Data, E>
-  ): NormalAccessorCreator<S, Arg, Data, E>;
+    action: Action<S, Arg, Data, E>
+  ): AccessorCreator<S, Arg, Data, E>;
   getState(serverStateKey?: object): S;
   /**
    * Invalidate all accessor generated from this model.
@@ -73,8 +67,8 @@ export interface AutoModel
     serverStateKey?: object
   ): void;
   defineAccessor<Data, Arg = void, E = unknown>(
-    action: AutoNormalAction<Arg, Data, E>
-  ): NormalAccessorCreator<AutoState, Arg, Data, E>;
+    action: AutoAction<Arg, Data, E>
+  ): AccessorCreator<AutoState, Arg, Data, E>;
   defineInfiniteAccessor<Data, Arg = void, E = unknown>(
     action: AutoInfiniteAction<Arg, Data, E>
   ): InfiniteAccessorCreator<AutoState, Arg, Data, E>;
@@ -101,7 +95,7 @@ export function createModel<S extends object>(
   >;
   const creatorRecord = {} as Record<
     string,
-    NormalAccessorCreator<S, any, any, any> | InfiniteAccessorCreator<S, any, any, any>
+    AccessorCreator<S, any, any, any> | InfiniteAccessorCreator<S, any, any, any>
   >;
 
   // Since accessors may be deleted from cache, we need to save the stale time in the model.
@@ -185,8 +179,8 @@ export function createModel<S extends object>(
   }
 
   function defineAccessor<Arg, Data, E = unknown>(
-    action: NormalAction<S, Arg, Data, E>
-  ): NormalAccessorCreator<S, Arg, Data, E> {
+    action: Action<S, Arg, Data, E>
+  ): AccessorCreator<S, Arg, Data, E> {
     const { name } = action;
     assertDuplicateName(name);
     let timeoutId: number | undefined;
@@ -217,7 +211,7 @@ export function createModel<S extends object>(
         timeoutId = window.setTimeout(clearAccessorCache, CLEAR_ACCESSOR_CACHE_TIME);
       };
 
-      const constructorArgs: NormalConstructorArgs<S, Arg, Data, E> = {
+      const constructorArgs: ConstructorArgs<S, Arg, Data, E> = {
         arg,
         action,
         updateState,
@@ -362,7 +356,7 @@ export function createAutoModel(
 ): AutoModel {
   const model = createModel<AutoState>({}, onServerStateChange);
 
-  function defineAccessor<Arg, Data, E = unknown>(action: AutoNormalAction<Arg, Data, E>) {
+  function defineAccessor<Arg, Data, E = unknown>(action: AutoAction<Arg, Data, E>) {
     const { name } = action;
     return model.defineAccessor({
       ...action,

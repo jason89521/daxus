@@ -13,7 +13,7 @@ beforeEach(() => {
   postAdapter = items.postAdapter;
 });
 
-describe('useAccessor-normal keepPreviousData', () => {
+describe('useAccessor keepPreviousData', () => {
   test('should keep previous data when accessor change', async () => {
     const loggedData: any[] = [];
     function Page() {

@@ -22,7 +22,7 @@ const defaultStatus = { isFetching: false, error: null } satisfies Status;
 
 /**
  * `useAccessor` hook provides a way to access and manage data fetched by an accessor.
- * @param accessor A normal accessor.
+ * @param accessor An accessor.
  * @param getSnapshot A function that accepts the state of the `accessor`'s model and returns the desired data.
  * @param options Additional options for controlling the behavior of the accessor.
  */
@@ -33,7 +33,7 @@ export function useAccessor<S, Arg, RD, SS, E = unknown>(
 ): UseAccessorReturn<SS, E, Accessor<S, Arg, RD, E>>;
 /**
  * `useAccessor` hook provides a way to access and manage data fetched by an accessor.
- * @param accessor A normal accessor or `null`. It is useful when you want conditional fetching.
+ * @param accessor An accessor or `null`. It is useful when you want conditional fetching.
  * @param getSnapshot A function that accepts the state of the `accessor`'s model and returns the desired data.
  * @param options Additional options for controlling the behavior of the accessor.
  */

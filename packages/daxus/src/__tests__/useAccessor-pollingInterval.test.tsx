@@ -3,7 +3,7 @@ import { useAccessor } from '../index.js';
 import { createPostModel, createControl, renderWithOptionsProvider, sleep } from './utils.js';
 import { useState } from 'react';
 
-describe('useAccessor-normal pollingInterval', () => {
+describe('useAccessor pollingInterval', () => {
   test('should keep fetching data if pollingInterval is larger than 0, and stop fetching if it is smaller than 0', async () => {
     const onSuccessMock = vi.fn();
     const control = createControl({ onSuccessMock });

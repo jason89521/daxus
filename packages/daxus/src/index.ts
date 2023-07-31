@@ -1,5 +1,5 @@
-import type { InfiniteAction, NormalAction } from './model/types.js';
-import type { InfiniteAccessorCreator, NormalAccessorCreator } from './model/Model.js';
+import type { InfiniteAction, Action } from './model/types.js';
+import type { InfiniteAccessorCreator, AccessorCreator } from './model/Model.js';
 import type { AccessorOptions, UseAccessorReturn } from './hooks/types.js';
 import type {
   Accessor,
@@ -36,9 +36,9 @@ export type {
   InfiniteAccessor,
   BaseAccessor,
   InfiniteAccessorCreator,
-  NormalAccessorCreator,
+  AccessorCreator,
   InfiniteAction,
-  NormalAction,
+  Action,
   FetchPromiseResult,
 
   // context

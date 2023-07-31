@@ -2,7 +2,7 @@ import { waitFor } from '@testing-library/react';
 import { useAccessor } from '../index.js';
 import { createControl, createPostModel, renderWithOptionsProvider } from './utils.js';
 
-describe('useAccessor-normal conditional accessor', () => {
+describe('useAccessor conditional accessor', () => {
   test('should fetch only when accessor is appeared', async () => {
     const fetchDataMock = vi.fn();
     const control = createControl({ fetchDataMock });

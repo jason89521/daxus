@@ -9,7 +9,7 @@ import {
 } from './utils.js';
 import { useState } from 'react';
 
-describe('useAccessor-normal revalidateIfStale', () => {
+describe('useAccessor revalidateIfStale', () => {
   test('should revalidate if the accessor is stale', async () => {
     const fetchDataMock = vi.fn();
     const control = createControl({ fetchDataMock });

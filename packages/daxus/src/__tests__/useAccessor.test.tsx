@@ -3,7 +3,7 @@ import { createPostModel, createControl, sleep, renderWithOptionsProvider } from
 import { useState } from 'react';
 import { useAccessor } from '../index.js';
 
-describe('useAccessor-normal', () => {
+describe('useAccessor', () => {
   test('should be able to update the cache', async () => {
     const control = createControl({});
     const { getPostById, postAdapter } = createPostModel(control);
