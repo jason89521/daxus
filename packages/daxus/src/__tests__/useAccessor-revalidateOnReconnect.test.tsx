@@ -2,13 +2,13 @@ import { act, fireEvent, render, screen } from '@testing-library/react';
 import { useAccessor } from '../index.js';
 import { createPostModel, createControl, sleep } from './utils.js';
 
-describe('useAccessor-normal revalidateOnFocus', () => {
-  test('should revalidate when window get focused', async () => {
+describe('useAccessor revalidateOnReconnect', () => {
+  test('should revalidate when network reconnect', async () => {
     const control = createControl({});
     const { getPostById, postAdapter } = createPostModel(control);
     function Page() {
       const { data } = useAccessor(getPostById(0), postAdapter.tryReadOneFactory(0), {
-        revalidateOnFocus: true,
+        revalidateOnReconnect: true,
       });
 
       return <div>title: {data?.title}</div>;
@@ -18,19 +18,19 @@ describe('useAccessor-normal revalidateOnFocus', () => {
     screen.getByText('title:');
     await screen.findByText('title: title0');
     await act(() => {
-      control.titlePrefix = 'focus';
+      control.titlePrefix = 'online';
       return sleep(10);
     });
-    fireEvent.focus(window);
-    await screen.findByText('title: focus title0');
+    fireEvent.online(window);
+    await screen.findByText('title: online title0');
   });
 
-  test('should not revalidate when window get focused if revalidateOnFocus is set to false', async () => {
+  test('should not revalidate when network reconnect if revalidateOnReconnect is set to false', async () => {
     const control = createControl({});
     const { getPostById, postAdapter } = createPostModel(control);
     function Page() {
       const { data } = useAccessor(getPostById(0), postAdapter.tryReadOneFactory(0), {
-        revalidateOnFocus: false,
+        revalidateOnReconnect: false,
       });
 
       return <div>title: {data?.title}</div>;
@@ -40,10 +40,10 @@ describe('useAccessor-normal revalidateOnFocus', () => {
     screen.getByText('title:');
     await screen.findByText('title: title0');
     await act(() => {
-      control.titlePrefix = 'focus';
+      control.titlePrefix = 'online';
       return sleep(10);
     });
-    fireEvent.focus(window);
+    fireEvent.online(window);
     await act(() => sleep(10));
     await screen.findByText('title: title0');
   });

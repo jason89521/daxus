@@ -1,7 +1,7 @@
 import { getCurrentTime } from '../utils/index.js';
 import type { RevalidateContext } from './BaseAccessor.js';
 import { BaseAccessor } from './BaseAccessor.js';
-import type { NormalAction, NormalConstructorArgs, UpdateModelState } from './types.js';
+import type { Action, ConstructorArgs, UpdateModelState } from './types.js';
 
 /**
  * [`data`, `error`]
@@ -9,7 +9,7 @@ import type { NormalAction, NormalConstructorArgs, UpdateModelState } from './ty
 type FetchResult<D, E> = [D | null, E | null];
 
 export class Accessor<S, Arg = any, Data = any, E = unknown> extends BaseAccessor<S, Arg, Data, E> {
-  protected action: NormalAction<S, Arg, Data, E>;
+  protected action: Action<S, Arg, Data, E>;
   private updateState: UpdateModelState<S>;
 
   /**
@@ -27,7 +27,7 @@ export class Accessor<S, Arg = any, Data = any, E = unknown> extends BaseAccesso
     isAuto,
     setStaleTime,
     getIsStale,
-  }: NormalConstructorArgs<S, Arg, Data, E>) {
+  }: ConstructorArgs<S, Arg, Data, E>) {
     super({
       getState,
       modelSubscribe,

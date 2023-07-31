@@ -3,7 +3,7 @@ import { useAccessor } from '../index.js';
 import type { PostModelControl } from './types.js';
 import { createPost, createPostModel } from './utils.js';
 
-describe('useAccessor-normal revalidateOnMount', () => {
+describe('useAccessor revalidateOnMount', () => {
   test('should always revalidate if revalidateOnMount is true', async () => {
     const fetchDataMock = vi.fn();
     const control: PostModelControl = {

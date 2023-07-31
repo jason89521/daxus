@@ -4,7 +4,7 @@ import { createControl, createPost, createPostModel, sleep } from './utils.js';
 let control = createControl({});
 let getPostById = createPostModel(control).getPostById;
 
-describe('NormalAccessor', () => {
+describe('Accessor', () => {
   beforeEach(() => {
     control = createControl({});
     const model = createPostModel(control);

@@ -10,8 +10,7 @@ export interface BaseAction<Arg, D, E> {
   isAuto?: boolean;
 }
 
-export interface NormalAction<S, Arg = any, Data = any, E = unknown>
-  extends BaseAction<Arg, Data, E> {
+export interface Action<S, Arg = any, Data = any, E = unknown> extends BaseAction<Arg, Data, E> {
   fetchData: (arg: Arg, context: { getState: () => S }) => Promise<Data>;
   syncState: (
     draft: Draft<S>,
@@ -34,10 +33,6 @@ export interface InfiniteAction<S, Arg = any, Data = any, E = unknown>
   ) => void;
 }
 
-export type Action<S, Arg = any, Data = any, E = unknown> =
-  | NormalAction<S, Arg, Data, E>
-  | InfiniteAction<S, Arg, Data, E>;
-
 export type ModelSubscribe = (listener: () => void) => () => void;
 
 export interface BaseConstructorArgs<S, Arg> {
@@ -53,8 +48,8 @@ export interface BaseConstructorArgs<S, Arg> {
   isAuto: boolean;
 }
 
-export interface NormalConstructorArgs<S, Arg, Data, E> extends BaseConstructorArgs<S, Arg> {
-  action: NormalAction<S, Arg, Data, E>;
+export interface ConstructorArgs<S, Arg, Data, E> extends BaseConstructorArgs<S, Arg> {
+  action: Action<S, Arg, Data, E>;
 }
 
 export interface InfiniteConstructorArgs<S, Arg, Data, E> extends BaseConstructorArgs<S, Arg> {

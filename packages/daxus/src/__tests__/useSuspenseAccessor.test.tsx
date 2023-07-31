@@ -4,7 +4,7 @@ import { createControl, createPostModel, renderWithOptionsProvider } from './uti
 import { fireEvent } from '@testing-library/react';
 import { isUndefined } from '../utils/isUndefined.js';
 
-describe('useSuspenseAccessor-normal', () => {
+describe('useSuspenseAccessor', () => {
   test('should show the data when fetching finish', async () => {
     const control = createControl({});
     const { getPostById, postAdapter } = createPostModel(control);

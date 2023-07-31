@@ -13,7 +13,7 @@ describe('accessorCreator', () => {
     getPostList = utils.getPostList;
   });
 
-  test('should clear the cache if the normal accessor is unused', () => {
+  test('should clear the cache if the accessor is unused', () => {
     const oldAccessor = getPostById(0);
     vi.runOnlyPendingTimers();
     const newAccessor = getPostById(0);
@@ -29,7 +29,7 @@ describe('accessorCreator', () => {
     expect(oldAccessor).not.toBe(newAccessor);
   });
 
-  test('should not clear the cache if the normal accessor is mounted', () => {
+  test('should not clear the cache if the accessor is mounted', () => {
     const accessor = getPostById(0);
     const unmountAccessor = accessor.mount({ optionsRef: { ...optionsRef } });
     vi.runOnlyPendingTimers();

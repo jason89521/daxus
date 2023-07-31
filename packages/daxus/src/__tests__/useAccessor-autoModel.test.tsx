@@ -31,7 +31,7 @@ describe('autoModel', () => {
   });
 });
 
-describe('useAccessor - normal with auto state', () => {
+describe('useAccessor with auto state', () => {
   test('should return correct data', async () => {
     const getData = model.defineAccessor<string>({
       name: 'getData',
