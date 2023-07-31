@@ -117,12 +117,6 @@ importers:
       '@types/react-dom':
         specifier: ^18.2.7
         version: 18.2.7
-      '@typescript-eslint/eslint-plugin':
-        specifier: ^5.62.0
-        version: 5.62.0(@typescript-eslint/parser@5.62.0)(eslint@8.45.0)(typescript@5.1.6)
-      '@typescript-eslint/parser':
-        specifier: ^5.62.0
-        version: 5.62.0(eslint@8.45.0)(typescript@5.1.6)
       '@vitejs/plugin-react':
         specifier: ^4.0.3
         version: 4.0.3(vite@4.4.7)
@@ -132,15 +126,6 @@ importers:
       axios:
         specifier: ^1.4.0
         version: 1.4.0
-      eslint:
-        specifier: ^8.45.0
-        version: 8.45.0
-      eslint-plugin-react:
-        specifier: ^7.33.0
-        version: 7.33.0(eslint@8.45.0)
-      eslint-plugin-react-hooks:
-        specifier: ^4.6.0
-        version: 4.6.0(eslint@8.45.0)
       jsdom:
         specifier: ^22.1.0
         version: 22.1.0
