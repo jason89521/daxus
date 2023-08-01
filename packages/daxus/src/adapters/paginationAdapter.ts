@@ -14,8 +14,8 @@ export interface Pagination<Data> {
 }
 
 export interface PaginationState<Data> {
-  entityRecord: Record<string, Data | undefined>;
-  paginationMetaRecord: Record<string, PaginationMeta | undefined>;
+  entityRecord: Record<string, Data>;
+  paginationMetaRecord: Record<string, PaginationMeta>;
 }
 
 export interface PaginationAdapter<Data, RawData = Data> {
