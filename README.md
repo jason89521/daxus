@@ -5,10 +5,9 @@
 [![PR's Welcome][pr-welcoming-image]][pr-welcoming-url]
 [![Test coverage][codecov-image]][codecov-url]
 
-Daxus is a server state management library for building a single source of truth.
+Daxus is a server state management library for React that provides full control over data, leading to a better user experience.
 
 - Customizable data structure
-  - This feature enable you to build a single source of truth
 - Auto deduplication
 - Revalidate on Focus
 - Revalidate on network reconnection
@@ -22,11 +21,10 @@ Daxus is a server state management library for building a single source of truth
 - [Comparison](#comparison)
 - [Installation](#installation)
 - [Simple Example](#simple-example)
-- [Getting Started](#getting-started)
-  - [Accessor with the `useAccessor` hook](#accessor-with-the-useaccessor-hook)
-  - [Mutation](#mutation)
-  - [Pagination](#pagination)
-  - [Invalidate Accessor](#invalidate-accessor)
+- [Tutorial](#tutorial)
+  - [Pagination Data](#pagination-data)
+  - [Auto Model](#auto-model)
+  - [Invalidation](#invalidation)
 - [Documents](#documents)
 - [Development Motivation](#development-motivation)
   - [Why not use React Query?](#why-not-use-react-query)
@@ -117,132 +115,263 @@ export function usePostList(filter: string) {
 }
 ```
 
-## Getting Started
+## Tutorial
 
-First of all, let's create a database for daxus:
+In this tutorial, we will build a forum app that contains posts and users' data using Daxus.
+
+Let's start by creating a database using Daxus:
 
 ```ts
+// in database.ts
 import { createDatabase } from 'daxus';
-export const db = createDatabase();
+
+export const database = createDatabase();
 ```
 
-When using Daxus, you need to create models for different types of data. Taking our company as an example, the backend data includes posts, comments, forums, and more. You must create separate models for them when using Daxus.
+Next, we'll create a model for posts. In Daxus, a model represents a data type from the backend, and it's essential to create separate models for different data types to avoid mixing different data.
 
-Different models can use different data structures. For example, posts are suitable for storing data using a pagination data structure, while user settings may not be. You need to create different data structures for your models based on different requirements.
+Before creating a model, we need to understand the concept of an "adapter." An adapter is a data access object that provides several operation functions and initial state for the custom data structure defined in the adapter. Daxus currently offers a pagination adapter to handle pagination data.
 
-```typescript
+Let's take a look at how Daxus defines the data structure for pagination data:
+
+```ts
+export type Id = string | number;
+
+export interface PaginationMeta {
+  ids: Id[];
+  noMore: boolean;
+}
+
+export interface PaginationState<Data> {
+  entityRecord: Record<string, Data>;
+  paginationMetaRecord: Record<string, PaginationMeta>;
+}
+```
+
+The `entityRecord` stores the data instances, with the keys being the IDs of the instances. The `PaginationMeta` stores `ids` to reference the data in the `entityRecord`. We will discuss the reasons behind this design later.
+
+Now, let's create our post model:
+
+```ts
+// in postModel.ts
 import { createPaginationAdapter } from 'daxus';
-const postAdapter = createPaginationAdapter<Post>();
-const postModel = db.createModel({ name: 'post', initialState: postAdapter.initialState });
+import { database } from './database';
+
+export const postAdapter = createPaginationAdapter<Post>();
+
+export const postModel = database.createModel({
+  name: 'post',
+  initialState: postAdapter.initialState,
+});
 ```
 
-> The object returned by `createPaginationAdapter` provides not only the initial state but also various operation functions for handling pagination. This allows developers to manipulate pagination easily. Of course, you can design your own pagination if desired, as Daxus gives developers complete control over data.
+To create a model, we provide a name and the initial state so that the database can internally record it.
 
-### Accessor with the `useAccessor` hook
+Next, we can define an accessor in our model. An accessor is used to fetch remote data and synchronize it with our model. Let's see how to define an accessor:
 
-After creating the model, you can start defining accessors. Accessors play a significant role in Daxus as they help fetch data from the server and synchronize it with your model once the data is obtained. Then, after your model is updated, it notifies the components that use the corresponding model to check if rerendering is necessary.
+```ts
+// in postAccessor.ts
+import { postModel, postAdapter } from './postModel';
 
-```typescript
-const getPostById = postModel.defineAccessor<Post, number>({
-  name: 'getPostById',
-  fetchData: async id => {
-    const data = await getPostApi(id);
-    return data;
+export const getPost = postModel.defineAccessor({
+  name: 'getPost',
+  async fetchData(id: number) {
+    return getPostApi({ id });
   },
-  syncState: (draft, payload) => {
-    postAdapter.upsertOne(draft, payload.data);
+  syncState(draft, { data }) {
+    postAdapter.upsertOne(draft, data);
   },
 });
 ```
 
-There are two type of the accessors. One is `normal`, the other one is `infinite`. You can use `model.defineAccessor` to define a normal accessor, and use `model.defineInfiniteAccessor` to define an infinite accessor. Typically, you would only use `infinite` when implementing infinite loading. In most cases, `normal` is sufficient.
+An accessor needs a `name` to help the model separate different accessors. The `fetchData` method fetches the remote data, and the `syncState` method synchronizes the fetched data with our model. In this case, we use `postAdapter.upsertOne` to update the post in our model, creating one if it doesn't exist.
 
-The argument is the accessor's **action**. `name` is the name of the creator, `fetchData` tells the accessor how to fetch data from the server, while `syncState` specifies how to synchronize the obtained data with the model's state.
+To use the accessor in our React app, we can utilize the `useAccessor` hook:
 
-`defineAccessor` and `defineInfiniteAccessor` returns an accessor creator function. Next, we will use the accessor created by `defineAccessor` with the `useAccessor` hook.
-
-```typescript
+```ts
 import { useAccessor } from 'daxus';
+import { getPost } from 'postAccessor';
+import { postAdapter } from 'postModel';
 
-function usePost(id: number) {
-  const { data, error, isFetching, accessor } = useAccessor(getPostById(id), state =>
-    postAdapter.tryReadOne(state, id)
+export function usePost(id: number) {
+  return useAccessor(getPost(id), state => postAdapter.tryReadOne(state, id));
+  // { data, isFetching, error, accessor }
+}
+```
+
+The first argument in `useAccessor` is the accessor, which we obtained from the accessor creator defined in _postAccessor.ts_. The second argument is a function that affects the return value of the `data` field. In this example, we use `postAdapter.tryReadOne` to get the post with the specified `id`, and if the post doesn't exist yet, it will return `undefined`.
+
+> We refer to the second argument as `getSnapshot` in Daxus since it obtains a snapshot from the model.
+
+`useAccessor` will only rerender if the return value of `getSnapshot` changes. For example, the following component will not rerender if the `likeCount` of the corresponding post changes:
+
+```tsx
+export function PostTitle({ id }: { id: number }) {
+  const { data: title } = useAccessor(
+    getPost(id),
+    state => postAdapter.tryReadOne(state, id)?.title
   );
 
-  return { post: data, error, isFetching, revalidate: () => accessor.revalidate() };
+  return <div>{title}</div>;
 }
 ```
 
-The second argument of `useAccessor` determines the shape of the `data`. You can think of it as a selector function in Redux. In Daxus, we refer to this parameter as `getSnapshot` because it obtains a snapshot of the model's state. If you only want to retrieve the title of a specific post, you can write it like this:
+The `PostTitle` component will only rerender if the post's title changes.
 
-```typescript
-function usePostTitle(id: number) {
-  const { data } = useAccessor(getPostById(id), state => postAdapter.tryReadOne(state, id)?.title);
+When using `useAccessor`, we can place it at any level in our component without worrying about too many requests, as the accessor internally helps deduplicate the requests.
 
-  return data;
+### Pagination Data
+
+Now, let's delve into the data structure of pagination and define how to fetch the post list:
+
+```ts
+export interface ListPostOptions {
+  forumId?: string;
+  filter: 'popular' | 'latest' | 'recommended';
 }
-```
 
-Although both hooks subscribe to the same accessor, they rerender at different times due to the difference in the second argument. `usePost` rerenders when the data of the corresponding post ID changes, while `usePostTitle` only rerenders when the title of the corresponding post ID changes.
+export const getPostPaginationKey = ({ forumId = 'all', filter }: ListPostOptions) => {
+  return `forumId=${forumId}&filter=${filter}`;
+};
 
-It's important to note that `getSnapshot` is bound to the accessor, so you must ensure that the props and state used in `getSnapshot` are the parameters required by the accessor creator. Otherwise, unexpected behavior may occur. In the example above, only `id` affects the accessor, so only `id` is passed to `getSnapshot`. You can think of this limitation as similar to the dependencies array in `useEffect`.
-
-In addition to using it with `useAccessor`, accessors themselves have several methods that can be used. For example, `accessor.revalidate` used in `usePost`. If there is no ongoing revalidation for the accessor, calling this method will fetch the data and synchronize it with the model.
-
-### Mutation
-
-Daxus's model provides the `mutate` method, allowing developers to manually modify data. Since `immer` is used internally, you can directly mutate the data without cumbersome immutable updates.
-
-```typescript
-async function createComment(postId: number, content: string) {
-  const res = await createCommentApi({ postId, content });
-  // do something with `res`
-  postModel.mutate(draft => {
-    postAdapter.readOne(draft, postId).totalCommentCount += 1;
-  });
-}
-```
-
-### Pagination
-
-Daxus provides the `createPaginationAdapter` to help developers easily handle pagination data. For example, let's say we have two lists of posts: "Popular" and "Latest," both of which include a post with the ID 100. If a user leaves a comment on the post in the "Latest" list, we expect the comment count to increase regardless of whether they are viewing the "Popular" or "Latest" list. However, we also don't want to refetch both lists just for this one post. This is where Daxus's pagination data structure comes in handy.
-
-Since pagination uses ID to reference all entities, when any entity updates, all paginations that include this entity will receive the latest data. Developers don't have to worry about inconsistent data across multiple lists.
-
-```typescript
-const getPostList = postModel.defineInfiniteAccessor<Post[], { layout: string }>({
-  name: 'getPostList',
-  fetchData: async ({ layout }, { previousData }) => {
-    if (previousData.length === 0) return null; // Reaching end.
-    const data = await getPostListApi({ layout });
-    return data;
+export const listPost = postModel.defineInfiniteAccessor({
+  name: 'listPost',
+  async fetchData(options: ListPostOptions, { pageIndex }) {
+    return listPostApi({ ...options, page: pageIndex });
   },
-  syncState: (draft, payload) => {
-    const key = `layout=${payload.arg.layout}`;
-    postAdapter.appendPagination(draft, key, payload.data);
+  syncState(draft, { arg, data, pageIndex }) {
+    const key = getPostPaginationKey(arg);
+    if (pageIndex === 0) {
+      postAdapter.replacePagination(draft, key, data);
+    } else {
+      postAdapter.appendPagination(draft, key, data);
+    }
+  },
+});
+```
+
+In this example, we use `forumId` and `filter` to generate a pagination key. Then, we synchronize the state based on the `pageIndex`. If the `pageIndex` is equal to zero, we replace the entire pagination. Otherwise, we append the fetched data to the current pagination.
+
+> The `defineInfiniteAccessor` is almost the same as `defineAccessor`, but it provides `pageIndex` and `previousData` in the `fetchData` and `syncState` methods, allowing us to determine how to fetch the data and how to update the state using them.
+
+Next, let's define a post list component:
+
+```tsx
+export function PostList({ options }: { options: ListPostOptions }) {
+  const { data } = useAccessor(listPost(options), state =>
+    postAdapter.tryReadPagination(state, getPostPaginationKey(options))
+  );
+
+  return (
+    <div>
+      {data?.items.map(post => {
+        return <PostEntry key={post.id} post={post} />;
+      })}
+    </div>
+  );
+}
+```
+
+`PostEntry` is a component that contains information about the post, such as the title and excerpt. Clicking on a `PostEntry` will redirect users to the post detail page, which displays more information about the post, including its full content.
+
+Furthermore, users can update the like count by clicking the like button on the post detail page. Let's see how we achieve this in the `PostDetail` component:
+
+```tsx
+export function PostDetail({ id }: { id: number }) {
+  const { data } = usePost(id);
+
+  if (!data) return <Loading />;
+
+  const handleLikeButtonClick = async () => {
+    postModel.mutate(draft => {
+      postAdapter.readOne(draft, id).likeCount += 1;
+    });
+    try {
+      await incrementPostLikeCountApi(id);
+    } catch {
+      postModel.mutate(draft => {
+        postAdapter.readOne(draft, id).likeCount -= 1;
+      });
+    }
+  };
+
+  return (
+    <div>
+      <div>{data.title}</div>
+      <div>{data.content}</div>
+      <span>Like count: {data.likeCount}</span>
+      <button onClick={handleLikeButtonClick}>Like!</button>
+    </div>
+  );
+}
+```
+
+In the `handleLikeButtonClick` function, we first mutate the `postModel` by invoking `postModel.mutate`. This method allows us to directly mutate the model's state. We increment the `likeCount` before calling the API to perform optimistic updating. Then we call `incrementPostLikeCountApi` to update the backend with the result. If it fails, we decrement the `likeCount` to rollback to the original status.
+
+After users click the like button, they may want to return to the post list page to view other posts. To show the latest result, we typically revalidate the post list. That is, we refetch the post list to the page index we have fetched. However, there are two obvious problems:
+
+1. Fetching the entire list just because users liked a post seems wasteful.
+2. Users may experience a delay while the post list is being refetched. If a user's network is slow, it may take seconds to see the latest result.
+
+For the first problem, if the request is not expensive, we can just ignore it. But for the second problem, it may cause a terrible user experience. We need to fix it.
+
+To solve the second problem, we can use optimistic updating. However, if we just store the API result for different endpoints, it may cause inconsistency. For example, suppose we have 20 post lists, and all of them contain a post with ID 100. When we update this post, we expect all lists to see the updated result. If we just store the API result for different endpoints, we would need to update every list manually, which is obviously impossible since we may have so many post lists.
+
+This is where the pagination data structure used by Daxus comes to the rescue. Since the pagination data is generated by looking up the `entityRecord`, each data instance references the same entity. Therefore, when we update an entity, all paginations containing this entity will reflect the updated result.
+
+> Currently, Daxus only supports pagination data structure, but you can also build your own data structure to meet your requirements, as Daxus allows for any customized data structure.
+
+### Auto Model
+
+While Daxus allows us to customize the data structure, in many cases, we may not need this level of customization. Often, we simply want to store the fetched data directly without the need for a custom data structure. For instance, user data may not require a custom data structure, and storing the API result directly would be sufficient.
+
+To handle data that doesn't need a custom data structure, Daxus provides a feature called "Auto Model." The auto model is similar to the original model we've seen, but it requires less code to set up. Let's use user data as an example:
+
+```ts
+export const userModel = database.createAutoModel({ name: 'user' });
+
+export const getUser = userModel.defineAccessor({
+  name: 'getUser',
+  async fetchData(userId: string) {
+    return getUserApi(userId);
   },
 });
 
-function usePostList(layout: string) {
-  const { data, error, isFetching, accessor } = useAccessor(getPostList({ layout }), state => {
-    const key = `layout=${layout}`;
-    // A rerender will be triggered if any entity is updated
-    // Don't worry that the user might see inconsistent results
-    return postAdapter.tryReadPagination(state, key);
-  });
-
-  return { data, error, isFetching, fetchNext: () => accessor.fetchNext() };
+export function useUser(id: string) {
+  return useAccessor(getUser(id));
 }
 ```
 
-### Invalidate Accessor
+To create an auto model, we use the `createAutoModel` function, which doesn't require us to provide an initial state. Then, we can use `userModel.defineAccessor` to define the accessor. In the auto model's `defineAccessor`, we don't need to specify `syncState` because it handles it internally for us. Moreover, when using `useAccessor` with an auto model, we don't need to provide the `getSnapshot` function. It will directly return the fetched result that is returned in `fetchData`.
 
-If you have used React Query before, you probably know that it can invalidate queries to mark data as stale. When `useQuery` receives stale data, it will automatically trigger a background update for that data. In Daxus, you can invalidate accessors such that it know that the data is stale, and automatically trigger a background update for the accessor.
+For more information about the auto model, you can refer to [this page](./docs/auto-model.md).
+
+### Invalidation
+
+When users click the like button, we expect the corresponding post's `likeCount` to increase by at least one. However, it may not only increment by one because other users might also like the same post concurrently. Therefore, it's a good idea to refetch the data from the backend at this point. To achieve this, we can leverage the accessor we've defined:
 
 ```ts
-getPostById(0).invalidate(); // invalidate a single accessor
-getPostById.invalidate(); // invalidate all accessors generated by this accessor creator
-postModel.invalidate(); // invalidate all accessors related to this model
+getPost(postId).invalidate();
+```
+
+Invoking `invalidate` will trigger a refetch of the data if the accessor is currently being used by at least one `useAccessor` hook. If there are no active `useAccessor` hooks for the accessor, calling `invalidate` will mark the accessor as "stale." When we use a stale accessor in `useAccessor` and set `revalidateIfStale` to `true`, it will automatically trigger a refetch:
+
+```ts
+useAccessor(getPost(id), state => postAdapter.tryReadOne(state, id), {
+  revalidateIfStale: true,
+});
+```
+
+Furthermore, if we want to invalidate all post entities, we can directly call `invalidate` on the `getPost` accessor creator:
+
+```ts
+getPost.invalidate(); // All accessors generated by this creator will be marked as stale
+```
+
+We can also invalidate all accessors related to the post model:
+
+```ts
+postModel.invalidate(); // All accessors generated by this model will be marked as stale
 ```
 
 ## Documents
