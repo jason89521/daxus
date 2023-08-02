@@ -186,8 +186,6 @@ export function createModel<S extends object>(
     let timeoutId: number | undefined;
     const main = (arg: Arg) => {
       const key = getKey(name, arg);
-      // Remove the clear cache timeout since the accessor is being used.
-      window.clearTimeout(timeoutId);
 
       const clearAccessorCache = () => {
         const accessor = accessorRecord[key];
@@ -196,12 +194,6 @@ export function createModel<S extends object>(
         if (accessor.isMounted()) return;
         delete accessorRecord[key];
       };
-      // Set a new time to clear the cache
-      timeoutId = window.setTimeout(clearAccessorCache, CLEAR_ACCESSOR_CACHE_TIME);
-      const accessor = accessorRecord[key];
-      if (accessor) {
-        return accessor as Accessor<S, Arg, Data, E>;
-      }
 
       const onMount = () => {
         window.clearTimeout(timeoutId);
@@ -230,6 +222,16 @@ export function createModel<S extends object>(
       if (isServer()) {
         // We don't need to cache the accessor in server side.
         return new Accessor(constructorArgs);
+      }
+
+      // Remove the clear cache timeout since the accessor is being used.
+      window.clearTimeout(timeoutId);
+      // Set a new time to clear the cache
+      timeoutId = window.setTimeout(clearAccessorCache, CLEAR_ACCESSOR_CACHE_TIME);
+
+      const accessor = accessorRecord[key];
+      if (accessor) {
+        return accessor as Accessor<S, Arg, Data, E>;
       }
 
       const newAccessor = new Accessor(constructorArgs);
@@ -262,8 +264,6 @@ export function createModel<S extends object>(
     let timeoutId: number | undefined;
     const main = (arg: Arg) => {
       const key = getKey(name, arg);
-      // Remove the clear cache timeout since the accessor is being used.
-      window.clearTimeout(timeoutId);
 
       const clearAccessorCache = () => {
         const accessor = accessorRecord[key] as InfiniteAccessor<S>;
@@ -273,13 +273,6 @@ export function createModel<S extends object>(
         infiniteAccessorPageNumRecord[key] = accessor.getPageNum();
         delete accessorRecord[key];
       };
-      // Set a new time to clear the cache
-      timeoutId = window.setTimeout(clearAccessorCache, CLEAR_ACCESSOR_CACHE_TIME);
-
-      const accessor = accessorRecord[key];
-      if (accessor) {
-        return accessor as InfiniteAccessor<S, Arg, Data, E>;
-      }
 
       const onMount = () => {
         window.clearTimeout(timeoutId);
@@ -309,6 +302,16 @@ export function createModel<S extends object>(
       if (isServer()) {
         // We don't need to cache the accessor in server side.
         return new InfiniteAccessor(constructorArgs);
+      }
+
+      // Remove the clear cache timeout since the accessor is being used.
+      window.clearTimeout(timeoutId);
+      // Set a new time to clear the cache
+      timeoutId = window.setTimeout(clearAccessorCache, CLEAR_ACCESSOR_CACHE_TIME);
+
+      const accessor = accessorRecord[key];
+      if (accessor) {
+        return accessor as InfiniteAccessor<S, Arg, Data, E>;
       }
 
       const newAccessor = new InfiniteAccessor(constructorArgs);
