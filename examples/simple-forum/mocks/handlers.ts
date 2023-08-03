@@ -34,13 +34,15 @@ export const handlers = [
     return res(ctx.status(200), ctx.json(result));
   }),
 
-  rest.get('/api/post/:postId', (req, res, ctx) => {
+  rest.get('/api/post/:postId', async (req, res, ctx) => {
     const { postId } = req.params;
     const post = posts.find(post => post.id === postId);
 
     if (!post) {
       return res(ctx.status(404));
     }
+
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
     return res(ctx.status(200), ctx.json(post));
   }),

@@ -23,8 +23,6 @@ export const posts: Post[] = arr.map((_, index) => {
     excerpt:
       'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed pretium quam eu quam euismod posuere. Ut dictum vitae erat ac tristique. Curabitur congue, turpis sed scelerisque dictum, nibh nisl condimentum tellus, eu interdum dui sapien in nulla. Sed quis nunc at quam consectetur porta. Duis imperdiet leo et tortor maximus tristique.',
     content: `
-    # Post Title ${index}
-
     Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed pretium quam eu quam euismod posuere. Ut dictum vitae erat ac tristique. Curabitur congue, turpis sed scelerisque dictum, nibh nisl condimentum tellus, eu interdum dui sapien in nulla. Sed quis nunc at quam consectetur porta. Duis imperdiet leo et tortor maximus tristique. Suspendisse pretium libero quis risus commodo hendrerit. Praesent ultrices suscipit odio, ac placerat nisi ultricies non. Aliquam enim lacus, posuere ut ornare in, tempus vitae felis. Nunc luctus ex ut nisi ornare convallis. Vestibulum imperdiet mauris est, ac lacinia sapien sodales ac. Maecenas felis diam, mollis at urna id, interdum suscipit augue. Quisque iaculis erat sapien, et dapibus tortor consectetur quis. Nullam velit nunc, congue eget luctus a, feugiat nec diam. Cras purus nibh, aliquet luctus tellus eu, sagittis malesuada mi. Pellentesque fringilla, risus et luctus scelerisque, ligula risus elementum lacus, sit amet tincidunt odio tellus ac tellus. Integer porttitor nisi quis lorem ultrices, sit amet fermentum purus tincidunt.
 
     ## Section 1
