@@ -41,7 +41,7 @@ export default function Page({ params }: { params: { postId: string } }) {
               await (await fetch(`/api/post/${data!.id}`, { method: 'PUT' })).json();
             } catch (error) {
               postModel.mutate(draft => {
-                postAdapter.readOne(draft, data!.id).likeCount += 1;
+                postAdapter.readOne(draft, data!.id).likeCount -= 1;
               });
             } finally {
               setIsLoading(false);
