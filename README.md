@@ -21,6 +21,7 @@ Daxus is a server state management library for React that provides full control 
 - [Comparison](#comparison)
 - [Installation](#installation)
 - [Simple Example](#simple-example)
+  - [Other Examples](#other-examples)
 - [Tutorial](#tutorial)
   - [Pagination Data](#pagination-data)
   - [Auto Model](#auto-model)
@@ -114,6 +115,10 @@ export function usePostList(filter: string) {
   return useAccessor(accessor, postAdapter.tryReadPaginationFactory(filter));
 }
 ```
+
+### Other Examples
+
+- [Simple Forum](https://daxus-simple-forum.vercel.app/)
 
 ## Tutorial
 
