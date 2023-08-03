@@ -5,7 +5,7 @@ import type { Post, PostLayout } from '@/type';
 export const getPost = postModel.defineAccessor({
   name: 'getPost',
   async fetchData(postId: string) {
-    const post: Post = await (await fetch(`${baseUrl}/post/${postId}`)).json();
+    const post: Post = await (await fetch(`${baseUrl}/api/post/${postId}`)).json();
 
     return post;
   },
