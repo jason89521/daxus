@@ -1,6 +1,5 @@
 'use client';
 import type { Post } from '@/type';
-import { baseUrl } from '@/utils';
 import { useState } from 'react';
 import { postModel, postAdapter } from '../model';
 import Link from 'next/link';
@@ -26,7 +25,7 @@ export default function PostEntry({ post }: { post: Post }) {
           });
           setIsLoading(true);
           try {
-            await (await fetch(`${baseUrl}/api/post/${post.id}`, { method: 'PUT' })).json();
+            await (await fetch(`/api/post/${post.id}`, { method: 'PUT' })).json();
           } catch (error) {
             postModel.mutate(draft => {
               postAdapter.readOne(draft, post.id).likeCount += 1;

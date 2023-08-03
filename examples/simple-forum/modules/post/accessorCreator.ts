@@ -1,11 +1,10 @@
-import { baseUrl } from '@/utils';
 import { postAdapter, postModel } from './model';
 import type { Post, PostLayout } from '@/type';
 
 export const getPost = postModel.defineAccessor({
   name: 'getPost',
   async fetchData(postId: string) {
-    const post: Post = await (await fetch(`${baseUrl}/api/post/${postId}`)).json();
+    const post: Post = await (await fetch(`/api/post/${postId}`)).json();
 
     return post;
   },
@@ -31,7 +30,7 @@ export const listPost = postModel.defineInfiniteAccessor<Post[], PaginationOptio
   async fetchData(arg, { pageIndex }) {
     const key = getPostPaginationKey(arg);
     const posts: Post[] = await (
-      await fetch(`${baseUrl}/api/post?page=${pageIndex}&${key}`, { cache: 'no-store' })
+      await fetch(`/api/post?page=${pageIndex}&${key}`, { cache: 'no-store' })
     ).json();
 
     return posts;

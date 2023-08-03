@@ -3,7 +3,7 @@
 import { useAccessor } from 'daxus';
 import { postAdapter, postModel } from '../model';
 import { useState } from 'react';
-import { baseUrl, getPostIndex } from '@/utils';
+import { getPostIndex } from '@/utils';
 import { getPost } from '../accessorCreator';
 import Link from 'next/link';
 
@@ -33,7 +33,7 @@ export default function PostPage({ postId }: { postId: string }) {
             });
             setIsLoading(true);
             try {
-              await (await fetch(`${baseUrl}/api/post/${data!.id}`, { method: 'PUT' })).json();
+              await (await fetch(`/api/post/${data!.id}`, { method: 'PUT' })).json();
             } catch (error) {
               postModel.mutate(draft => {
                 postAdapter.readOne(draft, data!.id).likeCount += 1;
