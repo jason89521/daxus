@@ -4,7 +4,9 @@ import type { Post, PostLayout } from '@/type';
 export const getPost = postModel.defineAccessor({
   name: 'getPost',
   async fetchData(postId: string) {
-    const post: Post = await (await fetch(`/api/post/${postId}`)).json();
+    const res = await fetch(`/api/post/${postId}`);
+    if (!res.ok) throw new Error(`Post with id: ${postId} doesn't exist`);
+    const post: Post = await res.json();
 
     return post;
   },
@@ -29,9 +31,9 @@ export const listPost = postModel.defineInfiniteAccessor<Post[], PaginationOptio
   name: 'listPost',
   async fetchData(arg, { pageIndex }) {
     const key = getPostPaginationKey(arg);
-    const posts: Post[] = await (
-      await fetch(`/api/post?page=${pageIndex}&${key}`, { cache: 'no-store' })
-    ).json();
+    const res = await fetch(`/api/post?page=${pageIndex}&${key}`);
+    if (!res.ok) throw new Error(`Post list not found`);
+    const posts: Post[] = await res.json();
 
     return posts;
   },

@@ -9,7 +9,7 @@ import { getPostIndex } from '@/utils';
 
 export default function Page({ params }: { params: { postId: string } }) {
   const { postId } = params;
-  const { data } = useAccessor(
+  const { data, error } = useAccessor(
     getPost(postId),
     state => {
       return postAdapter.tryReadOne(state, postId);
@@ -20,6 +20,10 @@ export default function Page({ params }: { params: { postId: string } }) {
   );
 
   const [isLoading, setIsLoading] = useState(false);
+
+  if (!data && error) {
+    return <div>Not found</div>;
+  }
 
   return (
     <div>
