@@ -12,10 +12,16 @@
     "@types/node": "20.4.5",
     "@types/react": "18.2.17",
     "@types/react-dom": "18.2.7",
+    "daxus": "workspace:*",
     "next": "13.4.12",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "typescript": "5.1.6",
-    "daxus": "workspace:*"
+    "typescript": "5.1.6"
+  },
+  "devDependencies": {
+    "msw": "^1.2.3"
+  },
+  "msw": {
+    "workerDirectory": "public"
   }
 }
