@@ -28,7 +28,7 @@ export default function PostEntry({ post }: { post: Post }) {
             await (await fetch(`/api/post/${post.id}`, { method: 'PUT' })).json();
           } catch (error) {
             postModel.mutate(draft => {
-              postAdapter.readOne(draft, post.id).likeCount += 1;
+              postAdapter.readOne(draft, post.id).likeCount -= 1;
             });
           } finally {
             setIsLoading(false);
