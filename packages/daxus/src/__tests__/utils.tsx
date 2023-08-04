@@ -16,7 +16,7 @@ export function createPost(id: number, layout: PostLayout = 'classic'): Post {
 export function createPostModel(control: PostModelControl) {
   const db = createDatabase();
   const postAdapter = createPaginationAdapter<Post>({});
-  const postModel = db.createModel({ name: 'post', initialState: postAdapter.initialState });
+  const postModel = db.createModel({ name: 'post', initialState: postAdapter.getInitialState() });
   const getPostById = postModel.defineAccessor({
     name: 'getPostById',
     fetchData: async (id: number) => {

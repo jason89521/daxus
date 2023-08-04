@@ -73,7 +73,10 @@ export const db = createDatabase();
 // You don't have to use createPaginationAdapter specifically.
 // You can use any data structure that meets your requirements.
 export const postAdapter = createPaginationAdapter<Post>();
-export const postModel = db.createModel({ name: 'post', initialState: postAdapter.initialState });
+export const postModel = db.createModel({
+  name: 'post',
+  initialState: postAdapter.getInitialState(),
+});
 export const getPostById = postModel.defineAccessor<Post, number>({
   name: 'getPostById',
   fetchData: async arg => {
@@ -166,7 +169,7 @@ export const postAdapter = createPaginationAdapter<Post>();
 
 export const postModel = database.createModel({
   name: 'post',
-  initialState: postAdapter.initialState,
+  initialState: postAdapter.getInitialState(),
 });
 ```
 
