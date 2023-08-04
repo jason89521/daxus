@@ -6,5 +6,5 @@ export const postAdapter = createPaginationAdapter<Post>();
 
 export const postModel = db.createModel({
   name: 'post',
-  initialState: postAdapter.initialState,
+  initialState: postAdapter.getInitialState(),
 });

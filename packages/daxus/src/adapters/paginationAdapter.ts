@@ -19,7 +19,7 @@ export interface PaginationState<Data> {
 }
 
 export interface PaginationAdapter<Data, RawData = Data> {
-  initialState: PaginationState<Data>;
+  getInitialState: () => PaginationState<Data>;
   /**
    * Add the data to the state.
    */
@@ -292,7 +292,12 @@ export function createPaginationAdapter<Data, RawData = Data>({
   }
 
   return {
-    initialState: { entityRecord: {}, paginationMetaRecord: {} },
+    getInitialState() {
+      return {
+        entityRecord: {},
+        paginationMetaRecord: {},
+      };
+    },
     createOne,
     tryReadOne,
     tryReadOneFactory,

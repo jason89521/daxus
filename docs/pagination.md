@@ -34,7 +34,7 @@ In this data structure, all data instances will be stored in the `entityRecord`.
 ```ts
 const db = createDatabase();
 const postAdapter = createPaginationAdapter<Post>();
-const postModel = createModel({ name: 'post', initialState: postAdapter.initialState });
+const postModel = createModel({ name: 'post', initialState: postAdapter.getInitialState() });
 
 const getPost = postModel.defineAccessor<Post, string>({
   name: 'getPost',

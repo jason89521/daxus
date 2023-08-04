@@ -7,7 +7,7 @@ The reason for creating different models is that different data may require diff
 ```ts
 const db = createDatabase();
 const postAdapter = createPaginationAdapter<Post>();
-const postModel = db.createModel({ name: 'post', initialState: postAdapter.initialState });
+const postModel = db.createModel({ name: 'post', initialState: postAdapter.getInitialState() });
 ```
 
 Daxus provides a pagination helper function called `createPaginationAdapter`. It helps you build and easily read/write pagination structures. For more information, you can refer to the [pagination page](./pagination.md).

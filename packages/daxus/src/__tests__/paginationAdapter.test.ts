@@ -5,10 +5,10 @@ import { createPost } from './utils.js';
 describe('paginationAdapter', () => {
   const post0 = createPost(0);
   let adapter = createPaginationAdapter<Post>({});
-  let state = adapter.initialState;
+  let state = adapter.getInitialState();
   beforeEach(() => {
     adapter = createPaginationAdapter({});
-    state = adapter.initialState;
+    state = adapter.getInitialState();
   });
 
   test('CRUD', () => {
@@ -102,7 +102,7 @@ describe('paginationAdapter', () => {
         return { ...rawPost, content: 'content' };
       },
     });
-    const state = adapter.initialState;
+    const state = adapter.getInitialState();
 
     adapter.createOne(state, createPost(0));
     expect(adapter.readOne(state, 0)).toEqual({ ...post0, content: 'content' });
