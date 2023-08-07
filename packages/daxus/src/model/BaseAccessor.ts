@@ -2,7 +2,7 @@ import { defaultOptions } from '../constants.js';
 import type { AccessorOptions } from '../hooks/types.js';
 import type { MutableRefObject } from 'react';
 import { getKey, isUndefined } from '../utils/index.js';
-import type { BaseAction, BaseConstructorArgs, ModelSubscribe } from './types.js';
+import type { BaseAction, BaseConstructorArgs, Subscribe } from './types.js';
 
 export type RevalidateContext = {
   /**
@@ -45,7 +45,7 @@ export abstract class BaseAccessor<S, Arg, D, E> {
   private notifyModel: () => void;
   private retryTimeoutMeta: RetryTimeoutMeta | null = null;
   private startAt = 0;
-  private modelSubscribe: ModelSubscribe;
+  private subscribeModel: Subscribe;
   private optionsRefSet = new Set<OptionsRef>();
   private removeOnFocusListener: (() => void) | null = null;
   private removeOnReconnectListener: (() => void) | null = null;
@@ -76,7 +76,7 @@ export abstract class BaseAccessor<S, Arg, D, E> {
    */
   constructor({
     getState,
-    modelSubscribe,
+    subscribeModel,
     onMount,
     onUnmount,
     notifyModel,
@@ -87,7 +87,7 @@ export abstract class BaseAccessor<S, Arg, D, E> {
     getIsStale,
   }: Omit<BaseConstructorArgs<S, Arg>, 'updateState'> & { creatorName: string }) {
     this.getState = getState;
-    this.modelSubscribe = modelSubscribe;
+    this.subscribeModel = subscribeModel;
     this.onMount = onMount;
     this.onUnmount = onUnmount;
     this.notifyModel = notifyModel;
@@ -373,10 +373,6 @@ export abstract class BaseAccessor<S, Arg, D, E> {
     if (!this.retryTimeoutMeta) return;
     clearTimeout(this.retryTimeoutMeta.timeoutId);
     this.retryTimeoutMeta.reject();
-  };
-
-  private subscribeModel = (listener: () => void) => {
-    return this.modelSubscribe(listener);
   };
 
   private subscribeAutoAccessor = (listener: () => void) => {

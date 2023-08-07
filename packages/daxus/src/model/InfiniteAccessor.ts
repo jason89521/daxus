@@ -28,7 +28,7 @@ export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Bas
    */
   constructor({
     getState,
-    modelSubscribe,
+    subscribeModel,
     arg,
     action,
     updateState,
@@ -42,7 +42,7 @@ export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Bas
   }: InfiniteConstructorArgs<S, Arg, Data, E>) {
     super({
       getState,
-      modelSubscribe,
+      subscribeModel,
       onMount,
       onUnmount,
       arg,
