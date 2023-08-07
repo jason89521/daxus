@@ -20,7 +20,7 @@ import type {
 } from './adapters/index.js';
 import { createDatabase } from './model/index.js';
 import { useAccessor, useHydrate, useModel, useSuspenseAccessor } from './hooks/index.js';
-import { createPaginationAdapter } from './adapters/index.js';
+import { createPaginationAdapter, createPaginationState } from './adapters/index.js';
 import {
   AccessorOptionsProvider,
   ServerStateKeyProvider,
@@ -63,6 +63,7 @@ export {
 
   // adapter
   createPaginationAdapter,
+  createPaginationState,
 
   // context
   AccessorOptionsProvider,
