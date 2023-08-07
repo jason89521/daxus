@@ -17,7 +17,7 @@ export class Accessor<S, Arg = any, Data = any, E = unknown> extends BaseAccesso
    */
   constructor({
     getState,
-    modelSubscribe,
+    subscribeModel,
     action,
     arg,
     updateState,
@@ -30,7 +30,7 @@ export class Accessor<S, Arg = any, Data = any, E = unknown> extends BaseAccesso
   }: ConstructorArgs<S, Arg, Data, E>) {
     super({
       getState,
-      modelSubscribe,
+      subscribeModel,
       onMount,
       onUnmount,
       arg,

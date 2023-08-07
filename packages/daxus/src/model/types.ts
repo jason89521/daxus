@@ -33,13 +33,13 @@ export interface InfiniteAction<S, Arg = any, Data = any, E = unknown>
   ) => void;
 }
 
-export type ModelSubscribe = (listener: () => void) => () => void;
+export type Subscribe = (listener: () => void) => () => void;
 
 export interface BaseConstructorArgs<S, Arg> {
   arg: Arg;
   updateState: UpdateModelState<S>;
   getState: (serverStateKey?: object) => S;
-  modelSubscribe: ModelSubscribe;
+  subscribeModel: Subscribe;
   notifyModel: () => void;
   onMount: () => void;
   onUnmount: () => void;
