@@ -10,12 +10,21 @@ import type {
   Action as OrigAction,
   InfiniteAction as OrigInfiniteAction,
 } from './types.js';
-import type { AutoState, AutoModel as OrigAutoModel } from './createAutoModel.js';
+import type {
+  AutoState,
+  AutoModel as OrigAutoModel,
+  AutoAction as OrigAutoAction,
+  AutoInfiniteAction as OrigAutoInfiniteAction,
+} from './createAutoModel.js';
 import { createAutoModel as origCreateAutoModel } from './createAutoModel.js';
 
 type Action<S, Arg, Data, E> = OrigAction<S, Arg, Data, E> & { name: string };
 
 type InfiniteAction<S, Arg, Data, E> = OrigInfiniteAction<S, Arg, Data, E> & { name: string };
+
+type AutoAction<Arg, Data, E> = OrigAutoAction<Arg, Data, E> & { name: string };
+
+type AutoInfiniteAction<Arg, Data, E> = OrigAutoInfiniteAction<Arg, Data, E> & { name: string };
 
 type Model<S extends object> = Omit<OrigModel<S>, 'defineAccessor' | 'defineInfiniteAccessor'> & {
   defineAccessor<Data, Arg = void, E = any>(
@@ -28,10 +37,10 @@ type Model<S extends object> = Omit<OrigModel<S>, 'defineAccessor' | 'defineInfi
 
 type AutoModel = Omit<OrigAutoModel, 'defineAccessor' | 'defineInfiniteAccessor'> & {
   defineAccessor<Data, Arg = void, E = any>(
-    action: Action<AutoState, Arg, Data, E>
+    action: AutoAction<Arg, Data, E>
   ): AccessorCreator<AutoState, Arg, Data, E>;
   defineInfiniteAccessor<Data, Arg = void, E = any>(
-    action: InfiniteAction<AutoState, Arg, Data, E>
+    action: AutoInfiniteAction<Arg, Data, E>
   ): InfiniteAccessorCreator<AutoState, Arg, Data, E>;
 };
 

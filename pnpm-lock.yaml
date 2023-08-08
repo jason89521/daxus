@@ -69,6 +69,36 @@ importers:
         specifier: ^0.34.1
         version: 0.34.1(jsdom@22.1.0)
 
+  examples/next-stream-suspense:
+    dependencies:
+      '@types/node':
+        specifier: 20.4.8
+        version: 20.4.8
+      '@types/react':
+        specifier: 18.2.18
+        version: 18.2.18
+      '@types/react-dom':
+        specifier: 18.2.7
+        version: 18.2.7
+      daxus:
+        specifier: workspace:*
+        version: link:../../packages/daxus
+      daxus-next:
+        specifier: workspace:*
+        version: link:../../packages/daxus-next
+      next:
+        specifier: 13.4.13
+        version: 13.4.13(@babel/core@7.22.9)(react-dom@18.2.0)(react@18.2.0)
+      react:
+        specifier: 18.2.0
+        version: 18.2.0
+      react-dom:
+        specifier: 18.2.0
+        version: 18.2.0(react@18.2.0)
+      typescript:
+        specifier: 5.1.6
+        version: 5.1.6
+
   examples/simple-forum:
     dependencies:
       '@types/node':
