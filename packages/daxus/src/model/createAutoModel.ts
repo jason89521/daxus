@@ -49,6 +49,7 @@ export function createAutoModel({ onServerStateChange }: CreateAutoModelOptions 
     return model.defineAccessor({
       ...action,
       isAuto: true,
+      name,
       syncState(draft, { data, arg }) {
         const key = getKey(name, arg);
         draft[key] = data;
@@ -64,6 +65,7 @@ export function createAutoModel({ onServerStateChange }: CreateAutoModelOptions 
     return model.defineInfiniteAccessor({
       ...action,
       isAuto: true,
+      name,
       syncState(draft, { pageIndex, data, arg }) {
         const key = getKey(name, arg);
         if (pageIndex === 0) {
