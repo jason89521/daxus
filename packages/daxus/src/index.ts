@@ -1,5 +1,5 @@
 import type { InfiniteAction, Action } from './model/types.js';
-import type { InfiniteAccessorCreator, AccessorCreator } from './model/Model.js';
+import type { InfiniteAccessorCreator, AccessorCreator } from './model/createModel.js';
 import type { AccessorOptions, UseAccessorReturn } from './hooks/types.js';
 import type {
   Accessor,
@@ -18,7 +18,7 @@ import type {
   PaginationState,
   Id,
 } from './adapters/index.js';
-import { createDatabase } from './model/index.js';
+import { createDatabase, createModel, createAutoModel } from './model/index.js';
 import { useAccessor, useHydrate, useModel, useSuspenseAccessor } from './hooks/index.js';
 import { createPaginationAdapter, createPaginationState } from './adapters/index.js';
 import {
@@ -54,6 +54,8 @@ export type {
 };
 export {
   createDatabase,
+  createModel,
+  createAutoModel,
 
   // hook
   useAccessor,

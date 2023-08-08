@@ -39,6 +39,7 @@ export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Bas
     isAuto,
     setStaleTime,
     getIsStale,
+    creatorName,
   }: InfiniteConstructorArgs<S, Arg, Data, E>) {
     super({
       getState,
@@ -46,7 +47,7 @@ export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Bas
       onMount,
       onUnmount,
       arg,
-      creatorName: action.name,
+      creatorName,
       notifyModel,
       isAuto,
       setStaleTime,

@@ -1,13 +1,16 @@
 import type { Draft } from 'immer';
 
 export interface BaseAction<Arg, D, E> {
-  name: string;
   onError?: (info: { error: E; arg: Arg }) => void;
   onSuccess?: (info: { data: D; arg: Arg }) => void;
   /**
    * @internal
    */
   isAuto?: boolean;
+  /**
+   * @internal
+   */
+  name?: string;
 }
 
 export interface Action<S, Arg = any, Data = any, E = unknown> extends BaseAction<Arg, Data, E> {
@@ -46,6 +49,7 @@ export interface BaseConstructorArgs<S, Arg> {
   setStaleTime: (staleTime: number) => void;
   getIsStale: () => boolean;
   isAuto: boolean;
+  creatorName: string;
 }
 
 export interface ConstructorArgs<S, Arg, Data, E> extends BaseConstructorArgs<S, Arg> {
