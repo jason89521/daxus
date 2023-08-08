@@ -54,8 +54,17 @@ export interface AccessorOptions<S = any> {
    * @defaultValue `false`
    */
   keepPreviousData?: boolean;
+  /**
+   * This value will be used as the placeholder data if the `isLoading` is `true`.
+   */
   placeholderData?: S;
+  /**
+   * If this value is set to `true` and `pollingInterval` is larger than zero, then it will continue to refetch the data even when the user's tab is hidden.
+   */
   pollingWhenHidden?: boolean;
+  /**
+   * The time in milliseconds after which data is considered stale.
+   */
   staleTime?: number;
 }
 
