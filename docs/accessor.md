@@ -1,13 +1,12 @@
 # Model and Accessor
 
-In Daxus, you need to create a database, then create different models for different types of data. For example, you can create a model for post data and another model for comment data.
+In Daxus, you need to create different models for different types of data. For example, you can create a model for post data and another model for comment data.
 
 The reason for creating different models is that different data may require different data structures. Pagination structure is suitable for post data, while it may not be as suitable for user data.
 
 ```ts
-const db = createDatabase();
 const postAdapter = createPaginationAdapter<Post>();
-const postModel = db.createModel({ name: 'post', initialState: postAdapter.getInitialState() });
+const postModel = createModel({ initialState: postAdapter.getInitialState() });
 ```
 
 Daxus provides a pagination helper function called `createPaginationAdapter`. It helps you build and easily read/write pagination structures. For more information, you can refer to the [pagination page](./pagination.md).
@@ -20,7 +19,6 @@ Accessors play a crucial role in Daxus. Almost all functionality is built upon t
 
 ```ts
 const getPostById = postModel.defineAccessor<Post, string>({
-  name: 'getPostById',
   fetchData: postId => {
     return getPostApi({ postId });
   },

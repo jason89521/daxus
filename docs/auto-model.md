@@ -3,8 +3,7 @@
 In some cases, developers may not require full control over the data. For such scenarios, Daxus provides a "auto model" feature. With a auto model, you don't need to specify how to sync the fetched data to the model's state, as it handles this internally. Let's take a closer look:
 
 ```ts
-const db = createDatabase();
-const userModel = db.createAutoModel({ name: 'user' });
+const userModel = createAutoModel();
 
 const getUser = userModel.defineNormalAccessor<User, string>({
   fetchData: async userId => {

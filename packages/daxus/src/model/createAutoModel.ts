@@ -39,7 +39,7 @@ export interface AutoModel
 
 export type CreateAutoModelOptions = Omit<CreateModelOptions<AutoState>, 'initialState'>;
 
-export function createAutoModel({ onServerStateChange }: CreateAutoModelOptions): AutoModel {
+export function createAutoModel({ onServerStateChange }: CreateAutoModelOptions = {}): AutoModel {
   const model = createModel<AutoState>({ initialState: {}, onServerStateChange });
   let creatorCounter = 0;
 

@@ -67,18 +67,15 @@ npm install daxus
 ## Simple Example
 
 ```typescript
-import { createDatabase, createPaginationAdapter, useAccessor } from 'daxus';
+import { createModel, createPaginationAdapter, useAccessor } from 'daxus';
 
-export const db = createDatabase();
 // You don't have to use createPaginationAdapter specifically.
 // You can use any data structure that meets your requirements.
 export const postAdapter = createPaginationAdapter<Post>();
-export const postModel = db.createModel({
-  name: 'post',
+export const postModel = createModel({
   initialState: postAdapter.getInitialState(),
 });
 export const getPostById = postModel.defineAccessor<Post, number>({
-  name: 'getPostById',
   fetchData: async arg => {
     const data = await getPostApi({ id: arg });
     return data;
@@ -104,7 +101,6 @@ export function usePost(id: number) {
 }
 
 export const getPostList = postModel.defineInfiniteAccessor<Post[], string>({
-  name: 'getPostList',
   fetchData: async filter => {
     return getPostListApi({ filter });
   },
@@ -125,18 +121,9 @@ export function usePostList(filter: string) {
 
 ## Tutorial
 
-In this tutorial, we will build a forum app that contains posts and users' data using Daxus.
+In this tutorial, we will build a simple forum app that contains posts and users' data using Daxus.
 
-Let's start by creating a database using Daxus:
-
-```ts
-// in database.ts
-import { createDatabase } from 'daxus';
-
-export const database = createDatabase();
-```
-
-Next, we'll create a model for posts. In Daxus, a model represents a data type from the backend, and it's essential to create separate models for different data types to avoid mixing different data.
+We'll create a model for posts. In Daxus, a model represents a data type from the backend, and it's essential to create separate models for different data types to avoid mixing different data.
 
 Before creating a model, we need to understand the concept of an "adapter." An adapter is a data access object that provides several operation functions and initial state for the custom data structure defined in the adapter. Daxus currently offers a pagination adapter to handle pagination data.
 
@@ -162,18 +149,16 @@ Now, let's create our post model:
 
 ```ts
 // in postModel.ts
-import { createPaginationAdapter } from 'daxus';
-import { database } from './database';
+import { createPaginationAdapter, createModel } from 'daxus';
 
 export const postAdapter = createPaginationAdapter<Post>();
 
-export const postModel = database.createModel({
-  name: 'post',
+export const postModel = createModel({
   initialState: postAdapter.getInitialState(),
 });
 ```
 
-To create a model, we provide a name and the initial state so that the database can internally record it.
+To create a model, we need to provide the initial state.
 
 Next, we can define an accessor in our model. An accessor is used to fetch remote data and synchronize it with our model. Let's see how to define an accessor:
 
@@ -182,7 +167,6 @@ Next, we can define an accessor in our model. An accessor is used to fetch remot
 import { postModel, postAdapter } from './postModel';
 
 export const getPost = postModel.defineAccessor({
-  name: 'getPost',
   async fetchData(id: number) {
     return getPostApi({ id });
   },
@@ -243,7 +227,6 @@ export const getPostPaginationKey = ({ forumId = 'all', filter }: ListPostOption
 };
 
 export const listPost = postModel.defineInfiniteAccessor({
-  name: 'listPost',
   async fetchData(options: ListPostOptions, { pageIndex }) {
     return listPostApi({ ...options, page: pageIndex });
   },
@@ -336,10 +319,9 @@ While Daxus allows us to customize the data structure, in many cases, we may not
 To handle data that doesn't need a custom data structure, Daxus provides a feature called "Auto Model." The auto model is similar to the original model we've seen, but it requires less code to set up. Let's use user data as an example:
 
 ```ts
-export const userModel = database.createAutoModel({ name: 'user' });
+export const userModel = createAutoModel();
 
 export const getUser = userModel.defineAccessor({
-  name: 'getUser',
   async fetchData(userId: string) {
     return getUserApi(userId);
   },
