@@ -2,7 +2,6 @@ import { postAdapter, postModel } from './model';
 import type { Post, PostLayout } from '@/type';
 
 export const getPost = postModel.defineAccessor({
-  name: 'getPost',
   async fetchData(postId: string) {
     const res = await fetch(`/api/post/${postId}`);
     if (!res.ok) throw new Error(`Post with id: ${postId} doesn't exist`);
@@ -28,7 +27,6 @@ export function getPostPaginationKey({ layout, forumId }: PaginationOptions) {
 }
 
 export const listPost = postModel.defineInfiniteAccessor<Post[], PaginationOptions>({
-  name: 'listPost',
   async fetchData(arg, { pageIndex }) {
     const key = getPostPaginationKey(arg);
     const res = await fetch(`/api/post?page=${pageIndex}&${key}`);

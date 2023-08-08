@@ -1,11 +1,52 @@
-import type { AutoModel, Model } from './Model.js';
-import { createModel as origCreateModel, createAutoModel as origCreateAutoModel } from './Model.js';
+import type {
+  AccessorCreator,
+  InfiniteAccessorCreator,
+  Model as OrigModel,
+} from './createModel.js';
+import { createModel as origCreateModel } from './createModel.js';
 import { isUndefined, objectKeys } from '../utils/index.js';
-import type { NotifyDatabaseContext } from './types.js';
+import type {
+  NotifyDatabaseContext,
+  Action as OrigAction,
+  InfiniteAction as OrigInfiniteAction,
+} from './types.js';
+import type {
+  AutoState,
+  AutoModel as OrigAutoModel,
+  AutoAction as OrigAutoAction,
+  AutoInfiniteAction as OrigAutoInfiniteAction,
+} from './createAutoModel.js';
+import { createAutoModel as origCreateAutoModel } from './createAutoModel.js';
+
+type Action<S, Arg, Data, E> = OrigAction<S, Arg, Data, E> & { name: string };
+
+type InfiniteAction<S, Arg, Data, E> = OrigInfiniteAction<S, Arg, Data, E> & { name: string };
+
+type AutoAction<Arg, Data, E> = OrigAutoAction<Arg, Data, E> & { name: string };
+
+type AutoInfiniteAction<Arg, Data, E> = OrigAutoInfiniteAction<Arg, Data, E> & { name: string };
+
+type Model<S extends object> = Omit<OrigModel<S>, 'defineAccessor' | 'defineInfiniteAccessor'> & {
+  defineAccessor<Data, Arg = void, E = any>(
+    action: Action<S, Arg, Data, E>
+  ): AccessorCreator<S, Arg, Data, E>;
+  defineInfiniteAccessor<Data, Arg = void, E = any>(
+    action: InfiniteAction<S, Arg, Data, E>
+  ): InfiniteAccessorCreator<S, Arg, Data, E>;
+};
+
+type AutoModel = Omit<OrigAutoModel, 'defineAccessor' | 'defineInfiniteAccessor'> & {
+  defineAccessor<Data, Arg = void, E = any>(
+    action: AutoAction<Arg, Data, E>
+  ): AccessorCreator<AutoState, Arg, Data, E>;
+  defineInfiniteAccessor<Data, Arg = void, E = any>(
+    action: AutoInfiniteAction<Arg, Data, E>
+  ): InfiniteAccessorCreator<AutoState, Arg, Data, E>;
+};
 
 export interface Database {
-  createModel<S extends object>(ctx: { name: string; initialState: S }): Model<S>;
-  createAutoModel(ctx: { name: string }): AutoModel;
+  createModel<S extends object>(options: { name: string; initialState: S }): Model<S>;
+  createAutoModel(options: { name: string }): AutoModel;
   /**
    * We use server state key to register the callback.
    * One server state key can only register one callback.
@@ -38,18 +79,23 @@ export function createDatabase(): Database {
   return {
     createModel({ name, initialState }) {
       assertDuplicateName(name);
-      const model = origCreateModel(initialState, ({ data, creatorName, ...ctx }) => {
-        if (!data || isUndefined(creatorName)) return;
-        onServerStateChange({ ...ctx, modelName: name, data, creatorName });
+      const model = origCreateModel({
+        initialState,
+        onServerStateChange({ data, creatorName, ...ctx }) {
+          if (!data || isUndefined(creatorName)) return;
+          onServerStateChange({ ...ctx, modelName: name, data, creatorName });
+        },
       });
       modelRecord[name] = model;
       return model;
     },
     createAutoModel({ name }) {
       assertDuplicateName(name);
-      const model = origCreateAutoModel(({ data, creatorName, ...ctx }) => {
-        if (!data || isUndefined(creatorName)) return;
-        onServerStateChange({ ...ctx, modelName: name, data, creatorName });
+      const model = origCreateAutoModel({
+        onServerStateChange({ data, creatorName, ...ctx }) {
+          if (!data || isUndefined(creatorName)) return;
+          onServerStateChange({ ...ctx, modelName: name, data, creatorName });
+        },
       });
       modelRecord[name] = model;
       return model;

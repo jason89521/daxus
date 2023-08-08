@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { AccessorOptionsProvider, createDatabase, createPaginationAdapter } from '../index.js';
+import { AccessorOptionsProvider, createModel, createPaginationAdapter } from '../index.js';
 import type { PostModelControl } from './types.js';
 import type { Post, PostLayout } from '../types.js';
 import { render } from '@testing-library/react';
@@ -14,9 +14,8 @@ export function createPost(id: number, layout: PostLayout = 'classic'): Post {
 }
 
 export function createPostModel(control: PostModelControl) {
-  const db = createDatabase();
   const postAdapter = createPaginationAdapter<Post>({});
-  const postModel = db.createModel({ name: 'post', initialState: postAdapter.getInitialState() });
+  const postModel = createModel({ initialState: postAdapter.getInitialState() });
   const getPostById = postModel.defineAccessor({
     name: 'getPostById',
     fetchData: async (id: number) => {

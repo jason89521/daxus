@@ -27,6 +27,7 @@ export class Accessor<S, Arg = any, Data = any, E = unknown> extends BaseAccesso
     isAuto,
     setStaleTime,
     getIsStale,
+    creatorName,
   }: ConstructorArgs<S, Arg, Data, E>) {
     super({
       getState,
@@ -34,7 +35,7 @@ export class Accessor<S, Arg = any, Data = any, E = unknown> extends BaseAccesso
       onMount,
       onUnmount,
       arg,
-      creatorName: action.name,
+      creatorName,
       notifyModel,
       isAuto,
       setStaleTime,
