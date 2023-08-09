@@ -176,7 +176,7 @@ export const getPost = postModel.defineAccessor({
 });
 ```
 
-An accessor needs a `name` to help the model separate different accessors. The `fetchData` method fetches the remote data, and the `syncState` method synchronizes the fetched data with our model. In this case, we use `postAdapter.upsertOne` to update the post in our model, creating one if it doesn't exist.
+The `fetchData` method fetches the remote data, and the `syncState` method synchronizes the fetched data with our model. In this case, we use `postAdapter.upsertOne` to update the post in our model, creating one if it doesn't exist.
 
 To use the accessor in our React app, we can utilize the `useAccessor` hook:
 
@@ -187,7 +187,7 @@ import { postAdapter } from 'postModel';
 
 export function usePost(id: number) {
   return useAccessor(getPost(id), state => postAdapter.tryReadOne(state, id));
-  // { data, isFetching, error, accessor }
+  // { data, isFetching, isLoading, error, accessor }
 }
 ```
 
@@ -249,7 +249,7 @@ Next, let's define a post list component:
 
 ```tsx
 export function PostList({ options }: { options: ListPostOptions }) {
-  const { data } = useAccessor(listPost(options), state =>
+  const { data, accessor } = useAccessor(listPost(options), state =>
     postAdapter.tryReadPagination(state, getPostPaginationKey(options))
   );
 
@@ -258,6 +258,7 @@ export function PostList({ options }: { options: ListPostOptions }) {
       {data?.items.map(post => {
         return <PostEntry key={post.id} post={post} />;
       })}
+      <button onClick={() => accessor.fetchNext()}>fetch next page</button>
     </div>
   );
 }
