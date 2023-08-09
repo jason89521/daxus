@@ -1,6 +1,6 @@
 {
   "name": "daxus-next",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "type": "module",
   "files": [
     "dist"
@@ -40,6 +40,6 @@
   "peerDependencies": {
     "react": ">=18.0.0",
     "daxus": "workspace:*",
-    "next": "^13.4.13"
+    "next": ">=13.0.0"
   }
 }
