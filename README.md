@@ -86,9 +86,8 @@ export const getPostById = postModel.defineAccessor<Post, number>({
 });
 
 export function usePost(id: number) {
-  const accessor = getPostById(id);
-  const { data, error, isFetching } = useAccessor(
-    accessor,
+  const { data, error, isFetching, accessor } = useAccessor(
+    getPostById(id),
     state => {
       return postAdapter.tryReadOne(state, id);
     },
@@ -110,8 +109,7 @@ export const getPostList = postModel.defineInfiniteAccessor<Post[], string>({
 });
 
 export function usePostList(filter: string) {
-  const accessor = getPostList(filter);
-  return useAccessor(accessor, postAdapter.tryReadPaginationFactory(filter));
+  return useAccessor(getPostList(filter), postAdapter.tryReadPaginationFactory(filter));
 }
 ```
 
