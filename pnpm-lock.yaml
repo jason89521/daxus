@@ -33,8 +33,8 @@ importers:
         specifier: ^0.34.2
         version: 0.34.2(vitest@0.34.3)
       axios:
-        specifier: ^1.4.0
-        version: 1.4.0
+        specifier: ^1.5.0
+        version: 1.5.0
       eslint:
         specifier: ^8.47.0
         version: 8.47.0
@@ -155,8 +155,8 @@ importers:
         specifier: ^0.34.2
         version: 0.34.2(vitest@0.34.3)
       axios:
-        specifier: ^1.4.0
-        version: 1.4.0
+        specifier: ^1.5.0
+        version: 1.5.0
       jsdom:
         specifier: ^22.1.0
         version: 22.1.0
@@ -1408,8 +1408,8 @@ packages:
     engines: {node: '>= 0.4'}
     dev: true
 
-  /axios@1.4.0:
-    resolution: {integrity: sha512-S4XCWMEmzvo64T9GfvQDOXgYRDJ/wsSZc7Jvdgx5u1sd0JwsuPLqb3SYmusag+edF6ziyMensPVqLTSc1PiSEA==}
+  /axios@1.5.0:
+    resolution: {integrity: sha512-D4DdjDo5CY50Qms0qGQTTw6Q44jl7zRwY7bthds06pUGfChBCTcQs+N743eFWGEd6pRTMd6A+I87aWyFV5wiZQ==}
     dependencies:
       follow-redirects: 1.15.2
       form-data: 4.0.0
