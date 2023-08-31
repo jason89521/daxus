@@ -1,4 +1,12 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {}
+const { FileListPlugin } = require('./plugin');
 
-module.exports = nextConfig
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  webpack(config, { isServer }) {
+    if (!isServer) config.plugins.push(new FileListPlugin());
+
+    return config;
+  },
+};
+
+module.exports = nextConfig;
