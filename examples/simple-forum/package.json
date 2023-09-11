@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build && tsc --project tsconfig.foo.json",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
@@ -19,7 +19,8 @@
     "typescript": "5.1.6"
   },
   "devDependencies": {
-    "msw": "^1.2.3"
+    "msw": "^1.2.3",
+    "workbox-webpack-plugin": "^7.0.0"
   },
   "msw": {
     "workerDirectory": "public"
