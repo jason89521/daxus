@@ -12,7 +12,7 @@
     "@types/react-dom": "^18.2.8",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
-    "@vitejs/plugin-react": "^4.0.4",
+    "@vitejs/plugin-react": "^4.1.0",
     "@vitest/coverage-v8": "^0.34.4",
     "axios": "^1.5.1",
     "eslint": "^8.50.0",
