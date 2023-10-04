@@ -30,8 +30,8 @@ importers:
         specifier: ^4.1.0
         version: 4.1.0(vite@4.4.9)
       '@vitest/coverage-v8':
-        specifier: ^0.34.4
-        version: 0.34.4(vitest@0.34.6)
+        specifier: ^0.34.6
+        version: 0.34.6(vitest@0.34.6)
       axios:
         specifier: ^1.5.1
         version: 1.5.1
@@ -152,8 +152,8 @@ importers:
         specifier: ^4.1.0
         version: 4.1.0(vite@4.4.9)
       '@vitest/coverage-v8':
-        specifier: ^0.34.4
-        version: 0.34.4(vitest@0.34.6)
+        specifier: ^0.34.6
+        version: 0.34.6(vitest@0.34.6)
       axios:
         specifier: ^1.5.1
         version: 1.5.1
@@ -1193,8 +1193,8 @@ packages:
       - supports-color
     dev: true
 
-  /@vitest/coverage-v8@0.34.4(vitest@0.34.6):
-    resolution: {integrity: sha512-TZ5ghzhmg3COQqfBShL+zRQEInHmV9TSwghTdfkHpCTyTOr+rxo6x41vCNcVfWysWULtqtBVpY6YFNovxnESfA==}
+  /@vitest/coverage-v8@0.34.6(vitest@0.34.6):
+    resolution: {integrity: sha512-fivy/OK2d/EsJFoEoxHFEnNGTg+MmdZBAVK9Ka4qhXR2K3J0DS08vcGVwzDtXSuUMabLv4KtPcpSKkcMXFDViw==}
     peerDependencies:
       vitest: '>=0.32.0 <1'
     dependencies:
