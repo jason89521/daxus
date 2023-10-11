@@ -111,7 +111,7 @@ importers:
         specifier: 18.2.8
         version: 18.2.8
       daxus:
-        specifier: workspace:*
+        specifier: latest
         version: link:../../packages/daxus
       next:
         specifier: 13.5.4
