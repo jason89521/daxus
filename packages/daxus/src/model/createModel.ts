@@ -66,7 +66,7 @@ export function createModel<S extends object>({
   onServerStateChange,
 }: CreateModelOptions<S>): Model<S> {
   const serverStateRecord = new WeakMap<object, S>();
-  let clientState = { ...initialState };
+  let clientState = Array.isArray(initialState) ? ([...initialState] as S) : { ...initialState };
   let creatorCounter = 0;
   const listeners: (() => void)[] = [];
   const accessorRecord = {} as Record<
