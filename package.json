@@ -1,6 +1,6 @@
 {
   "name": "daxus-monorepo",
-  "packageManager": "pnpm@8.6.10",
+  "packageManager": "pnpm@8.9.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/jason89521/daxus"

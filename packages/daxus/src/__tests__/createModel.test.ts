@@ -2,6 +2,7 @@
  * @vitest-environment node
  */
 
+import { createModel } from '../index.js';
 import { createControl, createPost, createPostModel } from './utils.js';
 
 const control = createControl({});
@@ -18,5 +19,10 @@ describe('createModel', () => {
     expect(postAdapter.readOne(state, 0)).toEqual(createPost(0));
     // different key should get different state.
     expect(postAdapter.tryReadOne(postModel.getState({}), 0)).toBeUndefined();
+  });
+
+  test('should return array if the initial state is an array', () => {
+    const model = createModel({ initialState: [] });
+    expect(model.getState()).toEqual([]);
   });
 });
