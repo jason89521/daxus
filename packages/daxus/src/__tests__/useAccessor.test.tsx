@@ -1,9 +1,30 @@
 import { screen, fireEvent, act, waitFor } from '@testing-library/react';
 import { createPostModel, createControl, sleep, renderWithOptionsProvider } from './utils.js';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAccessor } from '../index.js';
 
 describe('useAccessor', () => {
+  test('should update the status correctly', async () => {
+    const control = createControl({});
+    const { getPostById, postAdapter } = createPostModel(control);
+    let effectRunNum = 0;
+    function Page() {
+      const { isFetching } = useAccessor(getPostById(0), postAdapter.tryReadOneFactory(0));
+
+      useEffect(() => {
+        effectRunNum += 1;
+      }, [isFetching]);
+
+      return null;
+    }
+
+    renderWithOptionsProvider(<Page />);
+    await waitFor(() => {
+      // false -> true -> false
+      expect(effectRunNum).toBe(3);
+    });
+  });
+
   test('should be able to update the cache', async () => {
     const control = createControl({});
     const { getPostById, postAdapter } = createPostModel(control);
