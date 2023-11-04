@@ -103,4 +103,13 @@ describe('InfiniteAccessor', () => {
     const result = await accessor.revalidate({ pageNum: 1 });
     expect(result).toEqual([null, [page0]]);
   });
+
+  test('should throw the error when the error is not caused by FetchAbortedError', async () => {
+    control.onSuccessMock = () => {
+      throw 1;
+    };
+    const accessor = getPostList();
+
+    await expect(async () => accessor.revalidate()).rejects.toThrowError();
+  });
 });

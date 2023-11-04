@@ -1,3 +1,4 @@
+import { FetchAbortedError } from '../errors.js';
 import { getCurrentTime } from '../utils/index.js';
 import type { RevalidateContext } from './BaseAccessor.js';
 import { BaseAccessor } from './BaseAccessor.js';
@@ -77,9 +78,13 @@ export class Accessor<S, Arg = any, Data = any, E = unknown> extends BaseAccesso
         }
         return this.onFetchingFinish({ error, data });
       } catch (error) {
-        // This error happens when any fetching is aborted.
-        // We don't need to handle this.
-        return this.fetchPromise;
+        if (error instanceof FetchAbortedError) {
+          // This error happens when any fetching is aborted.
+          // We don't need to handle this.
+          return this.fetchPromise;
+        }
+
+        throw error;
       }
     })();
     this.onFetchingStart({ fetchPromise, startAt });
@@ -110,7 +115,7 @@ export class Accessor<S, Arg = any, Data = any, E = unknown> extends BaseAccesso
             .catch(reject);
         }, this.getRetryInterval());
 
-        this.setRetryTimeoutMeta({ timeoutId, reject });
+        this.setRetryTimeoutMeta({ timeoutId, reject: () => reject(new FetchAbortedError(false)) });
       });
       return retryResult;
     }
