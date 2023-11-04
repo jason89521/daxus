@@ -179,13 +179,13 @@ export abstract class BaseAccessor<S, Arg, D, E> {
   };
 
   protected updateStatus = (partialStatus: Partial<Status<E>>) => {
-    const newStatus = { ...this.status, ...partialStatus };
-    this.notifyStatusListeners(newStatus);
-    this.status = newStatus;
+    const oldStatus = this.status;
+    this.status = { ...this.status, ...partialStatus };
+    this.notifyStatusListeners(oldStatus);
   };
 
-  protected notifyStatusListeners = (newCache: Status) => {
-    this.statusListeners.forEach(l => l(this.status, newCache));
+  protected notifyStatusListeners = (oldStatus: Status) => {
+    this.statusListeners.forEach(l => l(oldStatus, this.status));
   };
 
   protected notifyDataListeners = () => {
