@@ -61,4 +61,13 @@ describe('Accessor', () => {
     expect(result1).toEqual([null, createPost(0)]);
     expect(result1).toBe(result2);
   });
+
+  test('should throw the error when the error is not caused by FetchAbortedError', async () => {
+    control.onSuccessMock = () => {
+      throw 1;
+    };
+    const accessor = getPostById(0);
+
+    await expect(async () => accessor.revalidate()).rejects.toThrowError();
+  });
 });

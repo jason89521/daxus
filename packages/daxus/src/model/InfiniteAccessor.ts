@@ -1,3 +1,4 @@
+import { FetchAbortedError } from '../errors.js';
 import { getCurrentTime } from '../utils/index.js';
 import type { RevalidateContext } from './BaseAccessor.js';
 import { BaseAccessor } from './BaseAccessor.js';
@@ -99,6 +100,7 @@ export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Bas
   }): Promise<[Data | null, E | null]> => {
     const arg = this.arg;
     const promise = new Promise<[Data | null, E | null]>((resolve, reject) => {
+      const rejectFetching = () => reject(new FetchAbortedError(true));
       this.action
         .fetchData(arg, { previousData, pageIndex, getState: () => this.getState() })
         .then(value => resolve([value, null]))
@@ -117,9 +119,9 @@ export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Bas
               .then(resolve)
               .catch(reject);
           }, this.getRetryInterval());
-          this.setRetryTimeoutMeta({ timeoutId, reject });
+          this.setRetryTimeoutMeta({ timeoutId, reject: rejectFetching });
         });
-      this.rejectFetching = reject;
+      this.rejectFetching = rejectFetching;
     });
 
     return promise;
@@ -203,9 +205,13 @@ export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Bas
         this.currentTask = 'idle';
         return this.onFetchingFinish({ error, data });
       } catch (error) {
-        // This error happens when any fetching is aborted.
-        // We don't need to handle this.
-        return this.fetchPromise;
+        if (error instanceof FetchAbortedError) {
+          // This error happens when any fetching is aborted.
+          // We don't need to handle this.
+          return this.fetchPromise;
+        }
+
+        throw error;
       }
     })();
     this.onFetchingStart({ fetchPromise, startAt });
