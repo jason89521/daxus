@@ -4,6 +4,8 @@ import type { PostModelControl } from './types.js';
 import type { Post, PostLayout } from '../types.js';
 import { render } from '@testing-library/react';
 import type { AccessorOptions } from '../index.js';
+import { isUndefined } from '../utils/isUndefined.js';
+import { isNull } from '../utils/isNull.js';
 
 export function sleep(time: number) {
   return new Promise<void>(resolve => setTimeout(resolve, time));
@@ -47,7 +49,9 @@ export function createPostModel(control: PostModelControl) {
 
   const getPostList = postModel.defineInfiniteAccessor<Post[]>({
     async fetchData(_, { pageIndex }) {
-      control.fetchDataMock?.();
+      const customizedReturn = control.fetchDataMock?.();
+      if (!isUndefined(customizedReturn))
+        return isNull(customizedReturn) ? customizedReturn : [customizedReturn];
 
       if (control.fetchDataError) {
         throw control.fetchDataError;

@@ -23,6 +23,7 @@ export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Bas
   private rejectFetching: (() => void) | null = null;
   private currentTask: Task = 'idle';
   private initialPageNum: number;
+  private reachEnd = false;
 
   /**
    * @internal
@@ -57,6 +58,14 @@ export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Bas
     this.action = action;
     this.updateState = updateState;
     this.initialPageNum = initialPageNum;
+  }
+
+  /**
+   * Whether the pagination has fetched the last page.
+   * @returns
+   */
+  isEnd(): boolean {
+    return this.reachEnd;
   }
 
   /**
@@ -146,6 +155,7 @@ export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Bas
         break;
       }
       if (!data) {
+        this.reachEnd = true;
         break;
       }
       previousData = data;
@@ -175,6 +185,7 @@ export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Bas
       }
     }
 
+    this.reachEnd = false;
     this.currentTask = task;
     this.rejectFetching?.();
     const fetchPromise = (async () => {
