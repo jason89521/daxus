@@ -1,4 +1,6 @@
-export type Func = (...args: any[]) => any;
+import type { Post } from '../types.js';
+
+export type Func = (...args: any[]) => Post | undefined | null;
 
 export interface PostModelControl {
   sleepTime?: number;
