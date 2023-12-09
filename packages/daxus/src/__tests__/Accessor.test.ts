@@ -82,5 +82,6 @@ describe('Accessor', () => {
 
     const [, result] = await get().revalidate();
     expect(result).toBe(false);
+    expect(get().getState()[get().getKey()]).toBe(false);
   });
 });

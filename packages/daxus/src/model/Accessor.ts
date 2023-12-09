@@ -68,7 +68,7 @@ export class Accessor<S, Arg = any, Data = any, E = unknown> extends BaseAccesso
         }
         this.updateStartAt(startAt);
 
-        if (data) {
+        if (data !== null) {
           this.updateState(
             draft => {
               this.action.syncState(draft, { data, arg });
