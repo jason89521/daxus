@@ -1,4 +1,5 @@
 import { defaultOptions } from '../constants.js';
+import { createAutoModel } from '../index.js';
 import { createControl, createPost, createPostModel, sleep } from './utils.js';
 
 let control = createControl({});
@@ -69,5 +70,17 @@ describe('Accessor', () => {
     const accessor = getPostById(0);
 
     await expect(async () => accessor.revalidate()).rejects.toThrowError();
+  });
+
+  test('should work properly when the data is boolean', async () => {
+    const model = createAutoModel();
+    const get = model.defineAccessor<boolean>({
+      async fetchData() {
+        return false;
+      },
+    });
+
+    const [, result] = await get().revalidate();
+    expect(result).toBe(false);
   });
 });

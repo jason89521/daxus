@@ -283,7 +283,7 @@ export abstract class BaseAccessor<S, Arg, D, E> {
       this.action.onError?.({ error, arg: this.arg });
       this.updateStatus({ isFetching: false, error });
       return [error];
-    } else if (data) {
+    } else if (data !== null) {
       this.action.onSuccess?.({ data, arg: this.arg });
       this.updateStatus({ isFetching: false, error: null });
       this.notifyDataListeners();
