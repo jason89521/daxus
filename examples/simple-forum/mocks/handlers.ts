@@ -1,12 +1,12 @@
-import { rest } from 'msw';
+import { http } from 'msw';
 import { posts } from './instance';
 import type { Post } from '@/type';
 
 const PAGE_SIZE = 10;
 
 export const handlers = [
-  rest.get('/api/post', (req, res, ctx) => {
-    const { searchParams } = new URL(req.url);
+  http.get('/api/post', ({ request }) => {
+    const { searchParams } = new URL(request.url);
     const layout = searchParams.get('layout');
     const forumId = searchParams.get('forumId');
     const page = Number(searchParams.get('page') ?? 0);
@@ -31,32 +31,31 @@ export const handlers = [
 
     const result = pages[page];
 
-    return res(ctx.status(200), ctx.json(result));
+    return new Response(JSON.stringify(result), { status: 200 });
   }),
 
-  rest.get('/api/post/:postId', async (req, res, ctx) => {
-    const { postId } = req.params;
+  http.get('/api/post/:postId', async ({ params }) => {
+    const { postId } = params;
     const post = posts.find(post => post.id === postId);
 
     if (!post) {
-      return res(ctx.status(404));
+      return new Response(null, { status: 404 });
     }
 
     await new Promise(resolve => setTimeout(resolve, 1000));
 
-    return res(ctx.status(200), ctx.json(post));
+    return new Response(JSON.stringify(post), { status: 200 });
   }),
 
-  rest.put('/api/post/:postId', (req, res, ctx) => {
-    const { postId } = req.params;
+  http.put('/api/post/:postId', ({ params }) => {
+    const { postId } = params;
     const post = posts.find(post => post.id === postId);
 
     if (!post) {
-      return res(ctx.status(404));
+      return new Response(null, { status: 404 });
     }
 
     post.likeCount += 1;
-
-    return res(ctx.status(200), ctx.json(post));
+    return new Response(JSON.stringify(post), { status: 200 });
   }),
 ];
