@@ -18,6 +18,8 @@ import { accessorOptionsContext, useServerStateKeyContext } from '../contexts/in
 
 type StateDeps = Partial<Record<keyof Status | 'data', boolean>>;
 
+type GetSnapshot<S, Arg, SS> = (state: S, arg: Arg) => SS;
+
 const defaultStatus = { isFetching: false, error: null } satisfies Status;
 
 /**
@@ -28,7 +30,7 @@ const defaultStatus = { isFetching: false, error: null } satisfies Status;
  */
 export function useAccessor<S, Arg, RD, SS, E = unknown>(
   accessor: Accessor<S, Arg, RD, E>,
-  getSnapshot: (state: S) => SS,
+  getSnapshot: GetSnapshot<S, Arg, SS>,
   options?: AccessorOptions<SS>
 ): UseAccessorReturn<SS, E, Accessor<S, Arg, RD, E>>;
 /**
@@ -39,7 +41,7 @@ export function useAccessor<S, Arg, RD, SS, E = unknown>(
  */
 export function useAccessor<S, Arg, RD, SS, E = unknown>(
   accessor: Accessor<S, Arg, RD, E> | null,
-  getSnapshot: (state: S) => SS,
+  getSnapshot: GetSnapshot<S, Arg, SS>,
   options?: AccessorOptions<SS>
 ): UseAccessorReturn<SS | undefined, E, Accessor<S, Arg, RD, E> | null>;
 /**
@@ -50,7 +52,7 @@ export function useAccessor<S, Arg, RD, SS, E = unknown>(
  */
 export function useAccessor<S, Arg, RD, SS, E = unknown>(
   accessor: InfiniteAccessor<S, Arg, RD, E>,
-  getSnapshot: (state: S) => SS,
+  getSnapshot: GetSnapshot<S, Arg, SS>,
   options?: AccessorOptions<SS>
 ): UseAccessorReturn<SS, E, InfiniteAccessor<S, Arg, RD, E>>;
 /**
@@ -61,33 +63,33 @@ export function useAccessor<S, Arg, RD, SS, E = unknown>(
  */
 export function useAccessor<S, Arg, RD, SS, E = unknown>(
   accessor: InfiniteAccessor<S, Arg, RD, E> | null,
-  getSnapshot: (state: S) => SS,
+  getSnapshot: GetSnapshot<S, Arg, SS>,
   options?: AccessorOptions<SS>
 ): UseAccessorReturn<SS | undefined, E, InfiniteAccessor<S, Arg, RD, E> | null>;
 
 export function useAccessor<Arg, D, E, SS = D | undefined>(
   accessor: Accessor<AutoState, Arg, D, E>,
-  options?: AutoAccessorOptions<D, SS>
+  options?: AutoAccessorOptions<D, SS, Arg>
 ): UseAccessorReturn<SS | undefined, E, Accessor<AutoState, Arg, D, E>>;
 
 export function useAccessor<Arg, D, E, SS = D | undefined>(
   accessor: Accessor<AutoState, Arg, D, E> | null,
-  options?: AutoAccessorOptions<D, SS>
+  options?: AutoAccessorOptions<D, SS, Arg>
 ): UseAccessorReturn<SS | undefined, E, Accessor<AutoState, Arg, D, E> | null>;
 
 export function useAccessor<Arg, D, E, SS = D[] | undefined>(
   accessor: InfiniteAccessor<AutoState, Arg, D, E>,
-  options?: AutoAccessorOptions<D[], SS>
+  options?: AutoAccessorOptions<D[], SS, Arg>
 ): UseAccessorReturn<SS | undefined, E, InfiniteAccessor<AutoState, Arg, D, E>>;
 
 export function useAccessor<Arg, D, E, SS = D[] | undefined>(
   accessor: InfiniteAccessor<AutoState, Arg, D, E> | null,
-  options?: AutoAccessorOptions<D[], SS>
+  options?: AutoAccessorOptions<D[], SS, Arg>
 ): UseAccessorReturn<SS | undefined, E, InfiniteAccessor<AutoState, Arg, D, E> | null>;
 
 export function useAccessor<S, D, SS, E = unknown>(
   accessor: BaseAccessor<S, any, D, E> | null,
-  maybeGetSnapshot: ((state: S) => SS) | AutoAccessorOptions<D, SS> = {},
+  maybeGetSnapshot: GetSnapshot<S, any, SS> | AutoAccessorOptions<D, SS> = {},
   accessorOptions: AccessorOptions<SS> = {}
 ): UseAccessorReturn<SS | undefined, E, BaseAccessor<S, unknown, any, E> | null> {
   const [getSnapshot, options] = normalizeArgs(accessor, maybeGetSnapshot, accessorOptions);
@@ -129,14 +131,13 @@ export function useAccessor<S, D, SS, E = unknown>(
     const getState = () => {
       return accessor.getState(serverStateKey);
     };
-
-    let memoizedSnapshot = getSnapshot(getState());
+    let memoizedSnapshot = getSnapshot(getState(), accessor.getArg());
 
     return [
       (listener: () => void) => {
         return accessor.subscribeData(() => {
           if (!stateDeps.data) return;
-          const snapshot = getSnapshot(getState());
+          const snapshot = getSnapshot(getState(), accessor.getArg());
           if (stableHash(snapshot) !== stableHash(memoizedSnapshot)) {
             memoizedSnapshot = snapshot;
             listener();
@@ -209,9 +210,9 @@ export function useAccessor<S, D, SS, E = unknown>(
   };
 }
 
-export function normalizeArgs<S, D, SS, E>(
-  accessor: BaseAccessor<S, any, D, E> | null,
-  maybeGetSnapshot: ((state: S) => SS) | AutoAccessorOptions<D, SS> = {},
+export function normalizeArgs<S, Arg, D, SS, E>(
+  accessor: BaseAccessor<S, Arg, D, E> | null,
+  maybeGetSnapshot: GetSnapshot<S, any, SS> | AutoAccessorOptions<D, SS> = {},
   accessorOptions: AccessorOptions<SS> = {}
 ) {
   const args = (() => {
@@ -222,12 +223,12 @@ export function normalizeArgs<S, D, SS, E>(
     const { getSnapshot = data => data as SS, ...options } = maybeGetSnapshot;
 
     return [
-      (state: S) => {
+      (state: S, arg: any) => {
         const cache = accessor
           ? ((state as AutoState)[accessor.getKey()] as D | undefined)
           : undefined;
 
-        return getSnapshot(cache);
+        return getSnapshot(cache, arg);
       },
       options,
     ] as const;

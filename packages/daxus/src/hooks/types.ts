@@ -68,8 +68,8 @@ export interface AccessorOptions<S = any> {
   staleTime?: number;
 }
 
-export interface AutoAccessorOptions<D, S = any> extends AccessorOptions<S> {
-  getSnapshot?: (data: D | undefined) => S;
+export interface AutoAccessorOptions<D, S = any, Arg = any> extends AccessorOptions<S> {
+  getSnapshot?: (data: D | undefined, arg: Arg) => S;
 }
 
 export type RequiredAccessorOptions<S = unknown> = Required<AccessorOptions<S>>;

@@ -38,22 +38,22 @@ export function useSuspenseAccessor<S, Arg, RD, SS, E = unknown>(
 
 export function useSuspenseAccessor<Arg, D, E, SS = D | undefined>(
   accessor: Accessor<AutoState, Arg, D, E>,
-  options?: AutoAccessorOptions<D, SS>
+  options?: AutoAccessorOptions<D, SS, Arg>
 ): ReturnValue<NonUndefined<SS>, Accessor<AutoState, Arg, D, E>>;
 
 export function useSuspenseAccessor<Arg, D, E, SS = D | undefined>(
   accessor: Accessor<AutoState, Arg, D, E> | null,
-  options?: AutoAccessorOptions<D, SS>
+  options?: AutoAccessorOptions<D, SS, Arg>
 ): ReturnValue<NonUndefined<SS>, Accessor<AutoState, Arg, D, E>>;
 
 export function useSuspenseAccessor<Arg, D, E, SS = D[] | undefined>(
   accessor: InfiniteAccessor<AutoState, Arg, D, E>,
-  options?: AutoAccessorOptions<D[], SS>
+  options?: AutoAccessorOptions<D[], SS, Arg>
 ): ReturnValue<NonUndefined<SS>, InfiniteAccessor<AutoState, Arg, D, E>>;
 
 export function useSuspenseAccessor<Arg, D, E, SS = D[] | undefined>(
   accessor: InfiniteAccessor<AutoState, Arg, D, E> | null,
-  options?: AutoAccessorOptions<D[], SS>
+  options?: AutoAccessorOptions<D[], SS, Arg>
 ): ReturnValue<NonUndefined<SS>, InfiniteAccessor<AutoState, Arg, D, E>>;
 
 export function useSuspenseAccessor<S, D, SS, E = unknown>(

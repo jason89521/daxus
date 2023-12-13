@@ -106,6 +106,10 @@ export abstract class BaseAccessor<S, Arg, D, E> {
     return getKey(this.creatorName, this.arg);
   };
 
+  getArg() {
+    return this.arg;
+  }
+
   /**
    * @internal
    */
