@@ -8,9 +8,8 @@ describe('useAccessor conditional accessor', () => {
     const control = createControl({ fetchDataMock });
     const { getPostById, postAdapter } = createPostModel(control);
     function Page({ id }: { id?: number }) {
-      const accessor = id !== undefined ? getPostById(id) : null;
-      const { data } = useAccessor(accessor, state => {
-        if (id !== undefined) return postAdapter.tryReadOne(state, id);
+      const { data } = useAccessor(id !== undefined ? getPostById(id) : null, (state, id) => {
+        return postAdapter.tryReadOne(state, id);
       });
 
       return <div>title: {data?.title}</div>;
