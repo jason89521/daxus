@@ -83,9 +83,9 @@ export function createModel<S extends object>({
   const isStaleRecord = {} as Record<string, boolean>;
 
   /**
-   * instead of recording the whole data, we only record the pages number to save the memory usage
+   * Record the fetched data of the infinite accessors.
    */
-  const infiniteAccessorPageNumRecord = {} as Record<string, number | undefined>;
+  const infiniteAccessorDataRecord = {} as Record<string, any[]>;
 
   function assertDuplicateName(name: string) {
     if (objectKeys(creatorRecord).includes(name)) {
@@ -253,7 +253,7 @@ export function createModel<S extends object>({
         if (!accessor) return;
         // Don't delete the accessor if it is mounted.
         if (accessor.isMounted()) return;
-        infiniteAccessorPageNumRecord[key] = accessor.getPageNum();
+        infiniteAccessorDataRecord[key] = accessor.getData();
         delete accessorRecord[key];
       };
 
@@ -274,9 +274,9 @@ export function createModel<S extends object>({
         updateState,
         onMount,
         onUnmount,
-        initialPageNum: infiniteAccessorPageNumRecord[key] ?? 1,
         isAuto: action.isAuto ?? false,
         setStaleTime: compositeSetStale(key),
+        data: infiniteAccessorDataRecord[key] ?? [],
         getIsStale() {
           return isStaleRecord[key] ?? false;
         },

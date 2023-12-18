@@ -58,7 +58,7 @@ export interface ConstructorArgs<S, Arg, Data, E> extends BaseConstructorArgs<S,
 
 export interface InfiniteConstructorArgs<S, Arg, Data, E> extends BaseConstructorArgs<S, Arg> {
   action: InfiniteAction<S, Arg, Data, E>;
-  initialPageNum: number;
+  data: Data[];
 }
 
 export type NotifyDatabaseContext = {
