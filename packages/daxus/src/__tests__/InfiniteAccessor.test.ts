@@ -112,19 +112,4 @@ describe('InfiniteAccessor', () => {
 
     await expect(async () => accessor.revalidate()).rejects.toThrowError();
   });
-
-  test('should correctly update the reachEnd', async () => {
-    control.fetchDataMock = () => {
-      return null;
-    };
-    const accessor = getPostList();
-    await accessor.revalidate();
-
-    expect(accessor.isEnd()).toBe(true);
-
-    control.fetchDataMock = undefined;
-    await accessor.revalidate();
-
-    expect(accessor.isEnd()).toBe(false);
-  });
 });

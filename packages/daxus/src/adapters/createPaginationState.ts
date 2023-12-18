@@ -4,9 +4,18 @@ import { isString } from '../utils/isString.js';
 
 type Id = string | number;
 
-interface PaginationState<Data, RawData = Data> {
+type Pagination<T> = {
+  ids: Id[];
+  meta: T;
+};
+
+type PaginationWithData<D, M> = {
+  data: D[];
+} & Pagination<M>;
+
+interface PaginationState<Data, RawData = Data, M = object> {
   entityRecord: Record<string, Data>;
-  paginationIdsRecord: Record<string, Id[]>;
+  paginationRecord: Record<string, Pagination<M>>;
   createOne(rawData: RawData): void;
   tryReadOne(id: Id): Data | undefined;
   readOne(id: Id): Data;
@@ -14,12 +23,13 @@ interface PaginationState<Data, RawData = Data> {
   deleteOne(id: Id): void;
   upsertOne(rawData: RawData): void;
   upsertMany(rawData: RawData[]): void;
-  tryReadPaginationData(key: string): Data[] | undefined;
-  readPaginationData(key: string): Data[];
+  tryReadPagination(key: string): PaginationWithData<Data, M> | undefined;
+  readPagination(key: string): PaginationWithData<Data, M>;
   replacePagination(key: string, rawData: RawData[]): void;
   appendPagination(key: string, rawData: RawData[]): void;
   prependPagination(key: string, rawData: RawData[]): void;
   sortPagination(key: string, compare: (a: Data, b: Data) => number): void;
+  updatePagination(key: string, pagination: Partial<Pagination<M>>): void;
 }
 
 function defaultSelectId(data: unknown): Id {
@@ -36,18 +46,20 @@ function defaultSelectId(data: unknown): Id {
 /**
  * @experimental
  */
-export function createPaginationState<Data, RawData = Data>({
+export function createPaginationState<Data, RawData = Data, M = object>({
   selectId = defaultSelectId,
   transform = rawData => rawData as unknown as Data,
   merge = (from, to) => ({ ...from, ...to }),
+  getDefaultMeta = () => ({} as M),
 }: {
   selectId?: (data: Data) => Id;
   transform?: (rawData: RawData) => Data;
   merge?: (from: Data, to: Partial<Data>) => Data;
-} = {}): PaginationState<Data, RawData> {
+  getDefaultMeta?: () => M;
+} = {}): PaginationState<Data, RawData, M> {
   return {
     entityRecord: {},
-    paginationIdsRecord: {},
+    paginationRecord: {},
     createOne(rawData) {
       const data = transform(rawData);
       this.entityRecord[selectId(data)] = { ...data };
@@ -70,7 +82,7 @@ export function createPaginationState<Data, RawData = Data>({
     deleteOne(id) {
       const stringifiedId = isNumber(id) ? `${id}` : id;
       delete this.entityRecord[id];
-      for (const ids of Object.values(this.paginationIdsRecord)) {
+      for (const { ids } of Object.values(this.paginationRecord)) {
         const index = (() => {
           const index = ids.indexOf(id);
           return index === -1 ? ids.indexOf(stringifiedId) : index;
@@ -93,45 +105,85 @@ export function createPaginationState<Data, RawData = Data>({
         this.entityRecord[id] = { ...data };
       }
     },
-    tryReadPaginationData(key) {
-      return this.paginationIdsRecord[key]
-        ?.map(id => {
-          return this.entityRecord[id];
-        })
-        .filter(isNonNullable);
+    tryReadPagination(key) {
+      const pagination = this.paginationRecord[key];
+      if (!pagination) return;
+
+      return {
+        ...pagination,
+        data: pagination.ids
+          ?.map(id => {
+            return this.entityRecord[id];
+          })
+          .filter(isNonNullable),
+      };
     },
-    readPaginationData(key) {
-      const ids = this.paginationIdsRecord[key];
-      if (!ids)
+    readPagination(key) {
+      const pagination = this.paginationRecord[key];
+      if (!pagination)
         throw new Error(
-          `pagination with key: ${key} does not exist, use tryReadPaginationData instead.`
+          `pagination with key: ${key} does not exist, use tryReadPagination instead.`
         );
-      return ids
-        .map(id => {
-          return this.entityRecord[id];
-        })
-        .filter(isNonNullable);
+      return {
+        ...pagination,
+        data: pagination.ids
+          .map(id => {
+            return this.entityRecord[id];
+          })
+          .filter(isNonNullable),
+      };
     },
     replacePagination(key, rawData) {
       this.upsertMany(rawData);
-      this.paginationIdsRecord[key] = rawData.map(transform).map(selectId);
+      this.paginationRecord[key] = {
+        ids: rawData.map(transform).map(selectId),
+        meta: getDefaultMeta(),
+      };
     },
     appendPagination(key, rawData) {
       this.upsertMany(rawData);
       const ids = rawData.map(transform).map(selectId);
-      const oldIds = this.paginationIdsRecord[key] ?? [];
-      this.paginationIdsRecord[key] = [...new Set([...oldIds, ...ids])];
+      const oldIds = this.paginationRecord[key]?.ids ?? [];
+      const newIds = [...new Set([...oldIds, ...ids])];
+      const pagination = this.paginationRecord[key];
+      if (pagination) {
+        pagination.ids = newIds;
+      } else {
+        this.paginationRecord[key] = { ids: newIds, meta: getDefaultMeta() };
+      }
     },
     prependPagination(key, rawData) {
       this.upsertMany(rawData);
       const ids = rawData.map(transform).map(selectId);
-      const oldIds = this.paginationIdsRecord[key] ?? [];
-      this.paginationIdsRecord[key] = [...new Set([...ids, ...oldIds])];
+      const oldIds = this.paginationRecord[key]?.ids ?? [];
+      const newIds = [...new Set([...ids, ...oldIds])];
+      const pagination = this.paginationRecord[key];
+      if (pagination) {
+        pagination.ids = newIds;
+      } else {
+        this.paginationRecord[key] = { ids: newIds, meta: getDefaultMeta() };
+      }
     },
     sortPagination(key, compare) {
-      const items = this.tryReadPaginationData(key) ?? [];
+      const pagination = this.paginationRecord[key];
+      // If the pagination is empty, then we don't need to sort it.
+      if (!pagination) return;
+      const items = this.readPagination(key).data;
       items.sort(compare);
-      this.paginationIdsRecord[key] = items.map(selectId);
+      const sortedIds = items.map(selectId);
+      pagination.ids = sortedIds;
+    },
+    updatePagination(key, pagination) {
+      const oldPagination = this.paginationRecord[key];
+      if (oldPagination) {
+        this.paginationRecord[key] = { ...oldPagination, ...pagination };
+      } else {
+        this.paginationRecord[key] = {
+          ids: [],
+          meta: getDefaultMeta(),
+          ...pagination,
+        };
+      }
     },
   };
 }
