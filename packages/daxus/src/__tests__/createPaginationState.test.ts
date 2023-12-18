@@ -37,26 +37,53 @@ describe('createPaginationState', () => {
 
   test('should correctly create/read/update/delete pagination', () => {
     const key = '';
-    let state = createPaginationState<Post>();
+    let state = createPaginationState<Post, Post, { isEnded?: boolean }>();
 
     state = produce(state, draft => {
       draft.replacePagination(key, [createPost(1)]);
     });
-    expect(state.readPaginationData(key)).toEqual([createPost(1)]);
+    expect(state.readPagination(key)).toEqual({
+      data: [createPost(1)],
+      ids: ['1'],
+      meta: {},
+    });
 
+    // append
     state = produce(state, draft => {
       draft.appendPagination(key, [createPost(2)]);
     });
-    expect(state.readPaginationData(key)).toEqual([createPost(1), createPost(2)]);
+    expect(state.readPagination(key)).toEqual({
+      data: [createPost(1), createPost(2)],
+      ids: ['1', '2'],
+      meta: {},
+    });
 
+    // prepend
     state = produce(state, draft => {
       draft.prependPagination(key, [createPost(3)]);
     });
-    expect(state.readPaginationData(key)).toEqual([createPost(3), createPost(1), createPost(2)]);
+    expect(state.readPagination(key)).toEqual({
+      data: [createPost(3), createPost(1), createPost(2)],
+      ids: ['3', '1', '2'],
+      meta: {},
+    });
 
+    // sorting
     state = produce(state, draft => {
       draft.sortPagination(key, (a, b) => +a.id - +b.id);
     });
-    expect(state.readPaginationData(key)).toEqual([createPost(1), createPost(2), createPost(3)]);
+    expect(state.readPagination(key)).toEqual({
+      data: [createPost(1), createPost(2), createPost(3)],
+      ids: ['1', '2', '3'],
+      meta: {},
+    });
+
+    // update meta
+    state = produce(state, draft => {
+      draft.updatePagination(key, { meta: { isEnded: true } });
+    });
+    expect(state.readPagination(key).meta).toEqual({
+      isEnded: true,
+    });
   });
 });
