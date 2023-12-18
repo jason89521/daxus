@@ -14,7 +14,7 @@ export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Bas
 > {
   protected action: InfiniteAction<S, Arg, Data, E>;
   private updateState: UpdateModelState<S>;
-  private data: Data[] = [];
+  private data: Data[];
   /**
    * This property is used to reject ant ongoing fetching.
    * It may be invoked when there is a revalidation executing,
@@ -22,7 +22,6 @@ export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Bas
    */
   private rejectFetching: (() => void) | null = null;
   private currentTask: Task = 'idle';
-  private initialPageNum: number;
 
   /**
    * @internal
@@ -36,11 +35,11 @@ export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Bas
     notifyModel,
     onMount,
     onUnmount,
-    initialPageNum,
     isAuto,
     setStaleTime,
     getIsStale,
     creatorName,
+    data,
   }: InfiniteConstructorArgs<S, Arg, Data, E>) {
     super({
       getState,
@@ -56,7 +55,14 @@ export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Bas
     });
     this.action = action;
     this.updateState = updateState;
-    this.initialPageNum = initialPageNum;
+    this.data = data;
+  }
+
+  /**
+   * @internal
+   */
+  getData(): Data[] {
+    return this.data;
   }
 
   /**
@@ -70,7 +76,7 @@ export class InfiniteAccessor<S, Arg = any, Data = any, E = unknown> extends Bas
    * {@inheritDoc BaseAccessor.revalidate}
    */
   revalidate = (context: RevalidateContext = {}) => {
-    const pageNum = context.pageNum || this.getPageNum() || this.initialPageNum || 1;
+    const pageNum = context.pageNum || this.getPageNum() || 1;
     return this.fetch({ pageNum, pageIndex: 0, task: 'validate', ...context });
   };
 
