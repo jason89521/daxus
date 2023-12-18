@@ -45,8 +45,8 @@ importers:
         specifier: ^23.0.1
         version: 23.0.1
       msw:
-        specifier: ^2.0.10
-        version: 2.0.10(typescript@5.2.2)
+        specifier: ^2.0.11
+        version: 2.0.11(typescript@5.2.2)
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -124,8 +124,8 @@ importers:
         version: 5.2.2
     devDependencies:
       msw:
-        specifier: ^2.0.10
-        version: 2.0.10(typescript@5.2.2)
+        specifier: ^2.0.11
+        version: 2.0.11(typescript@5.2.2)
 
   packages/daxus:
     dependencies:
@@ -3162,8 +3162,8 @@ packages:
   /ms@2.1.2:
     resolution: {integrity: sha512-sGkPx+VjMtmA6MX27oA4FBFELFCZZ4S4XqeGOXCv68tT+jb3vk/RyaKWP0PTKyWtmLSM0b+adUTEvbs1PEaH2w==}
 
-  /msw@2.0.10(typescript@5.2.2):
-    resolution: {integrity: sha512-JhKdzIEuMDSU7qak4CJjiSFW2J0R4Wm5AuLhFzimKs68Wx7PTyqjgnw7+7FpQ3kGi0yY49g/qEFmUmMyLmjb4w==}
+  /msw@2.0.11(typescript@5.2.2):
+    resolution: {integrity: sha512-dAXFS2DxZX0uFqMPhS3oUAu8S/5IQ5qKKSwtXl3/dMTeML0C8JfSvbeWtowYg6pu4Iehgp5L/pHLrlIcG++y/A==}
     engines: {node: '>=18'}
     hasBin: true
     requiresBuild: true
