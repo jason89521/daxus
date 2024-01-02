@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@types/node": "20.10.5",
+    "@types/node": "20.10.6",
     "@types/react": "18.2.45",
     "@types/react-dom": "18.2.18",
     "daxus": "workspace:*",
