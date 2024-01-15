@@ -30,8 +30,8 @@ importers:
         specifier: ^4.2.1
         version: 4.2.1(vite@5.0.11)
       '@vitest/coverage-v8':
-        specifier: ^1.1.3
-        version: 1.1.3(vitest@1.2.0)
+        specifier: ^1.2.0
+        version: 1.2.0(vitest@1.2.0)
       eslint:
         specifier: ^8.56.0
         version: 8.56.0
@@ -149,8 +149,8 @@ importers:
         specifier: ^4.2.1
         version: 4.2.1(vite@5.0.11)
       '@vitest/coverage-v8':
-        specifier: ^1.1.3
-        version: 1.1.3(vitest@1.2.0)
+        specifier: ^1.2.0
+        version: 1.2.0(vitest@1.2.0)
       jsdom:
         specifier: ^23.2.0
         version: 23.2.0
@@ -1302,8 +1302,8 @@ packages:
       - supports-color
     dev: true
 
-  /@vitest/coverage-v8@1.1.3(vitest@1.2.0):
-    resolution: {integrity: sha512-Uput7t3eIcbSTOTQBzGtS+0kah96bX+szW9qQrLeGe3UmgL2Akn8POnyC2lH7XsnREZOds9aCUTxgXf+4HX5RA==}
+  /@vitest/coverage-v8@1.2.0(vitest@1.2.0):
+    resolution: {integrity: sha512-YvX8ULTUm1+zkvkl14IqXYGxE1h13OXKPoDsxazARKlp4YLrP28hHEBdplaU7ZTN/Yn6zy6Z3JadWNRJwcmyrQ==}
     peerDependencies:
       vitest: ^1.0.0
     dependencies:
