@@ -69,8 +69,8 @@ importers:
   examples/next-stream-suspense:
     dependencies:
       '@types/node':
-        specifier: 20.11.5
-        version: 20.11.5
+        specifier: 20.11.10
+        version: 20.11.10
       '@types/react':
         specifier: 18.2.48
         version: 18.2.48
@@ -99,8 +99,8 @@ importers:
   examples/simple-forum:
     dependencies:
       '@types/node':
-        specifier: 20.11.5
-        version: 20.11.5
+        specifier: 20.11.10
+        version: 20.11.10
       '@types/react':
         specifier: 18.2.48
         version: 18.2.48
@@ -1112,8 +1112,8 @@ packages:
     resolution: {integrity: sha512-wOuvG1SN4Us4rez+tylwwwCV1psiNVOkJeM3AUWUNWg/jDQY2+HE/444y5gc+jBmRqASOm2Oeh5c1axHobwRKQ==}
     dev: true
 
-  /@types/node@20.11.5:
-    resolution: {integrity: sha512-g557vgQjUUfN76MZAN/dt1z3dzcUsimuysco0KeluHgrPdJXkP/XdAURgyO2W9fZWHRtRBiVKzKn8vyOAwlG+w==}
+  /@types/node@20.11.10:
+    resolution: {integrity: sha512-rZEfe/hJSGYmdfX9tvcPMYeYPW2sNl50nsw4jZmRcaG0HIAb0WYEpsB05GOb53vjqpyE9GUhlDQ4jLSoB5q9kg==}
     dependencies:
       undici-types: 5.26.5
     dev: false
