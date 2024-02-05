@@ -36,7 +36,7 @@
     "immer": "^10.0.3"
   },
   "devDependencies": {
-    "@testing-library/jest-dom": "^6.3.0",
+    "@testing-library/jest-dom": "^6.4.1",
     "@testing-library/react": "^14.1.2",
     "@types/react": "^18.2.53",
     "@types/react-dom": "^18.2.18",
