@@ -69,8 +69,8 @@ importers:
   examples/next-stream-suspense:
     dependencies:
       '@types/node':
-        specifier: 20.11.19
-        version: 20.11.19
+        specifier: 20.11.20
+        version: 20.11.20
       '@types/react':
         specifier: 18.2.58
         version: 18.2.58
@@ -99,8 +99,8 @@ importers:
   examples/simple-forum:
     dependencies:
       '@types/node':
-        specifier: 20.11.19
-        version: 20.11.19
+        specifier: 20.11.20
+        version: 20.11.20
       '@types/react':
         specifier: 18.2.58
         version: 18.2.58
@@ -710,7 +710,7 @@ packages:
     dependencies:
       '@inquirer/type': 1.2.0
       '@types/mute-stream': 0.0.4
-      '@types/node': 20.11.19
+      '@types/node': 20.11.20
       '@types/wrap-ansi': 3.0.0
       ansi-escapes: 4.3.2
       chalk: 4.1.2
@@ -1141,11 +1141,11 @@ packages:
   /@types/mute-stream@0.0.4:
     resolution: {integrity: sha512-CPM9nzrCPPJHQNA9keH9CVkVI+WR5kMa+7XEs5jcGQ0VoAGnLv242w8lIVgwAEfmE4oufJRaTc9PNLQl0ioAow==}
     dependencies:
-      '@types/node': 20.11.19
+      '@types/node': 20.11.20
     dev: true
 
-  /@types/node@20.11.19:
-    resolution: {integrity: sha512-7xMnVEcZFu0DikYjWOlRq7NTPETrm7teqUT2WkQjrTIkEgUyyGdWsj/Zg8bEJt5TNklzbPD1X3fqfsHw3SpapQ==}
+  /@types/node@20.11.20:
+    resolution: {integrity: sha512-7/rR21OS+fq8IyHTgtLkDK949uzsa6n8BkziAKtPVpugIkO6D+/ooXMvzXxDnZrmtXVfjb1bKQafYpb8s89LOg==}
     dependencies:
       undici-types: 5.26.5
 
