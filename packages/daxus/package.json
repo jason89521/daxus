@@ -33,7 +33,7 @@
     "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
-    "immer": "^10.0.3"
+    "immer": "^10.0.4"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.4.2",
