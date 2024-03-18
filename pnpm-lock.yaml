@@ -18,8 +18,8 @@ importers:
         specifier: ^18.2.65
         version: 18.2.65
       '@types/react-dom':
-        specifier: ^18.2.21
-        version: 18.2.21
+        specifier: ^18.2.22
+        version: 18.2.22
       '@typescript-eslint/eslint-plugin':
         specifier: ^5.62.0
         version: 5.62.0(@typescript-eslint/parser@5.62.0)(eslint@8.57.0)(typescript@5.3.3)
@@ -75,8 +75,8 @@ importers:
         specifier: 18.2.65
         version: 18.2.65
       '@types/react-dom':
-        specifier: 18.2.21
-        version: 18.2.21
+        specifier: 18.2.22
+        version: 18.2.22
       daxus:
         specifier: workspace:*
         version: link:../../packages/daxus
@@ -105,8 +105,8 @@ importers:
         specifier: 18.2.65
         version: 18.2.65
       '@types/react-dom':
-        specifier: 18.2.21
-        version: 18.2.21
+        specifier: 18.2.22
+        version: 18.2.22
       daxus:
         specifier: latest
         version: link:../../packages/daxus
@@ -143,8 +143,8 @@ importers:
         specifier: ^18.2.65
         version: 18.2.65
       '@types/react-dom':
-        specifier: ^18.2.21
-        version: 18.2.21
+        specifier: ^18.2.22
+        version: 18.2.22
       '@vitejs/plugin-react':
         specifier: ^4.2.1
         version: 4.2.1(vite@5.1.6)
@@ -179,8 +179,8 @@ importers:
         specifier: ^18.2.65
         version: 18.2.65
       '@types/react-dom':
-        specifier: ^18.2.21
-        version: 18.2.21
+        specifier: ^18.2.22
+        version: 18.2.22
       daxus:
         specifier: workspace:*
         version: link:../daxus
@@ -1084,7 +1084,7 @@ packages:
     dependencies:
       '@babel/runtime': 7.21.5
       '@testing-library/dom': 9.3.0
-      '@types/react-dom': 18.2.21
+      '@types/react-dom': 18.2.22
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
     dev: true
@@ -1152,8 +1152,8 @@ packages:
   /@types/prop-types@15.7.5:
     resolution: {integrity: sha512-JCB8C6SnDoQf0cNycqd/35A7MjcnK+ZTqE7judS6o7utxUCg6imJg3QK2qzHKszlTjcj2cn+NwMB2i96ubpj7w==}
 
-  /@types/react-dom@18.2.21:
-    resolution: {integrity: sha512-gnvBA/21SA4xxqNXEwNiVcP0xSGHh/gi1VhWv9Bl46a0ItbTT5nFY+G9VSQpaG/8N/qdJpJ+vftQ4zflTtnjLw==}
+  /@types/react-dom@18.2.22:
+    resolution: {integrity: sha512-fHkBXPeNtfvri6gdsMYyW+dW7RXFo6Ad09nLFK0VQWR7yGLai/Cyvyj696gbwYvBnhGtevUG9cET0pmUbMtoPQ==}
     dependencies:
       '@types/react': 18.2.65
 
