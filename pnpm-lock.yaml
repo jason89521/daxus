@@ -15,8 +15,8 @@ importers:
         specifier: ^14.2.1
         version: 14.2.1(react-dom@18.2.0)(react@18.2.0)
       '@types/react':
-        specifier: ^18.2.65
-        version: 18.2.65
+        specifier: ^18.2.67
+        version: 18.2.67
       '@types/react-dom':
         specifier: ^18.2.22
         version: 18.2.22
@@ -72,8 +72,8 @@ importers:
         specifier: 20.11.26
         version: 20.11.26
       '@types/react':
-        specifier: 18.2.65
-        version: 18.2.65
+        specifier: 18.2.67
+        version: 18.2.67
       '@types/react-dom':
         specifier: 18.2.22
         version: 18.2.22
@@ -102,8 +102,8 @@ importers:
         specifier: 20.11.26
         version: 20.11.26
       '@types/react':
-        specifier: 18.2.65
-        version: 18.2.65
+        specifier: 18.2.67
+        version: 18.2.67
       '@types/react-dom':
         specifier: 18.2.22
         version: 18.2.22
@@ -140,8 +140,8 @@ importers:
         specifier: ^14.2.1
         version: 14.2.1(react-dom@18.2.0)(react@18.2.0)
       '@types/react':
-        specifier: ^18.2.65
-        version: 18.2.65
+        specifier: ^18.2.67
+        version: 18.2.67
       '@types/react-dom':
         specifier: ^18.2.22
         version: 18.2.22
@@ -176,8 +176,8 @@ importers:
   packages/daxus-next:
     devDependencies:
       '@types/react':
-        specifier: ^18.2.65
-        version: 18.2.65
+        specifier: ^18.2.67
+        version: 18.2.67
       '@types/react-dom':
         specifier: ^18.2.22
         version: 18.2.22
@@ -1155,10 +1155,10 @@ packages:
   /@types/react-dom@18.2.22:
     resolution: {integrity: sha512-fHkBXPeNtfvri6gdsMYyW+dW7RXFo6Ad09nLFK0VQWR7yGLai/Cyvyj696gbwYvBnhGtevUG9cET0pmUbMtoPQ==}
     dependencies:
-      '@types/react': 18.2.65
+      '@types/react': 18.2.67
 
-  /@types/react@18.2.65:
-    resolution: {integrity: sha512-98TsY0aW4jqx/3RqsUXwMDZSWR1Z4CUlJNue8ueS2/wcxZOsz4xmW1X8ieaWVRHcmmQM3R8xVA4XWB3dJnWwDQ==}
+  /@types/react@18.2.67:
+    resolution: {integrity: sha512-vkIE2vTIMHQ/xL0rgmuoECBCkZFZeHr49HeWSc24AptMbNRo7pwSBvj73rlJJs9fGKj0koS+V7kQB1jHS0uCgw==}
     dependencies:
       '@types/prop-types': 15.7.5
       '@types/scheduler': 0.16.3
