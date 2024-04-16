@@ -41,14 +41,14 @@
     "@types/react": "^18.2.79",
     "@types/react-dom": "^18.2.24",
     "@vitejs/plugin-react": "^4.2.1",
-    "@vitest/coverage-v8": "^1.4.0",
+    "@vitest/coverage-v8": "^1.5.0",
     "jsdom": "^24.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "rimraf": "^5.0.5",
     "typescript": "^5.4.4",
     "vite": "^5.2.8",
-    "vitest": "^1.4.0"
+    "vitest": "^1.5.0"
   },
   "peerDependencies": {
     "react": ">=18.0.0"
