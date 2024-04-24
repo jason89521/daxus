@@ -19,7 +19,7 @@
     "typescript": "5.4.5"
   },
   "devDependencies": {
-    "msw": "^2.2.13"
+    "msw": "^2.2.14"
   },
   "msw": {
     "workerDirectory": "public"
