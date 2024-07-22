@@ -130,8 +130,8 @@ importers:
   packages/daxus:
     dependencies:
       immer:
-        specifier: ^10.0.4
-        version: 10.0.4
+        specifier: ^10.1.1
+        version: 10.1.1
     devDependencies:
       '@testing-library/jest-dom':
         specifier: ^6.4.2
@@ -2586,8 +2586,8 @@ packages:
     engines: {node: '>= 4'}
     dev: true
 
-  /immer@10.0.4:
-    resolution: {integrity: sha512-cuBuGK40P/sk5IzWa9QPUaAdvPHjkk1c+xYsd9oZw+YQQEV+10G0P5uMpGctZZKnyQ+ibRO08bD25nWLmYi2pw==}
+  /immer@10.1.1:
+    resolution: {integrity: sha512-s2MPrmjovJcoMaHtx6K11Ra7oD05NT97w1IC5zpMkT6Atjr7H8LjaDd81iIxUYpMKSRRNMJE703M1Fhr/TctHw==}
     dev: false
 
   /import-fresh@3.3.0:
